@@ -62,9 +62,9 @@ module branch_unit (
         // INSA -> RAJOUTER LE TEST DE X0 et aussi on peut vérifier decoded_instr_i.rs1 == 1 pour être bien sur que c'est un ret de con
         
         if (fu_data_i.operator == ariane_pkg::JALR | (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1)) begin
-          branch_result_o = next_pc + (1 << (riscv::VLEN - 2));
-          if ((fu_data_i.operator == ariane_pkg::JALR & decoded_instr_i.rd == 0 & decoded_instr_i.rs1 == 1) | target_address[riscv::VLEN-2] == 1'b1)
-            target_address = target_address - (1 << (riscv::VLEN - 2));
+          branch_result_o = {0,next_pc[30:0] ^ (31'h73fa06c2)};
+          if ((fu_data_i.operator == ariane_pkg::JALR & decoded_instr_i.rd == 0 & decoded_instr_i.rs1 == 1) | target_address[riscv::VLEN-1] == 1'b0)
+            target_address = {1,target_address[30:0] ^ (31'h73fa06c2)};
         end
         else
           branch_result_o = next_pc;
@@ -73,17 +73,16 @@ module branch_unit (
         // INSA -> RAJOUTER LE TEST DE X0 et aussi on peut vérifier decoded_instr_i.rs1 == 1 pour être bien sur que c'est un ret de con
         // y'a plus de problème qu'avec le code au dessus ...
         /*if (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1)
-          branch_result_o = next_pc + (1 << (riscv::VLEN - 2)); // encode quand on jump
+          branch_result_o = next_pc ^ (riscv::VLEN'h73fa06c2); // encode quand on jump
         else
           branch_result_o = next_pc;
         //if (target_address[riscv::VLEN-2] == 1'b1)  // Faudrait le faire tout le temps quand c'est un ret non ?
         if (decoded_instr_i.op == ariane_pkg::JALR & decoded_instr_i.rd == 0 & decoded_instr_i.rs1 == 1) begin
-          branch_result_o = next_pc + (1 << (riscv::VLEN - 2));
-          target_address = target_address - (1 << (riscv::VLEN - 2)); // decode quand on ret
-        end
+          target_address = target_address ^ (riscv::VLEN'h73fa06c2); // decode quand on ret
+        end*/
 
         // INSA Test 3 
-        if (decoded_instr_i.op == ariane_pkg::JALR | (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1))
+        /*if (decoded_instr_i.op == ariane_pkg::JALR | (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1))
           branch_result_o = next_pc + (1 << (riscv::VLEN - 2)); // encode quand on jump
         else
           branch_result_o = next_pc;
