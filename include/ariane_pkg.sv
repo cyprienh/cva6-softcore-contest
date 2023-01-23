@@ -441,8 +441,8 @@ package ariane_pkg;
                                SRA, SRL, SLL, SRLW, SLLW, SRAW,
                                // comparisons
                                LTS, LTU, GES, GEU, EQ, NE,
-                               // jumps
-                               JALR, BRANCH,
+                               // jumps INSA -> AJOUT DE JAL parce que je peux
+                               JAL, JALR, BRANCH,
                                // set lower than operations
                                SLTS, SLTU,
                                // CSR functions
