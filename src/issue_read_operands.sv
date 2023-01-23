@@ -63,7 +63,7 @@ module issue_read_operands import ariane_pkg::*; #(
     // CSR
     output logic                                   csr_valid_o,      // Output is valid
     // commit port
-    input  logic [NR_COMMIT_PORTS-1:0][4:0]        waddr_i,
+    input  logic [NR_COMMIT_PORTS-1:0][4:0]        waddr_i,           // INSA -> Je voudrais récupérer waddr_i[0] à l'étage d'après je crois
     input  logic [NR_COMMIT_PORTS-1:0][riscv::XLEN-1:0] wdata_i,
     input  logic [NR_COMMIT_PORTS-1:0]             we_gpr_i,
     input  logic [NR_COMMIT_PORTS-1:0]             we_fpr_i
@@ -319,7 +319,7 @@ module issue_read_operands import ariane_pkg::*; #(
                 // commit stage
                 for (int unsigned i = 0; i < NR_COMMIT_PORTS; i++)
                     if (is_rd_fpr(issue_instr_i.op) ? (we_fpr_i[i] && waddr_i[i] == issue_instr_i.rd)
-                                                    : (we_gpr_i[i] && waddr_i[i] == issue_instr_i.rd)) begin
+                                                    : (we_gpr_i[i] && waddr_i[i] == issue_instr_i.rd)) begin  // INSA -> LOOKS INTERESTING
                         issue_ack_o = 1'b1;
                     end
             end

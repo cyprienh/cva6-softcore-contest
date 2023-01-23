@@ -28,7 +28,10 @@ module branch_unit (
     output ariane_pkg::bp_resolve_t               resolved_branch_o,      // this is the actual address we are targeting
     output logic                      resolve_branch_o,       // to ID to clear that we resolved the branch and we can
                                                               // accept new entries to the scoreboard
-    output ariane_pkg::exception_t    branch_exception_o      // branch exception out
+    output ariane_pkg::exception_t    branch_exception_o,      // branch exception out
+
+    // INSA
+    input  ariane_pkg::scoreboard_entry_t         decoded_instr_i     // INSA -> JE CROIS QUE C'EST BON
 );
     logic [riscv::VLEN-1:0] target_address;
     logic [riscv::VLEN-1:0] next_pc;
@@ -55,7 +58,43 @@ module branch_unit (
         // on a JALR we are supposed to reset the LSB to 0 (according to the specification)
         if (fu_data_i.operator == ariane_pkg::JALR) target_address[0] = 1'b0;
         // we need to put the branch target address into rd, this is the result of this unit
-        branch_result_o = next_pc;
+
+        // INSA -> RAJOUTER LE TEST DE X0 et aussi on peut vérifier decoded_instr_i.rs1 == 1 pour être bien sur que c'est un ret de con
+        
+        if (fu_data_i.operator == ariane_pkg::JALR | (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1)) begin
+          branch_result_o = next_pc + (1 << (riscv::VLEN - 2));
+          if ((fu_data_i.operator == ariane_pkg::JALR & decoded_instr_i.rd == 0 & decoded_instr_i.rs1 == 1) | target_address[riscv::VLEN-2] == 1'b1)
+            target_address = target_address - (1 << (riscv::VLEN - 2));
+        end
+        else
+          branch_result_o = next_pc;
+
+        
+        // INSA -> RAJOUTER LE TEST DE X0 et aussi on peut vérifier decoded_instr_i.rs1 == 1 pour être bien sur que c'est un ret de con
+        // y'a plus de problème qu'avec le code au dessus ...
+        /*if (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1)
+          branch_result_o = next_pc + (1 << (riscv::VLEN - 2)); // encode quand on jump
+        else
+          branch_result_o = next_pc;
+        //if (target_address[riscv::VLEN-2] == 1'b1)  // Faudrait le faire tout le temps quand c'est un ret non ?
+        if (decoded_instr_i.op == ariane_pkg::JALR & decoded_instr_i.rd == 0 & decoded_instr_i.rs1 == 1) begin
+          branch_result_o = next_pc + (1 << (riscv::VLEN - 2));
+          target_address = target_address - (1 << (riscv::VLEN - 2)); // decode quand on ret
+        end
+
+        // INSA Test 3 
+        if (decoded_instr_i.op == ariane_pkg::JALR | (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1))
+          branch_result_o = next_pc + (1 << (riscv::VLEN - 2)); // encode quand on jump
+        else
+          branch_result_o = next_pc;
+        //if (target_address[riscv::VLEN-2] == 1'b1)  // Faudrait le faire tout le temps quand c'est un ret non ?
+        if ((decoded_instr_i.op == ariane_pkg::JALR & decoded_instr_i.rd == 0 & decoded_instr_i.rs1 == 1) | target_address[riscv::VLEN-2] == 1'b1) begin
+          target_address = target_address - (1 << (riscv::VLEN - 2)); // decode quand on ret
+        end*/
+
+        // INSA
+        //branch_result_o = next_pc;
+
         resolved_branch_o.pc = pc_i;
         // There are only two sources of mispredicts:
         // 1. Branches

@@ -985,6 +985,7 @@ module decoder import ariane_pkg::*; (
                 // Jump and link
                 riscv::OpcodeJal: begin
                     instruction_o.fu        = CTRL_FLOW;
+                    instruction_o.op        = ariane_pkg::JAL;
                     imm_select              = JIMM;
                     instruction_o.rd[4:0]   = instr.utype.rd;
                     is_control_flow_instr_o = 1'b1;

@@ -105,7 +105,10 @@ module ex_stage import ariane_pkg::*; #(
     output logic                                   dtlb_miss_o,
     // PMPs
     input  riscv::pmpcfg_t [15:0]                  pmpcfg_i,
-    input  logic[15:0][53:0]                       pmpaddr_i
+    input  logic[15:0][53:0]                       pmpaddr_i,
+
+    // INSA
+    input  scoreboard_entry_t                      decoded_instr_i
 );
 
     // -------------------------
@@ -174,7 +177,9 @@ module ex_stage import ariane_pkg::*; #(
         .branch_predict_i,
         .resolved_branch_o,
         .resolve_branch_o,
-        .branch_exception_o ( flu_exception_o )
+        .branch_exception_o ( flu_exception_o ),
+        // INSA
+        .decoded_instr_i
     );
 
     // 3. CSR (sequential)

@@ -26,7 +26,7 @@ module issue_stage import ariane_pkg::*; #(
     input  logic                                     flush_unissued_instr_i,
     input  logic                                     flush_i,
     // from ISSUE
-    input  scoreboard_entry_t                        decoded_instr_i,
+    input  scoreboard_entry_t                        decoded_instr_i,     // INSA -> C'EST LUI QU'ON VEUT 100%
     input  logic                                     decoded_instr_valid_i,
     input  logic                                     is_ctrl_flow_i,
     output logic                                     decoded_instr_ack_o,
@@ -38,6 +38,8 @@ module issue_stage import ariane_pkg::*; #(
     output logic                                     is_compressed_instr_o,
     input  logic                                     flu_ready_i,
     output logic                                     alu_valid_o,
+    // INSA
+    output  scoreboard_entry_t                       decoded_instr_o,
     // ex just resolved our predicted branch, we are ready to accept new requests
     input  logic                                     resolve_branch_i,
 
@@ -64,7 +66,7 @@ module issue_stage import ariane_pkg::*; #(
     input logic [NR_WB_PORTS-1:0]                    wt_valid_i,
 
     // commit port
-    input  logic [NR_COMMIT_PORTS-1:0][4:0]          waddr_i,
+    input  logic [NR_COMMIT_PORTS-1:0][4:0]          waddr_i,     // INSA -> C'est lui qu'on veut donc
     input  logic [NR_COMMIT_PORTS-1:0][riscv::XLEN-1:0] wdata_i,
     input  logic [NR_COMMIT_PORTS-1:0]               we_gpr_i,
     input  logic [NR_COMMIT_PORTS-1:0]               we_fpr_i,
@@ -171,13 +173,22 @@ module issue_stage import ariane_pkg::*; #(
         .rs3_o               ( rs3_iro_sb                      ),
         .rs3_i               ( rs3_sb_iro                      ),
         .rs3_valid_i         ( rs3_valid_iro_sb                ),
-        .rd_clobber_gpr_i    ( rd_clobber_gpr_sb_iro           ),
+        .rd_clobber_gpr_i    ( rd_clobber_gpr_sb_iro           ),   // Je crois que c'est lui qu'on veut mdr ?
         .rd_clobber_fpr_i    ( rd_clobber_fpr_sb_iro           ),
         .alu_valid_o         ( alu_valid_o                     ),
         .branch_valid_o      ( branch_valid_o                  ),
         .csr_valid_o         ( csr_valid_o                     ),
         .mult_valid_o        ( mult_valid_o                    ),
-        .*
+        .*  // INSA -> l'addresse elle est là cette batarde
     );
+
+    // INSA -> Je crois que je fais la bascule entre ISSUE et EX ?
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if(~rst_ni) begin
+            decoded_instr_o <= '0;
+        end else begin
+            decoded_instr_o <= decoded_instr_i;
+        end
+    end
 
 endmodule
