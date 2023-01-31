@@ -1,0 +1,19 @@
+p/a *0x80008a7c
+set *0x80008a7c = 0
+
+
+init.c:448
+thread.c:533
+thread.c:451
+
+thread.c:564
+
+thread.c:118 !!! -> ICI
+
+thread.c:121
+init.c:348
+
+3 attaques ne fonctionnent plus -> 1,5,9
+Notre fix est super violent, il faut reprogrammer le FPGA à chaque fois que y'a une attaque ...
+Peut être mieux si on ajoute une condition et que quand y'a un ret avec une adresse pas encodée 
+on saute à un endroit precis et pas dans le trou du cul du pc...
