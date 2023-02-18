@@ -1004,6 +1004,16 @@ module decoder import ariane_pkg::*; (
                     instruction_o.rd[4:0] = instr.utype.rd;
                 end
 
+                // --------------------------------
+                // INSA_INST Debug Instructions
+                // --------------------------------
+
+                riscv::OpcodeCustom0: begin
+                    imm_select            = UIMM;               // Unsigned Imm
+                    instruction_o.fu      = ALU;                // ça m'a l'air raisonnable d'utiliser l'ALU
+                    instruction_o.rd[4:0] = instr.utype.rd;     // le registre dans lequel mettre le résultat
+                end
+
                 default: illegal_instr = 1'b1;
             endcase
         end

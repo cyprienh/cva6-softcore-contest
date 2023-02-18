@@ -66,7 +66,7 @@ module issue_stage import ariane_pkg::*; #(
     input logic [NR_WB_PORTS-1:0]                    wt_valid_i,
 
     // commit port
-    input  logic [NR_COMMIT_PORTS-1:0][4:0]          waddr_i,     // INSA -> C'est lui qu'on veut donc
+    input  logic [NR_COMMIT_PORTS-1:0][4:0]          waddr_i,
     input  logic [NR_COMMIT_PORTS-1:0][riscv::XLEN-1:0] wdata_i,
     input  logic [NR_COMMIT_PORTS-1:0]               we_gpr_i,
     input  logic [NR_COMMIT_PORTS-1:0]               we_fpr_i,

@@ -24,6 +24,10 @@ module alu import ariane_pkg::*;(
     input  fu_data_t                 fu_data_i,
     output riscv::xlen_t             result_o,
     output logic                     alu_branch_res_o
+
+    // INSA
+    //output logic [19:0]              alu_read_index,
+    //input logic [31:0]               alu_read_out
 );
 
     riscv::xlen_t operand_a_rev;
@@ -163,6 +167,7 @@ module alu import ariane_pkg::*;(
     // -----------
     always_comb begin
         result_o   = '0;
+        //alu_read_index = fu_data_i.imm;
 
         unique case (fu_data_i.operator)
             // Standard Operations
@@ -183,6 +188,10 @@ module alu import ariane_pkg::*;(
 
             // Comparison Operations
             SLTS,  SLTU: result_o = {{riscv::XLEN-1{1'b0}}, less};
+
+            //INSA_INST 
+            
+            //DEBUG1: result_o = alu_read_out;  //TODO EMILY mtn faut vérifier que result_o aille bien dans rd et normalement c'est bon?
 
             default: ; // default case to suppress unique warning
         endcase

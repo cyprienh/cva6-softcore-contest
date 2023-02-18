@@ -361,6 +361,8 @@ class instr_trace_item;
             instr_tracer_pkg::C_ADDW:         s = this.printRInstr("c.addw");
             instr_tracer_pkg::C_NOP:          s = this.printMnemonic("c.nop");
             instr_tracer_pkg::C_EBREAK:       s = this.printMnemonic("c.ebreak");
+            // INSA_INST
+            instr_tracer_pkg::DEBUG1:         s = this.printMnemonic("debug1");
             default:                          s = this.printMnemonic("INVALID");
         endcase
 

@@ -15,8 +15,11 @@ set_property -dict {PACKAGE_PIN V12 IOSTANDARD LVCMOS33} [get_ports tms]
 set_property -dict {PACKAGE_PIN W8 IOSTANDARD LVCMOS33} [get_ports tx]
 set_property -dict {PACKAGE_PIN U7 IOSTANDARD LVCMOS33} [get_ports rx]
 
-
-
+## LEDs
+set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33 } [get_ports led[0]]
+set_property -dict {PACKAGE_PIN M15 IOSTANDARD LVCMOS33 } [get_ports led[1]]
+set_property -dict {PACKAGE_PIN G14 IOSTANDARD LVCMOS33 } [get_ports led[2]]
+set_property -dict {PACKAGE_PIN D18 IOSTANDARD LVCMOS33 } [get_ports debug_led]
 
 ## JTAG
 # minimize routing delay

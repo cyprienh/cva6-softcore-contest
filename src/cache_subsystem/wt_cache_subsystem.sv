@@ -49,6 +49,9 @@ module wt_cache_subsystem import ariane_pkg::*; import wt_cache_pkg::*; #(
   // writebuffer status
   output logic                           wbuffer_empty_o,
   output logic                           wbuffer_not_ni_o,
+
+  //INSA
+  //input logic to_crash,
 `ifdef PITON_ARIANE
   // L15 (memory side)
   output l15_req_t                       l15_req_o,
@@ -89,6 +92,7 @@ module wt_cache_subsystem import ariane_pkg::*; import wt_cache_pkg::*; #(
     .mem_data_req_o     ( icache_adapter_data_req ),
     .mem_data_ack_i     ( adapter_icache_data_ack ),
     .mem_data_o         ( icache_adapter          )
+    //.to_crash
   );
 
 

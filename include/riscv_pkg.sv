@@ -198,7 +198,7 @@ package riscv;
     // Quadrant 0
     localparam OpcodeLoad      = 7'b00_000_11;
     localparam OpcodeLoadFp    = 7'b00_001_11;
-    localparam OpcodeCustom0   = 7'b00_010_11;
+    localparam OpcodeCustom0   = 7'b00_010_11; // INSA_INST On vole lui? 
     localparam OpcodeMiscMem   = 7'b00_011_11;
     localparam OpcodeOpImm     = 7'b00_100_11;
     localparam OpcodeAuipc     = 7'b00_101_11;

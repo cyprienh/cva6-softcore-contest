@@ -46,7 +46,10 @@ module wt_icache import ariane_pkg::*; import wt_cache_pkg::*; #(
   input  icache_rtrn_t              mem_rtrn_i,
   output logic                      mem_data_req_o,
   input  logic                      mem_data_ack_i,
-  output icache_req_t               mem_data_o
+  output icache_req_t               mem_data_o,
+
+  // INSA
+  input logic to_crash 
 );
 
   // signals
@@ -106,6 +109,9 @@ module wt_icache import ariane_pkg::*; import wt_cache_pkg::*; #(
 
   // latch this in case we have to stall later on
   // make sure this is 32bit aligned
+  // INSA je sais pas trop ce que je fais, mais bon...
+  // assign vaddr_d = (to_crash) ? 32'h80000000 : (dreq_o.ready & dreq_i.req) ? dreq_i.vaddr : vaddr_q;
+  // assign areq_o.fetch_vaddr = (to_crash) ? 32'h80000000 : {vaddr_q>>2, 2'b0};
   assign vaddr_d = (dreq_o.ready & dreq_i.req) ? dreq_i.vaddr : vaddr_q;
   assign areq_o.fetch_vaddr = {vaddr_q>>2, 2'b0};
 
