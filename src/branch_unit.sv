@@ -81,7 +81,13 @@ module branch_unit (
 
     assign buffer_find_i = $unsigned($signed(fu_data_i.imm[riscv::VLEN-1:0]) + $signed(fu_data_i.operand_a));
 
-    assign led[1:0] = buffer_debug_leds;
+    assign led[0] = buffer_debug_leds[0];
+
+    // sw ra,28(sp)
+    // ra = rs2, sp = rs1
+    //always_ff @(posedge clk_i) begin
+        
+    //end 
 
    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
@@ -123,19 +129,24 @@ module branch_unit (
   
         // INSA -> SW LIFO 
         buffer_write_i = 1'b0;
-        if ((decoded_instr_i.op inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) & fu_data_i.operand_b[31:28] == 4'h8) begin
-            if (decoded_instr_i.rs1 inside {2, 8}) begin // Is the STORE using sp or fp ?
-              buffer_data_i  = $unsigned($signed(fu_data_i.imm[riscv::VLEN-1:0]) + $signed(fu_data_i.operand_a)); // operand_a = rs1
-              buffer_write_i = 1'b1;
+        led[1] = 1'b0;
+        if ((fu_data_i.operator inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) & fu_data_i.operand_b[31:28] == 4'h8) begin
+            if (fu_data_i.rs1 inside {2, 8}) begin // Is the STORE using sp or fp ?
+                led[1] = 1'b1;
+                buffer_data_i  = $unsigned($signed(fu_data_i.imm[riscv::VLEN-1:0]) + $signed(fu_data_i.operand_a)); // operand_a = rs1
+                buffer_write_i = 1'b1;
             end else begin
-              if (buffer_data_in_memory) begin //Crash
-                // resolved_branch_o.target_address = 32'h80000000;
-                // resolved_branch_o.valid          = 1'b1;
-                // resolved_branch_o.is_mispredict  = 1'b1;
-                // resolved_branch_o.is_crash       = 1'b1;      // INSA_crash
-                // to_crash = 1'b1;
-                led[2] = 1'b1;
-              end 
+                if (buffer_data_in_memory) begin //Crash
+                    resolved_branch_o.target_address = 32'h00000000;
+                    resolved_branch_o.valid          = 1'b1;
+                    resolved_branch_o.is_mispredict  = 1'b1;
+                    resolved_branch_o.is_crash       = 1'b1;      // INSA_crash
+                    resolved_branch_o.pc             = 32'h00000000;
+                    resolved_branch_o.cf_type        = ariane_pkg::Branch;
+                    resolve_branch_o                 = 1'b1;
+                    //to_crash = 1'b1;
+                    led[2] = 1'b1;
+                end 
             end 
         end
         // end 

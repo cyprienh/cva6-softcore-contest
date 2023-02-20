@@ -1090,12 +1090,12 @@ build_shellcode(char * shellcode)
 
     jalr_val = strtoul(jalr_s, 0, 16);
 
-    // generate 20 imm bits for the LUI insn
+    // em ok generate 20 imm bits for the LUI insn
     for (int i = 0; i < 5; i++) {
         strncat(lui_bin, hex_to_bin(high_bits[i]), 4);
     }
 
-    // append reg and opcode bits, then convert to raw binary
+    // em broken append reg and opcode bits, then convert to raw binary
     strncat(lui_bin, "001100110111", 12);
     lui_val = strtoul(lui_bin, 0, 2);
 

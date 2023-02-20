@@ -481,6 +481,8 @@ package ariane_pkg;
         riscv::xlen_t             operand_b;
         riscv::xlen_t             imm;
         logic [TRANS_ID_BITS-1:0] trans_id;
+        logic [REG_ADDR_SIZE-1:0] rs1;      // INSA
+        logic [REG_ADDR_SIZE-1:0] rs2;      // INSA
     } fu_data_t;
 
     function automatic logic op_is_branch (input fu_op op);

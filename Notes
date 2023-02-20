@@ -17,3 +17,18 @@ init.c:348
 Notre fix est super violent, il faut reprogrammer le FPGA à chaque fois que y'a une attaque ...
 Peut être mieux si on ajoute une condition et que quand y'a un ret avec une adresse pas encodée 
 on saute à un endroit precis et pas dans le trou du cul du pc...
+
+
+prepare_multithreading () at /workdir/zephyr/kernel/init.c:324 -> le fait 1 fois
+init.c:324
+thread.c:533
+0x8000491c -> sw ra,28(sp)
+-> somewhere here
+0x80004920 -> sw s0,24(sp)  something happened
+0x80004930
+0x8000493c
+wait_q.h:49 // 0x8000495c
+thread.c:550
+init.c:347
+init.c:352
+soc_irq.S:29

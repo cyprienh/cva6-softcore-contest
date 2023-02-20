@@ -14,6 +14,8 @@ void test() {
 
 int main() {
   test();
+  printf("attack\n");
   *f = test3;
+  printf("finish\n");
   return 0;
 }
