@@ -472,7 +472,7 @@ package ariane_pkg;
                                VFMIN, VFMAX, VFSGNJ, VFSGNJN, VFSGNJX, VFEQ, VFNE, VFLT, VFGE, VFLE, VFGT, VFCPKAB_S, VFCPKCD_S, VFCPKAB_D, VFCPKCD_D,
                                
                                // INSA_INST
-                               DEBUG1
+                               DEBUG1, DEBUG2
                              } fu_op;
     typedef struct packed {
         fu_t                      fu;

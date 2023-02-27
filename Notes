@@ -32,3 +32,69 @@ thread.c:550
 init.c:347
 init.c:352
 soc_irq.S:29
+
+
+0x800034c8
+0x800034cc
+0x800034f0
+0x800034f4
+
+0x80002d90 -> to see result = 0x80007ca8
+0x80002f0c    sw s4,8(sp) - here  - 0x80007cc8
+0000000 10100 00010 010 01000 0100011
+         rs2   rs1       imm    
+0x80002f20
+
+ 00010 000 01111 0101011
+
+
+switch_to_main_thread
+z_swap_unlocked
+z_riscv_switch
+z_riscv_thread_start
+soc_irq.S:29
+
+
+0x800001c4 -> problème ?????????? 1ère fois ok
+
+isr.S:464
+timer_isr
+irq_done
+check_reschedule
+-----> ici
+sched.c:1112
+-----> ici
+reschedule
+z_riscv_thread_start (again ?)
+
+
+0x800001e4
+"user"
+0x80000abc
+
+    branch
+input   fu_data_i         decoded_instr_i
+  ex
+input   fu_data_i         decoded_instr_i
+ariane
+logic   fu_data_id_ex     issue_entry_issue_ex
+  issue
+output  fu_data_o         decoded_instr_o
+    issue_read_operands
+
+    d flipflop
+input                      issue_entry_id_issue
+
+
+
+
+Custom instr
+opcode : 0001011
+rd     : 00101      t0 - x5
+imm    : 0
+total  : 00000000000000000000 00101 0001011
+total  : 0000 0000 0000 0000 0000 0010 1000 1011
+total  : 0x0000028b
+
+total  : 0x0000058b
+         0000 0000 0000 0000 0000 01011 0001011

@@ -33,34 +33,38 @@ module branch_unit (
     // INSA
     input  ariane_pkg::scoreboard_entry_t         decoded_instr_i,     // INSA -> JE CROIS QUE C'EST BON
     input  riscv::priv_lvl_t                      priv_lvl_i,
-    //input logic [19:0]                            alu_read_index,
-    //output logic [31:0]                           alu_read_out,
-    output logic[2:0] led
-    //output logic       to_crash
+    input logic [19:0]                            alu_read_index,
+    output logic [31:0]                           alu_read_out,
+    //output logic[2:0] led
+    output logic       to_crash,
+    output logic       data_in_buffer
 );
 
     parameter   buffer_size = 6;
     logic       buffer_write_i;
-    logic[31:0] buffer_find_i;
-    logic[31:0] buffer_data_i;
     logic       buffer_data_in_memory;
 
-    logic[1:0]  buffer_debug_leds;
+    //logic[1:0]  buffer_debug_leds;
 
     logic [riscv::VLEN-1:0] target_address;
     logic [riscv::VLEN-1:0] next_pc;
+
+    logic [riscv::VLEN-1:0]   vaddr_i;
+    riscv::xlen_t             vaddr_xlen;
 
     // INSA
     circular_buffer #(
       .N        (buffer_size)
     ) lsu_i (
+      .clk_i,
+      .rst_ni,
       .write    (buffer_write_i),
-      .find_in  (buffer_find_i),
-      .data_in  (buffer_data_i),
+      .find_in  (vaddr_i),
+      .data_in  (vaddr_i),
       .data_in_memory (buffer_data_in_memory),
       .read_index (alu_read_index),
-      .read_out (alu_read_out),
-      .led (buffer_debug_leds)
+      .read_out (alu_read_out)
+      //.led (buffer_debug_leds)
     );
     // // INSA: Registers for overflow management (heap)
     // parameter   om_delta = 10;
@@ -79,15 +83,26 @@ module branch_unit (
     //   address_ls = $unsigned($signed(fu_data_i.imm[riscv::VLEN-1:0]) + $signed(fu_data_i.operand_a))
     // endfunction
 
-    assign buffer_find_i = $unsigned($signed(fu_data_i.imm[riscv::VLEN-1:0]) + $signed(fu_data_i.operand_a));
+    //assign buffer_find_i = $unsigned($signed(fu_data_i.imm[riscv::VLEN-1:0]) + $signed(fu_data_i.operand_a));
+    
+    assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
+    assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
+    //assign led[0] = buffer_debug_leds[0];
 
-    assign led[0] = buffer_debug_leds[0];
+    assign data_in_buffer = buffer_data_in_memory;
 
     // sw ra,28(sp)
     // ra = rs2, sp = rs1
-    //always_ff @(posedge clk_i) begin
-        
-    //end 
+    // always_ff @(posedge clk_i) begin
+    //     to_crash <= 1'b0;
+    //     if (fu_data_i.operator inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) begin
+    //         if (decoded_instr_i.rs1 != 2 & decoded_instr_i.rs1 != 8) begin // Is the STORE using sp or fp ?
+    //             if (buffer_data_in_memory) begin //Crash
+    //               to_crash <= 1'b1;
+    //             end 
+    //         end 
+    //     end
+    // end 
 
    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
@@ -128,30 +143,16 @@ module branch_unit (
           branch_result_o = next_pc;
   
         // INSA -> SW LIFO 
-        buffer_write_i = 1'b0;
-        led[1] = 1'b0;
-        if ((fu_data_i.operator inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) & fu_data_i.operand_b[31:28] == 4'h8) begin
-            if (fu_data_i.rs1 inside {2, 8}) begin // Is the STORE using sp or fp ?
-                led[1] = 1'b1;
-                buffer_data_i  = $unsigned($signed(fu_data_i.imm[riscv::VLEN-1:0]) + $signed(fu_data_i.operand_a)); // operand_a = rs1
-                buffer_write_i = 1'b1;
-            end else begin
-                if (buffer_data_in_memory) begin //Crash
-                    resolved_branch_o.target_address = 32'h00000000;
-                    resolved_branch_o.valid          = 1'b1;
-                    resolved_branch_o.is_mispredict  = 1'b1;
-                    resolved_branch_o.is_crash       = 1'b1;      // INSA_crash
-                    resolved_branch_o.pc             = 32'h00000000;
-                    resolved_branch_o.cf_type        = ariane_pkg::Branch;
-                    resolve_branch_o                 = 1'b1;
-                    //to_crash = 1'b1;
-                    led[2] = 1'b1;
-                end 
-            end 
+        to_crash        = 1'b0;
+        buffer_write_i  = 1'b0;
+        if(pc_i inside {[32'h800001e4:32'h800025d8]}) begin
+          if (decoded_instr_i.op inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) begin
+              if (decoded_instr_i.rs1 == 8)  // Is the STORE using sp or fp ?
+                  buffer_write_i = 1'b1;
+              else if (decoded_instr_i.rs1 != 8 & buffer_data_in_memory)         //Crash
+                  to_crash = 1'b1;
+          end
         end
-        // end 
-        // else 
-        //  branch_result_o = next_pc;
 
         // // TODO: lecture, écriture et gestion du "tableau"?
         // // INSA: HEAP SOLUTION

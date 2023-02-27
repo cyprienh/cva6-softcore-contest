@@ -23,11 +23,13 @@ module alu import ariane_pkg::*;(
     input  logic                     rst_ni,         // Asynchronous reset active low
     input  fu_data_t                 fu_data_i,
     output riscv::xlen_t             result_o,
-    output logic                     alu_branch_res_o
+    output logic                     alu_branch_res_o,
 
     // INSA
-    //output logic [19:0]              alu_read_index,
-    //input logic [31:0]               alu_read_out
+    output logic [19:0]              alu_read_index,
+    input  logic [31:0]              alu_read_out,
+    input  logic                     data_in_buffer,
+    input  scoreboard_entry_t        decoded_instr_i
 );
 
     riscv::xlen_t operand_a_rev;
@@ -53,6 +55,12 @@ module alu import ariane_pkg::*;(
     logic        adder_z_flag;
     logic [riscv::XLEN:0] adder_in_a, adder_in_b;
     riscv::xlen_t adder_result;
+
+    logic [riscv::VLEN-1:0]   vaddr_i;
+    riscv::xlen_t             vaddr_xlen;
+
+    assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
+    assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
 
     always_comb begin
       adder_op_b_negate = 1'b0;
@@ -167,7 +175,7 @@ module alu import ariane_pkg::*;(
     // -----------
     always_comb begin
         result_o   = '0;
-        //alu_read_index = fu_data_i.imm;
+        alu_read_index = fu_data_i.imm;
 
         unique case (fu_data_i.operator)
             // Standard Operations
@@ -190,8 +198,8 @@ module alu import ariane_pkg::*;(
             SLTS,  SLTU: result_o = {{riscv::XLEN-1{1'b0}}, less};
 
             //INSA_INST 
-            
-            //DEBUG1: result_o = alu_read_out;  //TODO EMILY mtn faut vérifier que result_o aille bien dans rd et normalement c'est bon?
+            DEBUG1: result_o = alu_read_out;  //TODO EMILY mtn faut vérifier que result_o aille bien dans rd et normalement c'est bon?
+            DEBUG2: result_o = {1'b1, {riscv::XLEN-7{1'b0}}, decoded_instr_i.rs1};
 
             default: ; // default case to suppress unique warning
         endcase

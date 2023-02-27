@@ -60,11 +60,11 @@ module cva6_zybo_z7_20 (
   input  logic     tdi       ,
   output wire      tdo       ,
   input  logic     rx        ,
-  output logic     tx	       ,
+  output logic     tx
 
   // LEDs !! -> INSA
-  output logic[2:0] led,
-  output logic      debug_led
+  //output logic[2:0] led,
+  //output logic      debug_led
 
 );
 // 24 MByte in 8 byte words
@@ -545,10 +545,10 @@ ariane #(
     .time_irq_i   ( timer_irq           ),
     .debug_req_i  ( debug_req_irq       ),
     .axi_req_o    ( axi_ariane_req      ),
-    .axi_resp_i   ( axi_ariane_resp     ),
+    .axi_resp_i   ( axi_ariane_resp     )
     // INSA
-    .led ( led ),
-    .debug_led ( debug_led )
+    //.led ( led ),
+    //.debug_led ( debug_led )
 );
 
 axi_master_connect i_axi_master_connect_ariane (.axi_req_i(axi_ariane_req), .axi_resp_o(axi_ariane_resp), .master(slave[0]));

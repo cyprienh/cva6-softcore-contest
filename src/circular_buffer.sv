@@ -3,13 +3,15 @@ module circular_buffer
 #( 	
   parameter N = 6)
 (
+  input  logic        clk_i,
+  input  logic        rst_ni,
   input  logic        write,
   input  logic[31:0]  find_in,
   input  logic[31:0]  data_in,
   output logic        data_in_memory,
   input  logic[19:0]  read_index,
-  output logic[31:0]  read_out,
-  output logic[1:0]   led);
+  output logic[31:0]  read_out
+);
 
   logic[31:0] mem[2**N-1:0];
   integer wp;
@@ -18,22 +20,22 @@ module circular_buffer
   
   genvar i;
   generate
-      for (i=0; i < 2**N; i++) begin
-          assign data_vector[i] = (mem[i] == find_in) ? 1'b1 : 1'b0;
-      end
+      for (i=0; i < 2**N; i++) assign data_vector[i] = (mem[i] == find_in);
   endgenerate
 
-  assign data_mem = (data_vector != 0) ? 1'b1 : 1'b0;
-  assign data_in_memory = data_mem;
-  assign led[0] = data_mem;
-  assign read_out = mem[read_index];
+  assign data_in_memory = (data_vector != 0);
+  assign read_out = mem[wp-1];
 
-  always_ff @(posedge write) 
+  integer j;
+  always_ff @(posedge clk_i, negedge rst_ni) 
   begin
-      mem[wp] <= data_in;
-      wp <= (wp+1) % (2**N);
-      if (data_in[31:28] == 4'h8)
-        led[1] <= 1'b1;
+      if (~rst_ni) begin
+		    wp <= 'b0;
+        for (j=0; j<2**N; j=j+1) mem[j] <= 'b0;
+      end else if (write) begin
+        mem[wp] <= data_in;
+        wp <= (wp+1) % (2**N);
+      end
   end
 
 endmodule

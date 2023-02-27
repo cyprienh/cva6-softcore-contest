@@ -429,6 +429,7 @@ perform_attack(
     if (heap_func_ptr)
         *heap_func_ptr = dummy_function;
 
+    static int result;
     // Set Target Address
     switch (attack.technique) {
         case DIRECT:
@@ -514,6 +515,7 @@ perform_attack(
                     break;
 					
             }
+            __asm__(".insn u 0x0B, %0, 0" : "=r"(result) : : ); 
             break;
 
         case INDIRECT:
@@ -537,6 +539,8 @@ perform_attack(
             }
             break;
     }
+
+    printf("result: %d\n", result);
 
     // set longjmp buffers
     switch (attack.code_ptr) {

@@ -159,7 +159,7 @@ Thus, the shellcode follows the pattern
 shown in the following encodings:
 
 LUI: xxxx xxxx xxxx xxxx xxxx xxxx x011 0111
-     \                  / \    /\      /
+     \                      /\     /\      /
              imm value         reg#  opcode
 
 

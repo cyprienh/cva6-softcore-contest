@@ -40,8 +40,8 @@ module ariane import ariane_pkg::*; #(
   input  logic                         debug_req_i,  // debug request (async)
 
   // INSA -> LEDs !!
-  output logic[2:0] led,
-  output logic      debug_led,
+  //output logic[2:0] led,
+  //output logic      debug_led,
 
 `ifdef FIRESIM_TRACE
   // firesim trace port
@@ -70,7 +70,7 @@ module ariane import ariane_pkg::*; #(
   logic [NR_COMMIT_PORTS-1:0] commit_ack;
 
   // INSA
-  //logic to_crash_pls;
+  logic to_crash_pls;
 
   // --------------
   // PCGEN <-> CSR
@@ -270,8 +270,8 @@ module ariane import ariane_pkg::*; #(
     .fetch_entry_valid_o ( fetch_valid_if_id             ),
     .fetch_entry_ready_i ( fetch_ready_id_if             ),
     // INSA
-    .debug_led(debug_led),
-    //.to_crash(to_crash_pls),
+    //.debug_led(debug_led),
+    .to_crash(to_crash_pls),
     .*
   );
 
@@ -375,8 +375,8 @@ module ariane import ariane_pkg::*; #(
   ) ex_stage_i (
     // INSA
     .decoded_instr_i        ( issue_entry_issue_ex        ),
-    .led,
-    //.to_crash               ( to_crash_pls ),
+    //.led,
+    .to_crash               ( to_crash_pls                ),
 
     .clk_i                  ( clk_i                       ),
     .rst_ni                 ( rst_ni                      ),

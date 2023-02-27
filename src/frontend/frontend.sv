@@ -43,11 +43,11 @@ module frontend import ariane_pkg::*; #(
   // instruction output port -> to processor back-end
   output fetch_entry_t       fetch_entry_o,       // fetch entry containing all relevant data for the ID stage
   output logic               fetch_entry_valid_o, // instruction in IF is valid
-  input  logic               fetch_entry_ready_i,  // ID acknowledged this instruction
+  input  logic               fetch_entry_ready_i, // ID acknowledged this instruction
 
   // INSA
-  //input logic to_crash,
-  output logic debug_led
+  input logic to_crash
+  //output logic debug_led
 );
     // Instruction Cache Registers, from I$
     logic [FETCH_WIDTH-1:0] icache_data_q;
@@ -323,12 +323,11 @@ module frontend import ariane_pkg::*; #(
       // enter debug on a hard-coded base-address
       if (set_debug_pc_i) npc_d = ArianeCfg.DmBaseAddress[riscv::VLEN-1:0] + dm::HaltAddress[riscv::VLEN-1:0];
       // INSA -> crash when needed probably // INSA_crash
-      //if (to_crash) begin
-      //  debug_led           = 1'b1;
-      //  npc_d               = 32'h80000000;
-      //  icache_dreq_o.vaddr = 32'h80000000;
-      //end else
-      icache_dreq_o.vaddr = fetch_address;
+      if (to_crash) begin
+        npc_d               = 32'h80000000;
+        icache_dreq_o.vaddr = 32'h80000000;
+      end else
+        icache_dreq_o.vaddr = fetch_address;
     end
 
     logic [FETCH_WIDTH-1:0] icache_data;

@@ -115,8 +115,8 @@ module issue_read_operands import ariane_pkg::*; #(
     assign fu_data_o.operator  = operator_q;
     assign fu_data_o.trans_id  = trans_id_q;
     assign fu_data_o.imm       = imm_q;
-    assign fu_data_o.rs1       = rs1_q;     // INSA
-    assign fu_data_o.rs2       = rs2_q;     // INSA
+    assign fu_data_o.rs1       = 'h5; //rs1_q;     // INSA
+    assign fu_data_o.rs2       = 'h5; //rs2_q;     // INSA
     assign alu_valid_o         = alu_valid_q;
     assign branch_valid_o      = branch_valid_q;
     assign lsu_valid_o         = lsu_valid_q;
