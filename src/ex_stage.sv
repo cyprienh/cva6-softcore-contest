@@ -152,6 +152,7 @@ module ex_stage import ariane_pkg::*; #(
     logic [19:0]    read_index;
     logic [31:0]    read_out;
     logic           branch_data_in_buffer;
+    //logic           rst_buffer;
 
     // 1. ALU (combinatorial)
     // data silence operation
@@ -169,6 +170,7 @@ module ex_stage import ariane_pkg::*; #(
         .alu_read_out     ( read_out ),
         .data_in_buffer   ( branch_data_in_buffer ),
         .decoded_instr_i
+        //.rst_buf_o        ( reset_buffer )
     );
 
     // 2. Branch Unit (combinatorial)
@@ -197,7 +199,9 @@ module ex_stage import ariane_pkg::*; #(
         .alu_read_out     ( read_out ),
         //.led
         .to_crash,
-        .data_in_buffer   ( branch_data_in_buffer )
+        .data_in_buffer   ( branch_data_in_buffer )//,
+        // debug
+        //.rst_buf_i        ( rst_buffer )
     );
 
     // 3. CSR (sequential)

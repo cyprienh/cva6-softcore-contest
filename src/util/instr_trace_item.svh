@@ -363,6 +363,8 @@ class instr_trace_item;
             instr_tracer_pkg::C_EBREAK:       s = this.printMnemonic("c.ebreak");
             // INSA_INST
             instr_tracer_pkg::DEBUG1:         s = this.printMnemonic("debug1");
+            // pas de debug 2??
+            //instr_tracer_pkg::DEBUG3:         s = this.printMnemonic("debug3");
             default:                          s = this.printMnemonic("INVALID");
         endcase
 

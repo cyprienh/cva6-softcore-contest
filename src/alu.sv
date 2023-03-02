@@ -30,6 +30,7 @@ module alu import ariane_pkg::*;(
     input  logic [31:0]              alu_read_out,
     input  logic                     data_in_buffer,
     input  scoreboard_entry_t        decoded_instr_i
+    //output logic                     rst_buf_o
 );
 
     riscv::xlen_t operand_a_rev;
@@ -175,6 +176,7 @@ module alu import ariane_pkg::*;(
     // -----------
     always_comb begin
         result_o   = '0;
+        //rst_buf_o  = '0; // insa
         alu_read_index = fu_data_i.imm;
 
         unique case (fu_data_i.operator)
@@ -198,9 +200,9 @@ module alu import ariane_pkg::*;(
             SLTS,  SLTU: result_o = {{riscv::XLEN-1{1'b0}}, less};
 
             //INSA_INST 
-            DEBUG1: result_o = alu_read_out;  //TODO EMILY mtn faut vérifier que result_o aille bien dans rd et normalement c'est bon?
+            DEBUG1: result_o = alu_read_out;  
             DEBUG2: result_o = {1'b1, {riscv::XLEN-7{1'b0}}, decoded_instr_i.rs1};
-
+            //DEBUG3: rst_buf_o = 1'b1;
             default: ; // default case to suppress unique warning
         endcase
     end

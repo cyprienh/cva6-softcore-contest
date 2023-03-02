@@ -200,6 +200,7 @@ package instr_tracer_pkg;
 
   // INSA_INST
   parameter [31:0] DEBUG1     = { 25'b?, riscv::OpcodeCustom0};
+  //parameter [31:0] DEBUG3     = { 25'b?, riscv::OpcodeCustom2};
   
 
 endpackage

@@ -119,7 +119,8 @@ print_current_test_parameters(void) {
 void
 main(void)
 {
-#define ATTACK_NR   2
+#define ATTACK_NR   6
+// 1-5-9 ok  8 ok
 #if ATTACK_NR == 1
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
@@ -894,6 +895,14 @@ build_payload(CHARPAYLOAD * payload)
 {
     size_t size_shellcode, bytes_to_pad;
     char * shellcode, * temp_char_buffer, * temp_char_ptr;
+
+    /* Allocate payload buffer */
+    payload->buffer = (char *) malloc(payload->size);
+    if (payload->buffer == NULL) {
+        if (output_debug_info)
+            printk("Unable to allocate payload buffer.");
+        return FALSE;
+    }
     
 	switch (attack.inject_param) {
         case INJECTED_CODE_NO_NOP:
@@ -926,13 +935,6 @@ build_payload(CHARPAYLOAD * payload)
             size_shellcode = 0;
             shellcode      = "dummy";
             break;
-    }
-    /* Allocate payload buffer */
-    payload->buffer = (char *) malloc(payload->size);
-    if (payload->buffer == NULL) {
-        if (output_debug_info)
-            printk("Unable to allocate payload buffer.");
-        return FALSE;
     }
 
     /* Copy shellcode into payload buffer */

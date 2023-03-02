@@ -218,7 +218,7 @@ package riscv;
     localparam OpcodeNmadd     = 7'b10_011_11;
     localparam OpcodeOpFp      = 7'b10_100_11;
     localparam OpcodeRsrvd1    = 7'b10_101_11;
-    localparam OpcodeCustom2   = 7'b10_110_11;
+    localparam OpcodeCustom2   = 7'b10_110_11; // INSA_INST et lui aussi ! //0x5B
     // Quadrant 3
     localparam OpcodeBranch    = 7'b11_000_11;
     localparam OpcodeJalr      = 7'b11_001_11;

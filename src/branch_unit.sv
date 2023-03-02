@@ -38,6 +38,8 @@ module branch_unit (
     //output logic[2:0] led
     output logic       to_crash,
     output logic       data_in_buffer
+    //debug
+    //output logic       rst_buf_i
 );
 
     parameter   buffer_size = 6;
@@ -52,57 +54,124 @@ module branch_unit (
     logic [riscv::VLEN-1:0]   vaddr_i;
     riscv::xlen_t             vaddr_xlen;
 
-    // INSA
-    circular_buffer #(
-      .N        (buffer_size)
-    ) lsu_i (
-      .clk_i,
-      .rst_ni,
-      .write    (buffer_write_i),
-      .find_in  (vaddr_i),
-      .data_in  (vaddr_i),
-      .data_in_memory (buffer_data_in_memory),
-      .read_index (alu_read_index),
-      .read_out (alu_read_out)
-      //.led (buffer_debug_leds)
-    );
-    // // INSA: Registers for overflow management (heap)
-    // parameter   om_delta = 10;
-    // parameter   om_nb_instr_ovf = 5;
-    // logic       om_active;
-    // logic[31:0] om_first;
-    // logic[31:0] om_last;
-    // int         om_timer;
-    // logic       om_last_instr_load_d;
-    // logic       om_last_instr_load_q;
-
-    // // INSA: compute the address for LOAD and STORE instructions
-    // function int address_ls(ariane_pkg::scoreboard_entry_t instr)
-    //   // rs1 -> base of the address, result -> immediate ie offset
-    //   //address_ls = $unsigned($signed(decoded_instr_i.rs1)+$signed(decoded_instr_i.result));
-    //   address_ls = $unsigned($signed(fu_data_i.imm[riscv::VLEN-1:0]) + $signed(fu_data_i.operand_a))
-    // endfunction
-
-    //assign buffer_find_i = $unsigned($signed(fu_data_i.imm[riscv::VLEN-1:0]) + $signed(fu_data_i.operand_a));
+    // // INSA
+    // circular_buffer #(
+    //   .N        (buffer_size)
+    // ) lsu_i (
+    //   .clk_i,
+    //   .rst_ni,
+    //   .write    (buffer_write_i),
+    //   .find_in  (vaddr_i),
+    //   .data_in  (vaddr_i),
+    //   .data_in_memory (buffer_data_in_memory),
+    //   .read_index (alu_read_index),
+    //   .read_out (alu_read_out)
+    //   //.led (buffer_debug_leds)
+    // );
     
+    // INSA: Registers for overflow management (heap)
+    parameter   insa_delta = 10;
+    parameter   insa_nb_instr_ovf = 5;
+    logic       insa_active;
+    logic[31:0] insa_first;
+    logic[31:0] insa_last;
+    int         insa_timer;
+    logic       insa_last_instr_is_load_d;
+    logic       insa_last_instr_is_load_q;
+
+    logic insa_active_q;
+    logic insa_timer_q;
+    logic[31:0] insa_first_q;
+    logic[31:0] insa_last_q;
+
+    logic buffer_om_en_writei;
+    logic buffer_om_addr_in_range;
+
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
-    //assign led[0] = buffer_debug_leds[0];
 
-    assign data_in_buffer = buffer_data_in_memory;
+    circular_buffer_om insa_buffer_om (
+      .clk_i,
+      .rst_ni,
+      .rst_us           (rst_buf_i),
+      .en_write_i       (buffer_om_en_writei),
+      .addr_first_i     (insa_first_q),
+      .addr_last_i      (insa_last_q),
+      .find_addr_i      (vaddr_i),
+      .addr_in_range_o  (buffer_om_addr_in_range),
+      .read_o           (alu_read_out)
+      //.fullo
+    );
 
-    // sw ra,28(sp)
-    // ra = rs2, sp = rs1
-    // always_ff @(posedge clk_i) begin
-    //     to_crash <= 1'b0;
-    //     if (fu_data_i.operator inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) begin
-    //         if (decoded_instr_i.rs1 != 2 & decoded_instr_i.rs1 != 8) begin // Is the STORE using sp or fp ?
-    //             if (buffer_data_in_memory) begin //Crash
-    //               to_crash <= 1'b1;
-    //             end 
-    //         end 
-    //     end
-    // end 
+    assign data_in_buffer = buffer_om_addr_in_range;
+
+    always_comb begin : heap_safe
+      buffer_om_en_writei = 1'b0;
+
+      to_crash = 1'b0;
+
+      insa_last_instr_is_load_d = insa_last_instr_is_load_q;
+
+      insa_active = insa_active_q;
+      insa_timer  = insa_timer_q;
+      insa_first  = insa_first_q;
+      insa_last   = insa_last_q;
+
+      case (decoded_instr_i.op)
+        ariane_pkg::LW: begin
+          insa_last_instr_is_load_d = buffer_om_addr_in_range;
+        end
+        ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB: begin
+          if(decoded_instr_i.rs1 != 2) begin
+            if(~insa_active_q) begin
+              insa_active = 1'b1;
+              insa_timer  = insa_delta;
+              insa_first  = vaddr_i;
+              insa_last   = vaddr_i;
+            end else if((decoded_instr_i.op == ariane_pkg::SW && vaddr_i == insa_last_q+4) ||
+                        (decoded_instr_i.op == ariane_pkg::SH && vaddr_i == insa_last_q+2) ||
+                        (decoded_instr_i.op == ariane_pkg::SB && vaddr_i == insa_last_q+1)) begin
+              insa_last = vaddr_i;
+            end else begin
+              insa_active = 1'b1;
+              // save into buffer
+              buffer_om_en_writei = 1'b1;
+              // ça va poser problème je pense 
+              // insa_first  = vaddr_i;
+              // insa_last   = vaddr_i;
+            end
+          end
+        end
+        ariane_pkg::JAL, ariane_pkg::JALR: begin
+          // Regarder si on saute à l'endroit qu'on à load ...
+          if (insa_last_instr_is_load_q == 1'b1)
+            to_crash = 1'b1;
+        end
+        default: begin
+          if (insa_timer_q > 0)
+            insa_timer  = insa_timer_q - 'b1;
+          else
+            insa_active = 1'b0;
+        end
+      endcase
+    end 
+
+    // INSA : FLIP FLOP
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+      if (~rst_ni) begin
+        insa_last_instr_is_load_q  <= '0;
+        insa_active_q <= 'b0;
+        insa_timer_q  <= 'b0;
+        insa_first_q  <= 'b0;
+        insa_last_q   <= 'b0;
+      end else begin
+        insa_last_instr_is_load_q  <= insa_last_instr_is_load_d;
+        insa_active_q <= insa_active;
+        insa_timer_q  <= insa_timer;
+        insa_first_q  <= insa_first;
+        insa_last_q   <= insa_last;
+      end
+    end
 
    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
@@ -143,67 +212,16 @@ module branch_unit (
           branch_result_o = next_pc;
   
         // INSA -> SW LIFO 
-        to_crash        = 1'b0;
-        buffer_write_i  = 1'b0;
-        if(pc_i inside {[32'h800001e4:32'h800025d8]}) begin
-          if (decoded_instr_i.op inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) begin
-              if (decoded_instr_i.rs1 == 8)  // Is the STORE using sp or fp ?
-                  buffer_write_i = 1'b1;
-              else if (decoded_instr_i.rs1 != 8 & buffer_data_in_memory)         //Crash
-                  to_crash = 1'b1;
-          end
-        end
-
-        // // TODO: lecture, écriture et gestion du "tableau"?
-        // // INSA: HEAP SOLUTION
-        // case (decoded_instr_i.op)
-        //   ariane_pkg::LW: begin
-            
-        //     //$unsigned(decoded_instr_i.rs1)+$unsigned(decoded_instr_i.result)
-        //     if ($address_ls(decoded_instr_i)>= $unsigned(om_first) 
-        //     && $address_ls(decoded_instr_i) <= $unsigned(om_last) 
-        //     && $unsigned(om_last)-$unsigned(om_first))>(om_nb_instr_ovf*32) begin
-        //       // if @call is in the interval and there is an overflow, 
-        //       // then if the next instruction is a call it will be blocked
-        //       om_last_instr_load_q = 1b'1;
-        //     end
+        // to_crash        = 1'b0;
+        // buffer_write_i  = 1'b0;
+        // if(pc_i inside {[32'h800001e4:32'h800025d8]}) begin
+        //   if (decoded_instr_i.op inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) begin
+        //       if (decoded_instr_i.rs1 == 8)  // Is the STORE using sp or fp ?
+        //           buffer_write_i = 1'b1;
+        //       else if (decoded_instr_i.rs1 != 8 & buffer_data_in_memory)         //Crash
+        //           to_crash = 1'b1;
         //   end
-        //   ariane_pkg::JAL, ariane_pkg::JALR: begin
-        //     if (om_last_instr_load_q == 1b'1)
-        //       //error;
-        //   end
-        //   ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB: begin
-        //     if(!om_active) begin
-        //       om_active = 1'b1;
-        //       om_timer  = om_delta;
-        //       om_first  = $address_ls(decoded_instr_i);
-        //       om_last   = $address_ls(decoded_instr_i);
-        //            //if @ecriture == om_last+TAILLEMOT (consecutive writing in memory, potentially overflow)
-        //     end else if($address_ls(decoded_instr_i) == om_last+32) begin
-        //       om_last = $address_ls(decoded_instr_i);
-        //     end else begin
-        //       om_active = 1'b1;
-        //       om_first  = $address_ls(decoded_instr_i);
-        //       om_last   = $address_ls(decoded_instr_i);
-        //       // TODO: writing in tablo
-        //    end
-        //   end
-        //   default : begin
-        //    if (om_timer > 0)
-        //      om_timer += -1;
-        //    else
-        //      om_active = 1'b0;
-        //   end
-        // endcase
-        // // INSA : FLIP FLOP
-        // always_ff @(posedge clk_i or negedge rst_ni) begin
-        //     if (~rst_ni) begin
-        //         om_last_instr_load_q  <= '0;
-        //      end else begin
-        //         om_last_instr_load_q  <= om_last_instr_load_d;
-        //      end
         // end
-        // // END INSA : HEAP SOLUTION
 
         resolved_branch_o.pc = pc_i;
         // There are only two sources of mispredicts:
