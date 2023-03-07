@@ -362,9 +362,11 @@ class instr_trace_item;
             instr_tracer_pkg::C_NOP:          s = this.printMnemonic("c.nop");
             instr_tracer_pkg::C_EBREAK:       s = this.printMnemonic("c.ebreak");
             // INSA_INST
-            instr_tracer_pkg::DEBUG1:         s = this.printMnemonic("debug1");
-            // pas de debug 2??
-            //instr_tracer_pkg::DEBUG3:         s = this.printMnemonic("debug3");
+            instr_tracer_pkg::INSAFIRST:      s = this.printMnemonic("insafirst");
+            instr_tracer_pkg::INSALAST:       s = this.printMnemonic("insalast");
+            instr_tracer_pkg::RSTBUF:         s = this.printMnemonic("rstbuf");
+            instr_tracer_pkg::ENCRASH:        s = this.printMnemonic("encrash");
+            instr_tracer_pkg::INSAACTIVE:     s = this.printMnemonic("insaactive");
             default:                          s = this.printMnemonic("INVALID");
         endcase
 

@@ -119,44 +119,47 @@ print_current_test_parameters(void) {
 void
 main(void)
 {
-#define ATTACK_NR   6
+
+  //INSA_INST - enable crash
+  __asm__(".insn u 0x7B, x0, 0" : : : ); 
+#define ATTACK_NR   2
 // 1-5-9 ok  8 ok
-#if ATTACK_NR == 1
+#if ATTACK_NR == 1  // patch retaddr
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= RET_ADDR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 2
+#elif ATTACK_NR == 2  // no fix
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= FUNC_PTR_STACK_VAR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 3
+#elif ATTACK_NR == 3 // no fix
     attack.technique = INDIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= FUNC_PTR_STACK_VAR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 4
+#elif ATTACK_NR == 4 // no fix
     attack.technique = DIRECT;
     attack.inject_param = DATA_ONLY;
     attack.code_ptr= VAR_LEAK;
     attack.location = HEAP;
     attack.function = SPRINTF;
 
-#elif ATTACK_NR == 5
+#elif ATTACK_NR == 5 // patch retaddr
     attack.technique = DIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= RET_ADDR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 6
+#elif ATTACK_NR == 6 
     attack.technique = INDIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= FUNC_PTR_HEAP;
@@ -170,21 +173,21 @@ main(void)
     attack.location = HEAP;
     attack.function = HOMEBREW;
 
-#elif ATTACK_NR == 8
+#elif ATTACK_NR == 8 // heapfix
     attack.technique = INDIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= LONGJMP_BUF_HEAP;
     attack.location = HEAP;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 9
+#elif ATTACK_NR == 9 // retaddr fix
     attack.technique = DIRECT;
     attack.inject_param = RETURN_ORIENTED_PROGRAMMING;
     attack.code_ptr= RET_ADDR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 10
+#elif ATTACK_NR == 10 
     attack.technique = DIRECT;
     attack.inject_param = RETURN_ORIENTED_PROGRAMMING;
     attack.code_ptr= STRUCT_FUNC_PTR_HEAP;
@@ -226,6 +229,7 @@ perform_attack(
     long * stack_mem_ptr_aux;
     int stack_flag;
 	char stack_secret[32];
+
 	strcpy(stack_secret, data_secret);
     char stack_buffer[1024];
     struct attackme stack_struct;
@@ -277,6 +281,9 @@ perform_attack(
     static char bss_buffer[256];
     static jmp_buf bss_jmp_buffer;
     static struct attackme bss_struct;
+
+    //INSA
+    static int r1, r2;
 
     /* Pointer to buffer to overflow */
     char * buffer;
@@ -515,8 +522,8 @@ perform_attack(
                     }
                     break;
 					
-            }
-            __asm__(".insn u 0x0B, %0, 0" : "=r"(result) : : ); 
+            } 
+            //__asm__(".insn u 0x0B, %0, 0" : "=r"(result) : : ); 
             break;
 
         case INDIRECT:
@@ -541,9 +548,17 @@ perform_attack(
             break;
     }
 
-    printf("result: %d\n", result);
+    //printf("result: %d\n", result);
+
+    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    printf("[INSA] interval start of program  = [%p, %p]\n", r1, r2);
 
     // set longjmp buffers
+    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    printf("[INSA] interval before setjmp  = [%p, %p]\n", r1, r2);    
+
     switch (attack.code_ptr) {
         case LONGJMP_BUF_STACK_VAR:
             if (setjmp(stack_jmp_buffer) != 0) {
@@ -587,6 +602,10 @@ perform_attack(
         default:
             break;
     }
+
+    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    printf("[INSA] interval after setjmp  = [%p, %p]\n", r1, r2);
 
     payload.ptr_to_correct_return_addr = RET_ADDR_PTR;
 
@@ -723,6 +742,11 @@ perform_attack(
     /* Note: Here memory will be corrupted  */
     /****************************************/
 
+    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    printf("[INSA] interval before memcpy  = [%p, %p]\n", r1, r2);
+            
+
     switch (attack.function) {
         case MEMCPY:
             // memcpy() shouldn't copy the terminating NULL, therefore - 1
@@ -759,6 +783,10 @@ perform_attack(
             exit(1);
             break;
     }
+
+    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    printf("[INSA] interval after memcpy  = [%p, %p]\n", r1, r2);
 
     /*******************************************/
     /* Ensure that code pointer is overwritten */
@@ -815,7 +843,11 @@ perform_attack(
             break;
     }
 
-    printf("");
+    printf("\n");
+    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    printf("[INSA] interval before attack  = [%p, %p]\n", r1, r2);
+
     printf("\nExecuting attack... ");
 
     switch (attack.code_ptr) {
@@ -896,6 +928,8 @@ build_payload(CHARPAYLOAD * payload)
     size_t size_shellcode, bytes_to_pad;
     char * shellcode, * temp_char_buffer, * temp_char_ptr;
 
+    static int r1,r2;
+
     /* Allocate payload buffer */
     payload->buffer = (char *) malloc(payload->size);
     if (payload->buffer == NULL) {
@@ -938,6 +972,10 @@ build_payload(CHARPAYLOAD * payload)
     }
 
     /* Copy shellcode into payload buffer */
+    
+    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    printf("[INSA - PAYLOAD] interval before build_payload  = [%p, %p]\n", r1, r2);
     memcpy(payload->buffer, shellcode, size_shellcode);
 
     /* Calculate number of bytes to pad with */
@@ -965,9 +1003,14 @@ build_payload(CHARPAYLOAD * payload)
     
 	if (output_debug_info)
         fprintf(stderr, "payload: %s\n", payload->buffer);
-    return TRUE;
 
+    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    printf("[INSA - PAYLOAD] interval after build_payload  = [%p, %p]\n", r1, r2);
+
+    return TRUE;
 	
+    
 } /* build_payload */
 
 // JM: call longjmp on a buffer in perform_attack()

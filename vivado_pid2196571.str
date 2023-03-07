@@ -1,0 +1,459 @@
+/*
+
+Xilinx Vivado v2020.1 (64-bit) [Major: 2020, Minor: 1]
+SW Build: 2902540 on Wed May 27 19:54:35 MDT 2020
+IP Build: 2902112 on Wed May 27 22:43:36 MDT 2020
+
+Process ID (PID): 2196571
+License: Customer
+
+Current time: 	Thu Mar 02 14:41:54 CET 2023
+Time zone: 	Central European Standard Time (Europe/Paris)
+
+OS: Ubuntu
+OS Version: 5.19.0-32-generic
+OS Architecture: amd64
+Available processors (cores): 4
+
+Display: localhost:10.0
+Screen size: 1792x1096
+Screen resolution (DPI): 100
+Available screens: 1
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+
+Java version: 	9.0.4 64-bit
+Java home: 	/opt/Xilinx/Vivado/2020.1/tps/lnx64/jre9.0.4
+Java executable location: 	/opt/Xilinx/Vivado/2020.1/tps/lnx64/jre9.0.4/bin/java
+Java initial memory (-Xms): 	128 MB
+Java maximum memory (-Xmx):	 3 GB
+
+
+User name: 	beepboop
+User home directory: /home/beepboop
+User working directory: /home/beepboop/risc-v/cva6-softcore-contest
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI_BASEROOT: /opt/Xilinx/Vivado
+HDI_APPROOT: /opt/Xilinx/Vivado/2020.1
+RDI_DATADIR: /opt/Xilinx/Vivado/2020.1/data
+RDI_BINDIR: /opt/Xilinx/Vivado/2020.1/bin
+
+Vivado preferences file location: /home/beepboop/.Xilinx/Vivado/2020.1/vivado.xml
+Vivado preferences directory: /home/beepboop/.Xilinx/Vivado/2020.1/
+Vivado layouts directory: /home/beepboop/.Xilinx/Vivado/2020.1/data/layouts
+PlanAhead jar file location: 	/opt/Xilinx/Vivado/2020.1/lib/classes/planAhead.jar
+Vivado log file location: 	/home/beepboop/risc-v/cva6-softcore-contest/vivado.log
+Vivado journal file location: 	/home/beepboop/risc-v/cva6-softcore-contest/vivado.jou
+Engine tmp dir: 	./.Xil/Vivado-2196571-beepboop
+
+Xilinx Environment Variables
+----------------------------
+XILINX: /opt/Xilinx/Vivado/2020.1/ids_lite/ISE
+XILINX_DSP: /opt/Xilinx/Vivado/2020.1/ids_lite/ISE
+XILINX_PLANAHEAD: /opt/Xilinx/Vivado/2020.1
+XILINX_SDK: /opt/Xilinx/Vitis/2020.1
+XILINX_VITIS: /opt/Xilinx/Vitis/2020.1
+XILINX_VIVADO: /opt/Xilinx/Vivado/2020.1
+XILINX_VIVADO_HLS: /opt/Xilinx/Vivado/2020.1
+
+
+GUI allocated memory:	128 MB
+GUI max memory:		3,072 MB
+Engine allocated memory: 1,343 MB
+
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+
+*/
+
+// TclEventType: START_GUI
+// Tcl Message: start_gui 
+// WARNING: HEventQueue.dispatchEvent() is taking  1346 ms.
+// WARNING: HTimer (HSTRUtils Dump STR Log Timer) is taking 4980ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4993 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 1,349 MB. GUI used memory: 52 MB. Current time: 3/2/23, 2:41:59 PM CET
+selectList(PAResourceQtoS.SyntheticaGettingStartedView_RECENT_PROJECTS, "/home/beepboop/risc-v/cva6-softcore-contest/fpga/cva6_fpga.xpr", 0); // r (J, cs)
+// [GUI Memory]: 66 MB (+67049kb) [00:00:32]
+// [Engine Memory]: 1,350 MB (+1264556kb) [00:00:32]
+// Opening Vivado Project: /home/beepboop/risc-v/cva6-softcore-contest/fpga/cva6_fpga.xpr. Version: Vivado v2020.1 
+// bz (cs):  Open Project : addNotify
+// WARNING: HEventQueue.dispatchEvent() is taking  7731 ms.
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// Tcl Message: open_project /home/beepboop/risc-v/cva6-softcore-contest/fpga/cva6_fpga.xpr 
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILE_SET_NEW
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_CURRENT
+// TclEventType: MSGMGR_REFRESH_MSG
+// TclEventType: PROJECT_DASHBOARD_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: PROJECT_NEW
+// [GUI Memory]: 110 MB (+42108kb) [00:00:51]
+// [GUI Memory]: 119 MB (+4105kb) [00:00:56]
+// [Engine Memory]: 1,418 MB (+176kb) [00:00:57]
+// WARNING: HEventQueue.dispatchEvent() is taking  11670 ms.
+// Tcl Message: open_project /home/beepboop/risc-v/cva6-softcore-contest/fpga/cva6_fpga.xpr 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// HMemoryUtils.trashcanNow. Engine heap size: 1,433 MB. GUI used memory: 74 MB. Current time: 3/2/23, 2:42:27 PM CET
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories INFO: [IP_Flow 19-1704] No user IP repositories specified INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/opt/Xilinx/Vivado/2020.1/data/ip'. 
+// WARNING: HEventQueue.dispatchEvent() is taking  2327 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1153 ms.
+// Tcl Message: open_project: Time (s): cpu = 00:00:28 ; elapsed = 00:00:19 . Memory (MB): peak = 7069.680 ; gain = 32.023 ; free physical = 4285 ; free virtual = 7622 
+// WARNING: HEventQueue.dispatchEvent() is taking  1194 ms.
+// Project name: cva6_fpga; location: /home/beepboop/risc-v/cva6-softcore-contest/fpga; part: xc7z020clg400-1
+// WARNING: HEventQueue.dispatchEvent() is taking  1566 ms.
+// Elapsed time: 33 seconds
+dismissDialog("Open Project"); // bz (cs)
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 3196ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3196 ms.
+// Elapsed time: 30 seconds
+selectTab((HResource) null, (HResource) null, "Log", 2); // aL (aI, cs)
+// WARNING: HEventQueue.dispatchEvent() is taking  25458 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  32474 ms.
+// Elapsed time: 60 seconds
+selectTab((HResource) null, (HResource) null, "Messages", 1); // aL (aI, cs)
+// WARNING: HEventQueue.dispatchEvent() is taking  28162 ms.
+// Thread: Reference Handler
+// 	at java.base@9.0.4/java.lang.ref.Reference.waitForReferencePendingList(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.Reference.processPendingReferences(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.Reference.access$000(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.Reference$ReferenceHandler.run(Unknown Source)
+// Thread: SyntheticaCleanerThread
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.StyleFactory$ComponentPropertyStore$1.run(StyleFactory.java:1885)
+// Thread: SyntheticaAnimation 25
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.painter.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:119)
+// Thread: Monitor HEventQueue Thread
+// 	at java.base@9.0.4/java.lang.Thread.dumpThreads(Native Method)
+// 	at java.base@9.0.4/java.lang.Thread.getAllStackTraces(Unknown Source)
+// 	at ui.utils.d.c.hsh(SourceFile:531)
+// 	at ui.frmwork.b.e.construct(SourceFile:140)
+// 	at ui.frmwork.A.run(SourceFile:203)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: AWT-EventQueue-0
+// 	at java.desktop@9.0.4/sun.awt.X11GraphicsConfig.pGetBounds(Native Method)
+// 	at java.desktop@9.0.4/sun.awt.X11GraphicsConfig.getBounds(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Window.init(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Window.<init>(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Window.<init>(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JWindow.<init>(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JWindow.<init>(Unknown Source)
+// 	at com.jidesoft.docking.i$c_.<init>(Unknown Source)
+// 	at com.jidesoft.docking.i.b(Unknown Source)
+// 	at com.jidesoft.docking.i.setOutlineMode(Unknown Source)
+// 	at com.jidesoft.docking.i.setDockingManager(Unknown Source)
+// 	at com.jidesoft.docking.DefaultDockingManager.beginDraggingFrame(Unknown Source)
+// 	at com.jidesoft.docking.h.mousePressed(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.AWTEventMulticaster.mousePressed(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.AWTEventMulticaster.mousePressed(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.AWTEventMulticaster.mousePressed(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Component.processMouseEvent(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JComponent.processMouseEvent(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Component.processEvent(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Container.processEvent(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Component.dispatchEventImpl(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Container.dispatchEventImpl(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Component.dispatchEvent(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.LightweightDispatcher.retargetMouseEvent(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.LightweightDispatcher.processMouseEvent(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Container.dispatchEventImpl(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Window.dispatchEventImpl(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.Component.dispatchEvent(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue.dispatchEventImpl(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue.access$500(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue$3.run(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue$3.run(Unknown Source)
+// 	at java.base@9.0.4/java.security.AccessController.doPrivileged(Native Method)
+// 	at java.base@9.0.4/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Unknown Source)
+// 	at java.base@9.0.4/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue$4.run(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue$4.run(Unknown Source)
+// 	at java.base@9.0.4/java.security.AccessController.doPrivileged(Native Method)
+// 	at java.base@9.0.4/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue.dispatchEvent(Unknown Source)
+// 	at ui.frmwork.b.d.dispatchEvent(SourceFile:88)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.run(Unknown Source)
+// Thread: hw_ila_monitor
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.Object.wait(Unknown Source)
+// 	at java.base@9.0.4/java.util.TimerThread.mainLoop(Unknown Source)
+// 	at java.base@9.0.4/java.util.TimerThread.run(Unknown Source)
+// Thread: Batik CleanerThread
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at org.apache.batik.util.CleanerThread.run(CleanerThread.java:106)
+// Thread: Attach Listener
+// Thread: Thread-1
+// Thread: Common-Cleaner
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/jdk.internal.ref.CleanerImpl.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// 	at java.base@9.0.4/jdk.internal.misc.InnocuousThread.run(Unknown Source)
+// Thread: SyntheticaAnimation 50
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.painter.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:119)
+// Thread: Process Messages Thread
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.frmwork.d.h.construct(SourceFile:133)
+// 	at ui.frmwork.A.run(SourceFile:203)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Update Runs Swing Worker Thread
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.data.experiment.F.construct(SourceFile:317)
+// 	at ui.frmwork.A.run(SourceFile:203)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Refresh Filesets Swing Worker Thread
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.data.design.y.construct(SourceFile:2503)
+// 	at ui.frmwork.A.run(SourceFile:203)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: SyntheticaAnimation 70
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.painter.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:119)
+// Thread: Finalizer
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.Finalizer$FinalizerThread.run(Unknown Source)
+// Thread: AWT-XAWT
+// 	at java.base@9.0.4/jdk.internal.misc.Unsafe.park(Native Method)
+// 	at java.base@9.0.4/java.util.concurrent.locks.LockSupport.park(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.SunToolkit.awtLock(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.X11.XToolkit.waitForEvents(Native Method)
+// 	at java.desktop@9.0.4/sun.awt.X11.XToolkit.run(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.X11.XToolkit.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: TimerQueue
+// 	at java.base@9.0.4/jdk.internal.misc.Unsafe.park(Native Method)
+// 	at java.base@9.0.4/java.util.concurrent.locks.LockSupport.parkNanos(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.DelayQueue.take(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.TimerQueue.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Java2D Disposer
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.Disposer.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: AWT-Shutdown
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.Object.wait(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.AWTAutoShutdown.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Image Animator 0
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at java.desktop@9.0.4/sun.awt.image.GifFrame.dispose(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.GifImageDecoder.readImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.GifImageDecoder.produceImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.InputStreamImageSource.doFetch(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.ImageFetcher.fetchloop(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.ImageFetcher.run(Unknown Source)
+// Thread: main
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.PlanAhead.c(SourceFile:1118)
+// 	at ui.PlanAhead.jswMain(SourceFile:1165)
+// WARNING: HEventQueue.dispatchEvent() is taking  24173 ms.
+// [GUI Memory]: 131 MB (+6057kb) [00:03:01]
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 8157ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  8157 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 1,487 MB. GUI used memory: 76 MB. Current time: 3/2/23, 2:44:37 PM CET
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// WARNING: HEventQueue.dispatchEvent() is taking  2390 ms.
+// Tcl Message: update_compile_order -fileset sources_1 
+// [Engine Memory]: 1,489 MB (+50kb) [00:03:13]
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 4906ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4906 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2547 ms.
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 2160ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2160 ms.
+// Elapsed time: 85 seconds
+selectTab((HResource) null, (HResource) null, "Tcl Console", 0); // aL (aI, cs)
+// WARNING: HEventQueue.dispatchEvent() is taking  23617 ms.
+// Elapsed time: 12 seconds
+selectCodeEditor(RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR, 274, 40); // dT (ae, cs)
+selectCodeEditor(RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR, 408, 0); // dT (ae, cs)
+// Elapsed time: 24 seconds
+selectTab((HResource) null, (HResource) null, "Messages", 1); // aL (aI, cs)
+// WARNING: HEventQueue.dispatchEvent() is taking  23734 ms.
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 2120ms to process. Increasing delay to 7000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2120 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2970 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 1,530 MB. GUI used memory: 79 MB. Current time: 3/2/23, 2:46:50 PM CET
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 2327ms to process. Increasing delay to 8000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2327 ms.
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// WARNING: HEventQueue.dispatchEvent() is taking  2562 ms.
+// Tcl Message: update_compile_order -fileset sources_1 
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 4773ms to process. Increasing delay to 9000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4773 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2118 ms.
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 1914ms to process. Increasing delay to 10000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1914 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1973 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4711 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  6373 ms.
+// Elapsed time: 132 seconds
+selectCheckBox(PAResourceItoN.MsgView_WARNING_MESSAGES, (String) null, false); // g (aR, cs): FALSE
+// WARNING: HEventQueue.dispatchEvent() is taking  5170 ms.
+selectCheckBox(PAResourceItoN.MsgView_INFORMATION_MESSAGES, (String) null, false); // g (aR, cs): FALSE
+selectCheckBox(PAResourceItoN.MsgView_INFORMATION_MESSAGES, (String) null, false); // g (aR, cs): FALSE
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sources_1, [HDL 9-806] Syntax error near module. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:2]. ]", 2, true); // ah (J, cs) - Node
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sources_1, [HDL 9-806] Syntax error near module. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:2]. ]", 2, true, false, false, false, false, true); // ah (J, cs) - Double Click - Node
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sources_1, [HDL 9-806] Syntax error near module. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:2]. , [HDL 9-806] Syntax error near generate. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:22]. ]", 3, false); // ah (J, cs)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sources_1, [HDL 9-806] Syntax error near module. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:2]. , [HDL 9-806] Syntax error near generate. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:22]. ]", 3, false, false, false, false, false, true); // ah (J, cs) - Double Click
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sources_1, [HDL 9-806] Syntax error near module. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:2]. , [HDL 9-806] Syntax error near generate. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:22]. ]", 3, false); // ah (J, cs)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sources_1, [HDL 9-806] Syntax error near module. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:2]. , [HDL 9-806] Syntax error near generate. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:22]. ]", 3, false, false, false, false, false, true); // ah (J, cs) - Double Click
+// HMemoryUtils.trashcanNow. Engine heap size: 1,550 MB. GUI used memory: 79 MB. Current time: 3/2/23, 2:48:40 PM CET
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sources_1, [HDL 9-806] Syntax error near module. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:2]. , [HDL 9-806] Syntax error near generate. [/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv:22]. ]", 3, false); // ah (J, cs)
+messagesViewCrossProbe(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "src;-;/home/beepboop/risc-v/cva6-softcore-contest/src/circular_buffer_om.sv;-;;-;16;-;line;-;22;-;;-;16;-;"); // ah (J, cs)
+// WARNING: HEventQueue.dispatchEvent() is taking  3764 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4105 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  9175 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3808 ms.
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 2897ms to process. Increasing delay to 11000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2897 ms.
+// [Engine Memory]: 1,568 MB (+4746kb) [00:08:12]
+// WARNING: HEventQueue.dispatchEvent() is taking  1385 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 1,592 MB. GUI used memory: 79 MB. Current time: 3/2/23, 2:49:45 PM CET
+// WARNING: HEventQueue.dispatchEvent() is taking  1861 ms.
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// [GUI Memory]: 138 MB (+629kb) [00:08:21]
+// WARNING: HEventQueue.dispatchEvent() is taking  1717 ms.
+// Tcl Message: update_compile_order -fileset sources_1 
+// WARNING: HEventQueue.dispatchEvent() is taking  1968 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1818 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1510 ms.
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 2825ms to process. Increasing delay to 12000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2825 ms.
+// TclEventType: FILE_SET_CHANGE
+// WARNING: HEventQueue.dispatchEvent() is taking  1157 ms.
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// HMemoryUtils.trashcanNow. Engine heap size: 1,626 MB. GUI used memory: 79 MB. Current time: 3/2/23, 2:50:50 PM CET
+// WARNING: HEventQueue.dispatchEvent() is taking  1829 ms.
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 6084ms to process. Increasing delay to 13000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  6084 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2624 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  8728 ms.
+// Elapsed time: 307 seconds
+closeView(PAResourceOtoP.PAViews_CODE, "Code"); // F
+// WARNING: HEventQueue.dispatchEvent() is taking  6082 ms.
+// Elapsed time: 80 seconds
+selectCheckBox(PAResourceItoN.MsgView_WARNING_MESSAGES, (String) null, true); // g (aR, cs): TRUE
+selectCheckBox(PAResourceItoN.MsgView_WARNING_MESSAGES, (String) null, true); // g (aR, cs): TRUE
+// TclEventType: RUN_STATUS_CHANGE
+// Elapsed time: 45 seconds
+selectTab((HResource) null, (HResource) null, "Design Runs", 4); // aL (aI, cs)
+// WARNING: HEventQueue.dispatchEvent() is taking  22485 ms.
+// Elapsed time: 28 seconds
+selectTab((HResource) null, (HResource) null, "Log", 2); // aL (aI, cs)
+// WARNING: HEventQueue.dispatchEvent() is taking  28479 ms.
+// Elapsed time: 52 seconds
+selectCodeEditor(PAResourceItoN.LogMonitor_MONITOR, 507, 48); // n (q, cs)
+// WARNING: HEventQueue.dispatchEvent() is taking  4952 ms.
+// Elapsed time: 18 seconds
+selectCodeEditor(PAResourceItoN.LogMonitor_MONITOR, 590, 19); // n (q, cs)
+// WARNING: HEventQueue.dispatchEvent() is taking  5281 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5407 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2064 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2115ms to process. Increasing delay to 2000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4043 ms.
+// WARNING: HTimer (ExpRunMonitor Open Timer) is taking 2049ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2693 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2999 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1399 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1011 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1099 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1357 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4683 ms.
+// WARNING: HTimer (a Update Status Timer) is taking 777ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1684 ms.
+// WARNING: HTimer (ExpRunMgr Pending Runs Timer) is taking 629ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1609 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1212 ms.
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 28271 ms. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1159 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1700ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2541 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1125 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2528 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4102 ms.
+// WARNING: HTimer (ExpRunMonitor Open Timer) is taking 3343ms to process. Increasing delay to 7000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4583 ms.
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 18115 ms. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1511 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1637 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  7306 ms.
+// WARNING: HTimer (a Update Status Timer) is taking 859ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1877 ms.
+// WARNING: HTimer (a Update Status Timer) is taking 692ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1393 ms.
+// WARNING: HTimer (ExpRunMgr Pending Runs Timer) is taking 690ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1871 ms.
+// WARNING: HTimer (StateMonitor Timer) is taking 767ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1495 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1414 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1352 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1217 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1624 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 3611ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5009 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1422 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1313 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1710 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  6253 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2842 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1264 ms.
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 34842 ms. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1294 ms.
+// WARNING: HTimer (ExpRunMonitor Open Timer) is taking 2145ms to process. Increasing delay to 8000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2881 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1316 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2769 ms.
+// WARNING: HTimer (a Update Status Timer) is taking 983ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  9909 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1702 ms.
+// WARNING: HTimer (ExpRunMgr Pending Runs Timer) is taking 945ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1886 ms.
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 17623 ms. Increasing delay to 6000 ms.
+// WARNING: HTimer (StateMonitor Timer) is taking 957ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1949 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1097 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1165 ms.

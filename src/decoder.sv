@@ -1009,28 +1009,53 @@ module decoder import ariane_pkg::*; (
                 // --------------------------------
 
                 riscv::OpcodeCustom0: begin
-                    imm_select            = UIMM;               // Unsigned Imm
-                    instruction_o.op      = ariane_pkg::DEBUG1;
                     instruction_o.fu      = ALU;                // ça m'a l'air raisonnable d'utiliser l'ALU
+                    imm_select            = UIMM;               // Unsigned Imm
                     instruction_o.rd[4:0] = instr.utype.rd;     // le registre dans lequel mettre le résultat
+                    instruction_o.op      = ariane_pkg::INSAFIRST;
                 end
 
-                riscv::OpcodeCustom1: begin
+                iscv::OpcodeCustom1: begin                     // Borrow opcode
+                    instruction_o.fu  = ALU;
+                    imm_select = IIMM;
+                    instruction_o.rs1[4:0] = instr.itype.rs1;
+                    instruction_o.rd[4:0]  = instr.itype.rd;
+                    instruction_o.op       = ariane_pkg::INSALAST;
+                end
+
+                /*riscv::OpcodeCustom1: begin
                     instruction_o.fu  = ALU;
                     imm_select = IIMM;
                     instruction_o.rs1[4:0] = instr.itype.rs1;
                     instruction_o.rd[4:0]  = instr.itype.rd;
                     instruction_o.op       = ariane_pkg::DEBUG2;
                 end
+                */
 
-                /*riscv::OpcodeCustom2: begin                     // En soit on s'en fiche
+                riscv::OpcodeCustom2: begin                     // En soit on s'en fiche
                     instruction_o.fu  = ALU;
                     imm_select = IIMM;
                     instruction_o.rs1[4:0] = instr.itype.rs1;
                     instruction_o.rd[4:0]  = instr.itype.rd;
-                    instruction_o.op       = ariane_pkg::DEBUG3;
+                    instruction_o.op       = ariane_pkg::RSTBUF;
                 end
-                */
+
+                riscv::OpcodeCustom3: begin                     // En soit on s'en fiche
+                    instruction_o.fu  = ALU;
+                    imm_select = IIMM;
+                    instruction_o.rs1[4:0] = instr.itype.rs1;
+                    instruction_o.rd[4:0]  = instr.itype.rd;
+                    instruction_o.op       = ariane_pkg::ENCRASH;
+                end
+
+                riscv::OpcodeCustom4: begin                     // En soit on s'en fiche
+                    instruction_o.fu  = ALU;
+                    imm_select = IIMM;
+                    instruction_o.rs1[4:0] = instr.itype.rs1;
+                    instruction_o.rd[4:0]  = instr.itype.rd;
+                    instruction_o.op       = ariane_pkg::INSAACTIVE;
+                end
+
                 default: illegal_instr = 1'b1;
             endcase
         end

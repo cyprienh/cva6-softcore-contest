@@ -35,11 +35,13 @@ module branch_unit (
     input  riscv::priv_lvl_t                      priv_lvl_i,
     input logic [19:0]                            alu_read_index,
     output logic [31:0]                           alu_read_out,
+    output logic [31:0]                           alu_read_out2,
     //output logic[2:0] led
     output logic       to_crash,
-    output logic       data_in_buffer
+    output logic       data_in_buffer,
     //debug
-    //output logic       rst_buf_i
+    input logic       rst_buf_i,
+    input logic       en_crash_i
 );
 
     parameter   buffer_size = 6;
@@ -49,6 +51,7 @@ module branch_unit (
     //logic[1:0]  buffer_debug_leds;
 
     logic [riscv::VLEN-1:0] target_address;
+    //logic [riscv::VLEN-1:0] target_address_bis;
     logic [riscv::VLEN-1:0] next_pc;
 
     logic [riscv::VLEN-1:0]   vaddr_i;
@@ -70,88 +73,104 @@ module branch_unit (
     // );
     
     // INSA: Registers for overflow management (heap)
-    parameter   insa_delta = 10;
-    parameter   insa_nb_instr_ovf = 5;
-    logic       insa_active;
-    logic[31:0] insa_first;
-    logic[31:0] insa_last;
-    int         insa_timer;
+  
+    
+    logic       insa_active_d;
     logic       insa_last_instr_is_load_d;
-    logic       insa_last_instr_is_load_q;
+    logic[3:0]  insa_timer_d;     // up to 8 instr
+    logic[31:0] insa_first_d;
+    logic[31:0] insa_last_d;
 
-    logic insa_active_q;
-    logic insa_timer_q;
+    logic       insa_active_q;
+    logic       insa_last_instr_is_load_q;
+    logic[3:0]  insa_timer_q;
     logic[31:0] insa_first_q;
     logic[31:0] insa_last_q;
 
-    logic buffer_om_en_writei;
-    logic buffer_om_addr_in_range;
+    logic       buffer_om_en_write_i;
+    logic       buffer_om_addr_in_range;
 
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
+
+    logic crash;
 
     circular_buffer_om insa_buffer_om (
       .clk_i,
       .rst_ni,
       .rst_us           (rst_buf_i),
-      .en_write_i       (buffer_om_en_writei),
-      .addr_first_i     (insa_first_q),
-      .addr_last_i      (insa_last_q),
+      .en_write_i       (buffer_om_en_write_i),
+      .addr_first_i     (insa_first_q),   
+      .addr_last_i      (insa_last_q),    
       .find_addr_i      (vaddr_i),
       .addr_in_range_o  (buffer_om_addr_in_range),
-      .read_o           (alu_read_out)
+      .read_o           (alu_read_out),
+      .read2_o          (alu_read_out2)
       //.fullo
     );
 
-    assign data_in_buffer = buffer_om_addr_in_range;
+    assign data_in_buffer = insa_active_q; //debug
 
     always_comb begin : heap_safe
-      buffer_om_en_writei = 1'b0;
+      buffer_om_en_write_i = 1'b0;
 
       to_crash = 1'b0;
+      crash = 1'b0;
+
+      //emily
 
       insa_last_instr_is_load_d = insa_last_instr_is_load_q;
 
-      insa_active = insa_active_q;
-      insa_timer  = insa_timer_q;
-      insa_first  = insa_first_q;
-      insa_last   = insa_last_q;
+      insa_active_d = insa_active_q;
+      insa_timer_d  = insa_timer_q;
+      insa_first_d  = insa_first_q;
+      insa_last_d   = insa_last_q;
 
       case (decoded_instr_i.op)
+        // check if addr to LOAD is in buffer
         ariane_pkg::LW: begin
-          insa_last_instr_is_load_d = buffer_om_addr_in_range;
+          insa_last_instr_is_load_d = buffer_om_addr_in_range || (insa_active_q && vaddr_i inside {[insa_first_q:insa_last_q]});
         end
+        // store 
         ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB: begin
-          if(decoded_instr_i.rs1 != 2) begin
-            if(~insa_active_q) begin
-              insa_active = 1'b1;
-              insa_timer  = insa_delta;
-              insa_first  = vaddr_i;
-              insa_last   = vaddr_i;
+          if(decoded_instr_i.rs1 != 2) begin                  // if STORE doesn't use sp
+            if(~insa_active_q) begin                          // if heap_safe OFF, activate it
+              insa_active_d = 1'b1;
+              insa_timer_d  = 4'd10;                          // emily - reset timer
+              insa_first_d  = vaddr_i;                        // new interval starts at current STORE addr
+              insa_last_d   = vaddr_i;
             end else if((decoded_instr_i.op == ariane_pkg::SW && vaddr_i == insa_last_q+4) ||
                         (decoded_instr_i.op == ariane_pkg::SH && vaddr_i == insa_last_q+2) ||
                         (decoded_instr_i.op == ariane_pkg::SB && vaddr_i == insa_last_q+1)) begin
-              insa_last = vaddr_i;
+              insa_timer_d = 4'd10;                            // emily - reset insa_timer
+              insa_last_d  = vaddr_i;                          // if active and writing adjacent addr, extend interval
             end else begin
-              insa_active = 1'b1;
+              // insa_active_d = 1'b1;                        // emily - keep active, unneeded?
+              insa_active_d = 1'b0;                           // emily - disable insa_active // interval one too small?
               // save into buffer
-              buffer_om_en_writei = 1'b1;
-              // ça va poser problème je pense 
-              // insa_first  = vaddr_i;
-              // insa_last   = vaddr_i;
+              if (insa_last_q - insa_first_q > 32'd32) begin    // we write further away, this interval is done, store it 
+                buffer_om_en_write_i = 1'b1;
+              end                       
             end
           end
         end
+        // jump
         ariane_pkg::JAL, ariane_pkg::JALR: begin
-          // Regarder si on saute à l'endroit qu'on à load ...
-          if (insa_last_instr_is_load_q == 1'b1)
-            to_crash = 1'b1;
+          if (insa_last_instr_is_load_q)              // if crash is where we jmp, crash
+            crash = 1'b1;
         end
-        default: begin
-          if (insa_timer_q > 0)
-            insa_timer  = insa_timer_q - 'b1;
-          else
-            insa_active = 1'b0;
+        // other instructions 
+        default: begin                                        // TODO: rewrite to decrease timer on load and jmp
+          if (insa_active_q) begin
+            if (insa_timer_q > 0) begin
+              insa_timer_d  = insa_timer_q - 1;               // decrease time since last store instruction
+            end else begin
+              insa_active_d = 1'b0;                            // if time is over and we have an interval, write it
+            end 
+            if (insa_last_q - insa_first_q > 32'd32) begin
+              buffer_om_en_write_i = 1'b1;
+            end
+          end
         end
       endcase
     end 
@@ -166,12 +185,14 @@ module branch_unit (
         insa_last_q   <= 'b0;
       end else begin
         insa_last_instr_is_load_q  <= insa_last_instr_is_load_d;
-        insa_active_q <= insa_active;
-        insa_timer_q  <= insa_timer;
-        insa_first_q  <= insa_first;
-        insa_last_q   <= insa_last;
+        insa_active_q <= insa_active_d;
+        insa_timer_q  <= insa_timer_d;
+        insa_first_q  <= insa_first_d;
+        insa_last_q   <= insa_last_d;
       end
     end
+
+    //assign resolved_branch_o.target_address = (~crash) ? target_address_bis : {riscv::VLEN{1'b0}};
 
    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
@@ -183,6 +204,7 @@ module branch_unit (
         target_address                   = {riscv::VLEN{1'b0}};
         resolve_branch_o                 = 1'b0;
         resolved_branch_o.target_address = {riscv::VLEN{1'b0}};
+        //target_address_bis               = {riscv::VLEN{1'b0}};
         resolved_branch_o.is_taken       = 1'b0;
         resolved_branch_o.valid          = branch_valid_i;
         resolved_branch_o.is_mispredict  = 1'b0;
@@ -210,6 +232,9 @@ module branch_unit (
         end
         else
           branch_result_o = next_pc;
+
+        if (crash & en_crash_i)
+          target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 
         // to_crash        = 1'b0;
@@ -230,6 +255,7 @@ module branch_unit (
         if (branch_valid_i) begin
             // write target address which goes to PC Gen
             resolved_branch_o.target_address = (branch_comp_res_i) ? target_address : next_pc;
+            //target_address_bis = (branch_comp_res_i) ? target_address : next_pc;
             resolved_branch_o.is_taken = branch_comp_res_i;
             // check the outcome of the branch speculation
             if (ariane_pkg::op_is_branch(fu_data_i.operator) && branch_comp_res_i != (branch_predict_i.cf == ariane_pkg::Branch)) begin
