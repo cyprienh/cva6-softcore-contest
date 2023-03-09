@@ -213,7 +213,7 @@ module alu import ariane_pkg::*;(
             INSALAST: result_o = alu_read_out2;
             //DEBUG2: result_o = {1'b1, {riscv::XLEN-7{1'b0}}, decoded_instr_i.rs1};
             RSTBUF: rst_buf_o = 1'b1;
-            ENCRASH: en_crash_d  = 1'b1;
+            ENCRASH: result_o = 32'b1;
             //INSAACTIVE: result_o = {31'b0, data_in_buffer};
             default: ; // default case to suppress unique warning
         endcase

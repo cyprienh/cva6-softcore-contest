@@ -19,9 +19,8 @@ module circular_buffer_om
   logic[63:0] mem[SIZE-1:0];
   logic[SIZE-1:0] data_vector;
 
-  genvar i;
   generate
-    for (i=0; i < SIZE; i++) assign data_vector[i] = ((find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}));
+    for (genvar i=0; i < SIZE; i++) assign data_vector[i] = ((find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}));
   endgenerate
 
   assign addr_in_range_o = (data_vector != 0);

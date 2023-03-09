@@ -25,38 +25,39 @@ void* memcpy2(void *destination, const void *source, size_t size ) {
     " : : : );
 }
 
-// lb t2,0(a1) -> non
-// lb t4,0(ra) -> non
-// lb t2,0(sp) -> non
-// lw t2,0(sp) -> non
-// lw x0,0(sp) -> oui (à 1 près avant/après)
-// lb x0,0(sp) -> oui (à 1 près avant/après)
-// ccl: ne dépend pas de lw/lb
+/* Notes 
+lb t2,0(a1) -> non
+lb t4,0(ra) -> non
+lb t2,0(sp) -> non
+lw t2,0(sp) -> non
+lw x0,0(sp) -> oui (à 1 près avant/après)
+lb x0,0(sp) -> oui (à 1 près avant/après)
+ccl: ne dépend pas de lw/lb
 
-// lb x0,0(a1) -> non 
+lb x0,0(a1) -> non 
 
-// nop avant lb -> non
+nop avant lb -> non
 
-// lb a1,0(t2) -> oui ???????????????????????????????
+lb a1,0(t2) -> oui ???????????????????????????????
 
-// lb a1,0(t2)       
-// sb a1,0(t1) -> non
+lb a1,0(t2)       
+sb a1,0(t1) -> non
 
-// lb x0,0(a1)  
-// sb t2,0(t1)    -> non
+lb x0,0(a1)  
+sb t2,0(t1)    -> non
 
-// lb x0,0(sp)  
-// sb t2,0(t1)    -> oui
+lb x0,0(sp)  
+sb t2,0(t1)    -> oui
 
-// lb x0,0(a1)  
-// sb t2,0(t1) 
-// en enlevant le addi a1, a1, 1   -> OUI
+lb x0,0(a1)  
+sb t2,0(t1) 
+en enlevant le addi a1, a1, 1   -> OUI
 
-// ccl: ça marche quand y'a aucune dépendance entre le load et le reste de la boucle 
-// PLUS PRECISEMENT
-// il ne faut pas que le lb et sb aient la meme "destination" 
-// OU il ne faut pas que l'addr en memoire à load soit incrementee dans la boucle
-
+ccl: ça marche quand y'a aucune dépendance entre le load et le reste de la boucle 
+PLUS PRECISEMENT
+il ne faut pas que le lb et sb aient la meme "destination" 
+OU il ne faut pas que l'addr en memoire à load soit incrementee dans la boucle
+*/
 
 
 int ret2libc_target() {

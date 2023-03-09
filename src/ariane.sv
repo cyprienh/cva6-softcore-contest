@@ -246,6 +246,12 @@ module ariane import ariane_pkg::*; #(
   logic                     dcache_commit_wbuffer_empty;
   logic                     dcache_commit_wbuffer_not_ni;
 
+  // INSA
+  logic crash;
+  logic set_pc_commit;
+
+  assign set_pc_commit = set_pc_ctrl_pcgen || crash;
+
   // --------------
   // Frontend
   // --------------
@@ -260,7 +266,7 @@ module ariane import ariane_pkg::*; #(
     .icache_dreq_o       ( icache_dreq_if_cache          ),
     .resolved_branch_i   ( resolved_branch               ),
     .pc_commit_i         ( pc_commit                     ),
-    .set_pc_commit_i     ( set_pc_ctrl_pcgen             ),
+    .set_pc_commit_i     ( set_pc_commit                 ), // INSA
     .set_debug_pc_i      ( set_debug_pc                  ),
     .epc_i               ( epc_commit_pcgen              ),
     .eret_i              ( eret                          ),
@@ -327,7 +333,7 @@ module ariane import ariane_pkg::*; #(
     // Functional Units
     .rs1_forwarding_o           ( rs1_forwarding_id_ex         ),
     .rs2_forwarding_o           ( rs2_forwarding_id_ex         ),
-    .fu_data_o                  ( fu_data_id_ex                ),
+    .fu_data_o                  ( fu_data_id_ex_commit         ),   // INSA
     .pc_o                       ( pc_id_ex                     ),
     .is_compressed_instr_o      ( is_compressed_instr_id_ex    ),
     // fixed latency unit ready
@@ -384,7 +390,7 @@ module ariane import ariane_pkg::*; #(
     .flush_i                ( flush_ctrl_ex               ),
     .rs1_forwarding_i       ( rs1_forwarding_id_ex        ),
     .rs2_forwarding_i       ( rs2_forwarding_id_ex        ),
-    .fu_data_i              ( fu_data_id_ex               ),
+    .fu_data_i              ( fu_data_id_ex_commit        ),
     .pc_i                   ( pc_id_ex                    ),
     .is_compressed_instr_i  ( is_compressed_instr_id_ex   ),
     // fixed latency units
@@ -504,6 +510,8 @@ module ariane import ariane_pkg::*; #(
     .fence_o                ( fence_commit_controller       ),
     .sfence_vma_o           ( sfence_vma_commit_controller  ),
     .flush_commit_o         ( flush_commit                  ),
+    .fu_data_i              ( fu_data_id_ex_commit          ), // INSA
+    .crash                  ( crash                         ),
     .*
   );
 

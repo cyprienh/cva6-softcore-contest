@@ -197,17 +197,17 @@ module ex_stage import ariane_pkg::*; #(
         .resolve_branch_o,
         .branch_exception_o ( flu_exception_o ),
         // INSA
-        .decoded_instr_i, 
-        .priv_lvl_i,
-        .alu_read_index   ( read_index ),
-        .alu_read_out     ( read_out ),
-        .alu_read_out2    ( read_out2 ),
+        .decoded_instr_i
+        //.priv_lvl_i,
+        //.alu_read_index   ( read_index ),
+        //.alu_read_out     ( read_out ),
+        //.alu_read_out2    ( read_out2 ),
         //.led
-        .to_crash,
-        .data_in_buffer   ( branch_data_in_buffer ),
+        //.to_crash,
+        //.data_in_buffer   ( branch_data_in_buffer ),
         // debug
-        .rst_buf_i        ( rst_buffer ),
-        .en_crash_i       ( en_crash )
+        //.rst_buf_i        ( rst_buffer ),
+        //.en_crash_i       ( en_crash )
     );
 
     // 3. CSR (sequential)

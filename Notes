@@ -101,3 +101,11 @@ total  : 0x0000058b
 
 PROBLEME NOUVELLE INSTRUCTION -> CRASH QUAND APPEL
 PROBLEME DE CRASH DANS RTOS MAIS RESOLU AVEC B *0x800001c4 ???
+
+
+// About LB
+-> IIMM => result  = imm_i_type -> IMMEDIATE !
+           use_imm = 1
+
+
+
