@@ -44,9 +44,9 @@ module branch_unit (
     input logic       en_crash_i
 );
 
-    parameter   buffer_size = 6;
-    logic       buffer_write_i;
-    logic       buffer_data_in_memory;
+    //parameter   buffer_size = 6;
+    //logic       buffer_write_i;
+    //logic       buffer_data_in_memory;
 
     //logic[1:0]  buffer_debug_leds;
 
@@ -73,22 +73,28 @@ module branch_unit (
     // );
     
     // INSA: Registers for overflow management (heap)
-  
+    parameter   bof_write_size = 32;
+    parameter   bof_date_max = 10;
+
+    logic[31:0] bof_start_d;
+    logic[31:0] bof_end_d;
+    logic       bof_active_d;
+    logic       bof_load_in_range_d;
+    logic[31:0] bof_count_d;
+    logic[3:0]  bof_date_d;
+
+    logic[31:0] bof_start_q;
+    logic[31:0] bof_end_q;
+    logic       bof_active_q;
+    logic       bof_load_in_range_q;
+    logic[31:0] bof_count_q;
+    logic[3:0]  bof_date_q;
+
+    logic[31:0]  bof_store_size;
     
-    logic       insa_active_d;
-    logic       insa_last_instr_is_load_d;
-    logic[3:0]  insa_timer_d;     // up to 8 instr
-    logic[31:0] insa_first_d;
-    logic[31:0] insa_last_d;
-
-    logic       insa_active_q;
-    logic       insa_last_instr_is_load_q;
-    logic[3:0]  insa_timer_q;
-    logic[31:0] insa_first_q;
-    logic[31:0] insa_last_q;
-
-    logic       buffer_om_en_write_i;
-    logic       buffer_om_addr_in_range;
+    logic       buffer_write_d;
+    logic       buffer_write_q;
+    logic       addr_in_buffer;
 
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
@@ -99,96 +105,94 @@ module branch_unit (
       .clk_i,
       .rst_ni,
       .rst_us           (rst_buf_i),
-      .en_write_i       (buffer_om_en_write_i),
-      .addr_first_i     (insa_first_q),   
-      .addr_last_i      (insa_last_q),    
+      .en_write_i       (buffer_write_q),
+      .addr_first_i     (bof_start_q),   
+      .addr_last_i      (bof_end_q),    
       .find_addr_i      (vaddr_i),
-      .addr_in_range_o  (buffer_om_addr_in_range),
+      .addr_in_range_o  (addr_in_buffer),
       .read_o           (alu_read_out),
       .read2_o          (alu_read_out2)
       //.fullo
     );
 
-    assign data_in_buffer = insa_active_q; //debug
+    assign data_in_buffer = bof_active_q; //debug
+      // base values for each signal
+
+    always_comb begin : store_size
+      case(fu_data_i.operator)
+        ariane_pkg::SW: bof_store_size = 4;
+        ariane_pkg::SH: bof_store_size = 2;
+        ariane_pkg::SB: bof_store_size = 1;
+        default:        bof_store_size = 0;
+      endcase
+    end
 
     always_comb begin : heap_safe
-      buffer_om_en_write_i = 1'b0;
-
-      to_crash = 1'b0;
+      buffer_write_d = 1'b0;
       crash = 1'b0;
 
-      //emily
+      bof_active_d = bof_active_q;
+      bof_start_d = bof_start_q;
+      bof_end_d = bof_end_q;
+      bof_load_in_range_d = bof_load_in_range_q;
+      bof_count_d = bof_count_q;
+      bof_date_d = bof_date_q;
 
-      insa_last_instr_is_load_d = insa_last_instr_is_load_q;
-
-      insa_active_d = insa_active_q;
-      insa_timer_d  = insa_timer_q;
-      insa_first_d  = insa_first_q;
-      insa_last_d   = insa_last_q;
-
-      case (decoded_instr_i.op)
-        // check if addr to LOAD is in buffer
-        ariane_pkg::LW: begin
-          insa_last_instr_is_load_d = buffer_om_addr_in_range || (insa_active_q && vaddr_i inside {[insa_first_q:insa_last_q]});
-        end
-        // store 
-        ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB: begin
-          if(decoded_instr_i.rs1 != 2) begin                  // if STORE doesn't use sp
-            if(~insa_active_q) begin                          // if heap_safe OFF, activate it
-              insa_active_d = 1'b1;
-              insa_timer_d  = 4'd10;                          // emily - reset timer
-              insa_first_d  = vaddr_i;                        // new interval starts at current STORE addr
-              insa_last_d   = vaddr_i;
-            end else if((decoded_instr_i.op == ariane_pkg::SW && vaddr_i == insa_last_q+4) ||
-                        (decoded_instr_i.op == ariane_pkg::SH && vaddr_i == insa_last_q+2) ||
-                        (decoded_instr_i.op == ariane_pkg::SB && vaddr_i == insa_last_q+1)) begin
-              insa_timer_d = 4'd10;                            // emily - reset insa_timer
-              insa_last_d  = vaddr_i;                          // if active and writing adjacent addr, extend interval
-            end else begin
-              // insa_active_d = 1'b1;                        // emily - keep active, unneeded?
-              insa_active_d = 1'b0;                           // emily - disable insa_active // interval one too small?
-              // save into buffer
-              if (insa_last_q - insa_first_q > 32'd32) begin    // we write further away, this interval is done, store it 
-                buffer_om_en_write_i = 1'b1;
-              end                       
-            end
+      if(fu_data_i.operator inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) begin
+        if(!(fu_data_i.rs1 inside {2, 8})) begin
+          if(~bof_active_q) begin     // start tracking
+            bof_active_d = 1'b1;
+            bof_start_d = vaddr_i;
+            bof_end_d = vaddr_i;
+            bof_date_d = bof_date_max;
+            bof_count_d = 32'b0;
+          end else if(bof_end_q + bof_store_size == vaddr_i) begin    // if next store is next to previous one
+            bof_end_d = vaddr_i;
+            bof_count_d = bof_count_q + bof_store_size;
+            bof_date_d = bof_date_max;
+          end else begin    // store somewhere new -> add to buffer
+            bof_active_d = 1'b0;
+            if(bof_count_q > bof_write_size)  
+              buffer_write_d = 1'b1;
           end
         end
-        // jump
-        ariane_pkg::JAL, ariane_pkg::JALR: begin
-          if (insa_last_instr_is_load_q)              // if crash is where we jmp, crash
-            crash = 1'b1;
-        end
-        // other instructions 
-        default: begin                                        // TODO: rewrite to decrease timer on load and jmp
-          if (insa_active_q) begin
-            if (insa_timer_q > 0) begin
-              insa_timer_d  = insa_timer_q - 1;               // decrease time since last store instruction
-            end else begin
-              insa_active_d = 1'b0;                            // if time is over and we have an interval, write it
-            end 
-            if (insa_last_q - insa_first_q > 32'd32) begin
-              buffer_om_en_write_i = 1'b1;
-            end
+      end else begin
+        if(bof_active_q) begin    // if not store, decrement date
+          if(bof_date_q != 0)
+            bof_date_d = bof_date_q - 1;
+          else begin              // if date = 0, overflow timed out, writing
+            bof_active_d = 1'b0;
+            if(bof_count_q > bof_write_size) 
+              buffer_write_d = 1'b1;
           end
         end
-      endcase
+        if(fu_data_i.operator == ariane_pkg::LW) begin   // if load inside one overflow range, take note 
+          bof_load_in_range_d = (addr_in_buffer || (bof_active_q && vaddr_i inside {[bof_start_q:bof_end_q]}));
+        end else if(fu_data_i.operator == ariane_pkg::JALR) begin  // if call after lw in range, crash
+          //if(bof_load_in_range_d)
+          //  crash = 1'b1;
+        end
+      end
     end 
 
     // INSA : FLIP FLOP
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (~rst_ni) begin
-        insa_last_instr_is_load_q  <= '0;
-        insa_active_q <= 'b0;
-        insa_timer_q  <= 'b0;
-        insa_first_q  <= 'b0;
-        insa_last_q   <= 'b0;
+        bof_active_q <= 1'b0;
+        bof_start_q <= 32'b0;
+        bof_end_q <= 32'b0;
+        bof_load_in_range_q <= 1'b0;
+        bof_count_q <= 32'b0;
+        bof_date_q <= 4'b0;
+        buffer_write_q <= 1'b0;
       end else begin
-        insa_last_instr_is_load_q  <= insa_last_instr_is_load_d;
-        insa_active_q <= insa_active_d;
-        insa_timer_q  <= insa_timer_d;
-        insa_first_q  <= insa_first_d;
-        insa_last_q   <= insa_last_d;
+        bof_active_q <= bof_active_d;
+        bof_start_q <= bof_start_d;
+        bof_end_q <= bof_end_d;
+        bof_load_in_range_q <= bof_load_in_range_d;
+        bof_count_q <= bof_count_d;
+        bof_date_q <= bof_date_d;
+        buffer_write_q <= buffer_write_d;
       end
     end
 
@@ -224,10 +228,10 @@ module branch_unit (
         // if (priv_lvl_i == riscv::PRIV_LVL_U) begin
         // INSA -> RAJOUTER LE TEST DE X0 et aussi on peut vérifier decoded_instr_i.rs1 == 1 pour être bien sur que c'est un ret de con
         if (fu_data_i.operator == ariane_pkg::JALR | (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1)) begin
-          branch_result_o = {0,next_pc[30:0] ^ (31'h73fa06c2)};
+          branch_result_o = {1'b0,next_pc[30:0] ^ (31'h73fa06c2)};
           //branch_result_o = next_pc + (1 << (riscv::VLEN - 2));
           if ((fu_data_i.operator == ariane_pkg::JALR & decoded_instr_i.rd == 0 & decoded_instr_i.rs1 == 1) | target_address[riscv::VLEN-1] == 1'b0) // target_address[riscv::VLEN-2] == 1'b1
-            target_address = {1,target_address[30:0] ^ (31'h73fa06c2)};
+            target_address = {1'b1,target_address[30:0] ^ (31'h73fa06c2)};
             //target_address = target_address - (1 << (riscv::VLEN - 2));
         end
         else

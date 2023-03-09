@@ -122,6 +122,8 @@ main(void)
 
   //INSA_INST - enable crash
   __asm__(".insn u 0x7B, x0, 0" : : : ); 
+  __asm__(".insn u 0x0B, x5, 831" : : : ); 
+  __asm__(".insn u 0x2B, x6, 91" : : : ); 
 #define ATTACK_NR   2
 // 1-5-9 ok  8 ok
 #if ATTACK_NR == 1  // patch retaddr
@@ -196,8 +198,15 @@ main(void)
 
 #endif
 
+    __asm__(".insn u 0x0B, x5, 813" : : : ); 
+    __asm__(".insn u 0x2B, x6, 29" : : : ); 
+
     printk("RIPE is alive! %s\n", CONFIG_BOARD);
     print_current_test_parameters();
+
+    __asm__(".insn u 0x0B, x5, 823" : : : ); 
+    __asm__(".insn u 0x2B, x6, 293" : : : ); 
+
     try_attack();
 
     printf("Unexpected back in main\n");
@@ -307,8 +316,15 @@ perform_attack(
     bss_buffer[0]  = 'a';
   	strcpy(bss_secret, data_secret);
 
+
+    __asm__(".insn u 0x0B, x5, 833" : : : ); 
+    __asm__(".insn u 0x2B, x6, 233" : : : ); 
+
     // write shellcode with correct jump address
     build_shellcode(shellcode_nonop);
+
+    __asm__(".insn u 0x0B, x5, 863" : : : ); 
+    __asm__(".insn u 0x2B, x6, 263" : : : ); 
 
     switch (attack.location) {
         case STACK:
@@ -551,12 +567,12 @@ perform_attack(
     //printf("result: %d\n", result);
 
     __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    __asm__(".insn u 0x2B, %0, 1" : "=r"(r2) : : ); 
     printf("[INSA] interval start of program  = [%p, %p]\n", r1, r2);
 
     // set longjmp buffers
-    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    __asm__(".insn u 0x0B, %0, 2" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 3" : "=r"(r2) : : ); 
     printf("[INSA] interval before setjmp  = [%p, %p]\n", r1, r2);    
 
     switch (attack.code_ptr) {
@@ -603,8 +619,8 @@ perform_attack(
             break;
     }
 
-    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    __asm__(".insn u 0x0B, %0, 4" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 5" : "=r"(r2) : : ); 
     printf("[INSA] interval after setjmp  = [%p, %p]\n", r1, r2);
 
     payload.ptr_to_correct_return_addr = RET_ADDR_PTR;
@@ -742,14 +758,16 @@ perform_attack(
     /* Note: Here memory will be corrupted  */
     /****************************************/
 
-    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    __asm__(".insn u 0x0B, %0, 6" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 7" : "=r"(r2) : : ); 
     printf("[INSA] interval before memcpy  = [%p, %p]\n", r1, r2);
             
 
     switch (attack.function) {
         case MEMCPY:
             // memcpy() shouldn't copy the terminating NULL, therefore - 1
+            __asm__(".insn u 0x0B, x5, 10" : : : ); 
+            __asm__(".insn u 0x2B, x6, 11" : : : ); 
             memcpy(buffer, payload.buffer, payload.size - 1);
             break;
         case STRCPY:
@@ -784,9 +802,15 @@ perform_attack(
             break;
     }
 
-    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
-    printf("[INSA] interval after memcpy  = [%p, %p]\n", r1, r2);
+    //__asm__(".insn s 0x23, 0, a4, 0(fp)" : : :); 
+    __asm__(".insn u 0x0B, x5, 8" : : : ); 
+    __asm__(".insn u 0x0B, x5, 80" : : : ); 
+    __asm__(".insn u 0x0B, x5, 811" : : : ); 
+    __asm__(".insn u 0x0B, x5, 81" : : : ); 
+    __asm__(".insn u 0x0B, x5, 82" : : : ); 
+    __asm__(".insn u 0x0B, x5, 83" : : : ); 
+    __asm__(".insn u 0x2B, x6, 9" : : : ); 
+    //printf("[INSA] interval after memcpy  = [%p, %p]\n", r1, r2);
 
     /*******************************************/
     /* Ensure that code pointer is overwritten */
@@ -844,8 +868,8 @@ perform_attack(
     }
 
     printf("\n");
-    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    __asm__(".insn u 0x0B, %0, 10" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 11" : "=r"(r2) : : ); 
     printf("[INSA] interval before attack  = [%p, %p]\n", r1, r2);
 
     printf("\nExecuting attack... ");
@@ -973,8 +997,8 @@ build_payload(CHARPAYLOAD * payload)
 
     /* Copy shellcode into payload buffer */
     
-    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    __asm__(".insn u 0x0B, %0, 12" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 13" : "=r"(r2) : : ); 
     printf("[INSA - PAYLOAD] interval before build_payload  = [%p, %p]\n", r1, r2);
     memcpy(payload->buffer, shellcode, size_shellcode);
 
@@ -1004,8 +1028,8 @@ build_payload(CHARPAYLOAD * payload)
 	if (output_debug_info)
         fprintf(stderr, "payload: %s\n", payload->buffer);
 
-    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 0" : "=r"(r2) : : ); 
+    __asm__(".insn u 0x0B, %0, 14" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 15" : "=r"(r2) : : ); 
     printf("[INSA - PAYLOAD] interval after build_payload  = [%p, %p]\n", r1, r2);
 
     return TRUE;
@@ -1126,6 +1150,9 @@ build_shellcode(char * shellcode)
     memset(addi_bin,    0, sizeof(addi_bin) );
     memset(lui_s,       0, sizeof(lui_s) );
     memset(addi_s,      0, sizeof(addi_s) );
+
+    __asm__(".insn u 0x0B, x5, 893" : : : ); 
+    __asm__(".insn u 0x2B, x6, 293" : : : ); 
 
 	// fix shellcode when lower bits become negative
 	if (((unsigned long)&shellcode_target & 0x00000fff) >= 0x800)
