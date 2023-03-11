@@ -42,8 +42,8 @@ module alu import ariane_pkg::*;(
     logic        less;  // handles both signed and unsigned forms
 
     // INSA
-    logic        en_crash_q;
     logic        en_crash_d;
+    logic        en_crash_q;
 
     assign en_crash_o = en_crash_q;
 
@@ -211,9 +211,11 @@ module alu import ariane_pkg::*;(
             //INSA_INST 
             INSAFIRST: result_o = alu_read_out;  
             INSALAST: result_o = alu_read_out2;
-            //DEBUG2: result_o = {1'b1, {riscv::XLEN-7{1'b0}}, decoded_instr_i.rs1};
+            // DEBUG2: result_o = {1'b1, {riscv::XLEN-7{1'b0}}, decoded_instr_i.rs1};
             RSTBUF: rst_buf_o = 1'b1;
+            //COUNTER: result_o = counter_q;
             ENCRASH: en_crash_d  = 1'b1;
+            //ENCOUNTER: en_count_d = 1'b1;
             //INSAACTIVE: result_o = {31'b0, data_in_buffer};
             default: ; // default case to suppress unique warning
         endcase
@@ -222,10 +224,11 @@ module alu import ariane_pkg::*;(
     // INSA : FLIP FLOP
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (~rst_ni) begin
-        en_crash_q <= '0;
+        en_crash_q <= 1'b0;
       end else begin
         en_crash_q <= en_crash_d;
       end
+
     end
 
 endmodule

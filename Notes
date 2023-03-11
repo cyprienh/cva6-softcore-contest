@@ -101,3 +101,23 @@ total  : 0x0000058b
 
 PROBLEME NOUVELLE INSTRUCTION -> CRASH QUAND APPEL
 PROBLEME DE CRASH DANS RTOS MAIS RESOLU AVEC B *0x800001c4 ???
+
+
+_____
+0x800027a0
+
+0x80004030 -> sb avec a3
+
+~~ meurs à chaque printf (même fonctions printf et printk)
+ça marche en step by step 
+-> fini dans le fatal.c OU isr.S?
+"Save caller-saved registers on current thread stack."
+
+lw @1
+jalr @1
+-> ça devrait marcher
+
+lw @a1 
+autre instr 
+autre lw??? -> met à 0
+jalr @1  -> on saute pas

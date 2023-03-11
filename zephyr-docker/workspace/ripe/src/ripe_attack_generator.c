@@ -119,11 +119,11 @@ print_current_test_parameters(void) {
 void
 main(void)
 {
+    static int r1, r2;
 
   //INSA_INST - enable crash
-  __asm__(".insn u 0x7B, x0, 0" : : : ); 
-  __asm__(".insn u 0x0B, x5, 831" : : : ); 
-  __asm__(".insn u 0x2B, x6, 91" : : : ); 
+  //__asm__(".insn u 0x0B, x5, 831" : : : ); 
+  //__asm__(".insn u 0x2B, x6, 91" : : : ); 
 #define ATTACK_NR   2
 // 1-5-9 ok  8 ok
 #if ATTACK_NR == 1  // patch retaddr
@@ -198,8 +198,10 @@ main(void)
 
 #endif
 
-    __asm__(".insn u 0x0B, x5, 813" : : : ); 
-    __asm__(".insn u 0x2B, x6, 29" : : : ); 
+    __asm__(".insn u 0x7B, x0, 0" : : : ); 
+    __asm__(".insn u 0x0B, %0 , 813" :  "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0 , 29" :   "=r"(r2) : : ); 
+    printf("[INSA] interval start of program  = [%p, %p]\n", r1, r2);
 
     printk("RIPE is alive! %s\n", CONFIG_BOARD);
     print_current_test_parameters();
@@ -453,7 +455,7 @@ perform_attack(
     if (heap_func_ptr)
         *heap_func_ptr = dummy_function;
 
-    static int result;
+    //static int result;
     // Set Target Address
     switch (attack.technique) {
         case DIRECT:
@@ -537,7 +539,7 @@ perform_attack(
                             break;
                     }
                     break;
-					
+
             } 
             //__asm__(".insn u 0x0B, %0, 0" : "=r"(result) : : ); 
             break;
@@ -761,7 +763,6 @@ perform_attack(
     __asm__(".insn u 0x0B, %0, 6" : "=r"(r1) : : ); 
     __asm__(".insn u 0x2B, %0, 7" : "=r"(r2) : : ); 
     printf("[INSA] interval before memcpy  = [%p, %p]\n", r1, r2);
-            
 
     switch (attack.function) {
         case MEMCPY:
@@ -802,15 +803,6 @@ perform_attack(
             break;
     }
 
-    //__asm__(".insn s 0x23, 0, a4, 0(fp)" : : :); 
-    __asm__(".insn u 0x0B, x5, 8" : : : ); 
-    __asm__(".insn u 0x0B, x5, 80" : : : ); 
-    __asm__(".insn u 0x0B, x5, 811" : : : ); 
-    __asm__(".insn u 0x0B, x5, 81" : : : ); 
-    __asm__(".insn u 0x0B, x5, 82" : : : ); 
-    __asm__(".insn u 0x0B, x5, 83" : : : ); 
-    __asm__(".insn u 0x2B, x6, 9" : : : ); 
-    //printf("[INSA] interval after memcpy  = [%p, %p]\n", r1, r2);
 
     /*******************************************/
     /* Ensure that code pointer is overwritten */
@@ -867,7 +859,7 @@ perform_attack(
             break;
     }
 
-    printf("\n");
+    //printf("\n");
     __asm__(".insn u 0x0B, %0, 10" : "=r"(r1) : : ); 
     __asm__(".insn u 0x2B, %0, 11" : "=r"(r2) : : ); 
     printf("[INSA] interval before attack  = [%p, %p]\n", r1, r2);
@@ -1151,8 +1143,8 @@ build_shellcode(char * shellcode)
     memset(lui_s,       0, sizeof(lui_s) );
     memset(addi_s,      0, sizeof(addi_s) );
 
-    __asm__(".insn u 0x0B, x5, 893" : : : ); 
-    __asm__(".insn u 0x2B, x6, 293" : : : ); 
+    //__asm__(".insn u 0x0B, x5, 893" : : : ); 
+    //__asm__(".insn u 0x2B, x6, 293" : : : ); 
 
 	// fix shellcode when lower bits become negative
 	if (((unsigned long)&shellcode_target & 0x00000fff) >= 0x800)

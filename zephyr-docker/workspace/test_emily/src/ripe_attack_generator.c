@@ -11,10 +11,19 @@
 // cd workdir/ && west build -p -b cv32a6_zybo /workdir/test_emily/ && west debug
 
 void* memcpy2(void *destination, const void *source, size_t size ) {
+  static int res;
+  static char ress[16];
+  // __asm__(".insn u 0x0B, %0, 2" : "=r"(r3) : : ); 
+  // enable counter and get output
   __asm__(
-    "mv t1,a0         \n\t\
+    "mv t4,%1 \n\t\
+    mv t1,a0         \n\t\
     beqz a2,out       \n\t\
     loop:             \n\t\
+    .insn u 0x5B, t3, 0 \n\t\
+    sb t3,0(t4)       \n\t\
+    addi t4,t4,1        \n\t\
+    .insn u 0x7B, zero, 0 \n\t\
     lb t2,0(a1)       \n\t\
     sb t2,0(t1)       \n\t\
     addi a2,a2,-1     \n\t\
@@ -22,41 +31,47 @@ void* memcpy2(void *destination, const void *source, size_t size ) {
     addi t1,t1,1      \n\t\
     bnez a2,loop      \n\t\
     out:              \n\t\
-    " : : : );
+    mv %0,t3       \n\t\
+    " : "=r"(res) : "r"(ress) : );
+    
+    for(int i=0; i<size; i++) {
+      printf("iteration %d: %d cycles\n", i, ress[i]);
+    }
 }
 
-// lb t2,0(a1) -> non
-// lb t4,0(ra) -> non
-// lb t2,0(sp) -> non
-// lw t2,0(sp) -> non
-// lw x0,0(sp) -> oui (à 1 près avant/après)
-// lb x0,0(sp) -> oui (à 1 près avant/après)
-// ccl: ne dépend pas de lw/lb
+/* Notes 
+lb t2,0(a1) -> non
+lb t4,0(ra) -> non
+lb t2,0(sp) -> non
+lw t2,0(sp) -> non
+lw x0,0(sp) -> oui (à 1 près avant/après)
+lb x0,0(sp) -> oui (à 1 près avant/après)
+ccl: ne dépend pas de lw/lb
 
-// lb x0,0(a1) -> non 
+lb x0,0(a1) -> non 
 
-// nop avant lb -> non
+nop avant lb -> non
 
-// lb a1,0(t2) -> oui ???????????????????????????????
+lb a1,0(t2) -> oui ???????????????????????????????
 
-// lb a1,0(t2)       
-// sb a1,0(t1) -> non
+lb a1,0(t2)       
+sb a1,0(t1) -> non
 
-// lb x0,0(a1)  
-// sb t2,0(t1)    -> non
+lb x0,0(a1)  
+sb t2,0(t1)    -> non
 
-// lb x0,0(sp)  
-// sb t2,0(t1)    -> oui
+lb x0,0(sp)  
+sb t2,0(t1)    -> oui
 
-// lb x0,0(a1)  
-// sb t2,0(t1) 
-// en enlevant le addi a1, a1, 1   -> OUI
+lb x0,0(a1)  
+sb t2,0(t1) 
+en enlevant le addi a1, a1, 1   -> OUI
 
-// ccl: ça marche quand y'a aucune dépendance entre le load et le reste de la boucle 
-// PLUS PRECISEMENT
-// il ne faut pas que le lb et sb aient la meme "destination" 
-// OU il ne faut pas que l'addr en memoire à load soit incrementee dans la boucle
-
+ccl: ça marche quand y'a aucune dépendance entre le load et le reste de la boucle 
+PLUS PRECISEMENT
+il ne faut pas que le lb et sb aient la meme "destination" 
+OU il ne faut pas que l'addr en memoire à load soit incrementee dans la boucle
+*/
 
 
 int ret2libc_target() {
@@ -78,12 +93,20 @@ int waste_time() {
 
 
 int main() {
-  printf("--------------BEGIN TEST----------------\n");
   static int r1, r2;
   static int r3, r4;
   static int r5, r6;
   static int r7, r8;
-  int length=354;
+  int length=123;
+
+  printf("--------------BEGIN TEST----------------\n");
+
+  __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
+  __asm__(".insn u 0x2B, %0, 1" : "=r"(r2) : : ); 
+  printf("last interval = [%p, %p]\n", r1, r2);
+
+  __asm__(".insn u 0x7B, x0, 0" : : : ); 
+
   
   __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
   __asm__(".insn u 0x2B, %0, 1" : "=r"(r2) : : ); 
@@ -128,7 +151,7 @@ int main() {
   __asm__(".insn u 0x2B, %0, 7" : "=r"(r8) : : ); 
   printf("interval after memset buffer3 = [%p, %p]\n", r7, r8);
 
-  memcpy2(buffer1, buffer2, length);
+  memcpy(buffer1, buffer2, length);
   __asm__(".insn u 0x0B, %0, 10" : "=r"(r1) : : ); 
   __asm__(".insn u 0x2B, %0, 11" : "=r"(r2) : : ); 
   __asm__(".insn u 0x0B, %0, 12" : "=r"(r1) : : ); 
