@@ -31,7 +31,7 @@ module branch_unit (
     output ariane_pkg::exception_t                branch_exception_o,      // branch exception out
 
     // INSA
-    input  ariane_pkg::scoreboard_entry_t         decoded_instr_i     // INSA -> JE CROIS QUE C'EST BON
+    input  ariane_pkg::scoreboard_entry_t         decoded_instr_i,     // INSA -> JE CROIS QUE C'EST BON
     input  riscv::priv_lvl_t                      priv_lvl_i,
     input logic [19:0]                            alu_read_index,
     output logic [31:0]                           alu_read_out,
