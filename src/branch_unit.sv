@@ -57,20 +57,20 @@ module branch_unit (
     logic [riscv::VLEN-1:0]   vaddr_i;
     riscv::xlen_t             vaddr_xlen;
 
-    // INSA
-    circular_buffer #(
-      .N              (buffer_size)
-    ) lsu_i (
-      .clk_i,
-      .rst_ni,
-      .write          (buffer_write_i),
-      .find_in        (vaddr_i),
-      .data_in        (vaddr_i),
-      .data_in_memory (buffer_data_in_memory),
-      .read_index     (alu_read_index),
-      .read_out       (alu_read_out)
-      //.led (buffer_debug_leds)
-    );
+    // // INSA
+    // circular_buffer #(
+    //   .N              (buffer_size)
+    // ) lsu_i (
+    //   .clk_i,
+    //   .rst_ni,
+    //   .write          (buffer_write_i),
+    //   .find_in        (vaddr_i),
+    //   .data_in        (vaddr_i),
+    //   .data_in_memory (buffer_data_in_memory),
+    //   .read_index     (alu_read_index),
+    //   .read_out       (alu_read_out)
+    //   //.led (buffer_debug_leds)
+    // );
     
     // INSA: Registers for overflow management (heap)
     parameter   bof_write_size = 32;
