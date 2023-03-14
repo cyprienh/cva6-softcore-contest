@@ -26,106 +26,156 @@ module branch_unit (
 
     input  ariane_pkg::branchpredict_sbe_t        branch_predict_i,       // this is the address we predicted
     output ariane_pkg::bp_resolve_t               resolved_branch_o,      // this is the actual address we are targeting
-    output logic                      resolve_branch_o,       // to ID to clear that we resolved the branch and we can
+    output logic                                  resolve_branch_o,       // to ID to clear that we resolved the branch and we can
                                                               // accept new entries to the scoreboard
-    output ariane_pkg::exception_t    branch_exception_o,      // branch exception out
+    output ariane_pkg::exception_t                branch_exception_o,      // branch exception out
 
     // INSA
     input  ariane_pkg::scoreboard_entry_t         decoded_instr_i     // INSA -> JE CROIS QUE C'EST BON
-    // input  riscv::priv_lvl_t                      priv_lvl_i,
-    // input logic [19:0]                            alu_read_index,
-    // output logic [31:0]                           alu_read_out,
-    // output logic [31:0]                           alu_read_out2,
-    // //output logic[2:0] led
-    // output logic       to_crash,
-    // output logic       data_in_buffer,
-    // //debug
-    // input logic       rst_buf_i,
-    // input logic       en_crash_i
+    input  riscv::priv_lvl_t                      priv_lvl_i,
+    input logic [19:0]                            alu_read_index,
+    output logic [31:0]                           alu_read_out,
+    output logic [31:0]                           alu_read_out2,
+    //output logic[2:0]                             led
+    output logic                                  to_crash,
+    output logic                                  data_in_buffer,
+    //debug
+    input logic                                   rst_buf_i,
+    input logic                                   en_crash_i
 );
 
-    //parameter   buffer_size = 6;
-    //logic       buffer_write_i;
-    //logic       buffer_data_in_memory;
+    parameter   buffer_size = 6;
+    logic       buffer_write_i;
+    logic       buffer_data_in_memory;
 
-    //logic[1:0]  buffer_debug_leds;
+    // logic[1:0]  buffer_debug_leds;
 
     logic [riscv::VLEN-1:0] target_address;
-    //logic [riscv::VLEN-1:0] target_address_bis;
+    logic [riscv::VLEN-1:0] target_address_bis;
     logic [riscv::VLEN-1:0] next_pc;
 
-    // logic [riscv::VLEN-1:0]   vaddr_i;
-    // riscv::xlen_t             vaddr_xlen;
+    logic [riscv::VLEN-1:0]   vaddr_i;
+    riscv::xlen_t             vaddr_xlen;
 
-    // // // INSA
-    // // circular_buffer #(
-    // //   .N        (buffer_size)
-    // // ) lsu_i (
-    // //   .clk_i,
-    // //   .rst_ni,
-    // //   .write    (buffer_write_i),
-    // //   .find_in  (vaddr_i),
-    // //   .data_in  (vaddr_i),
-    // //   .data_in_memory (buffer_data_in_memory),
-    // //   .read_index (alu_read_index),
-    // //   .read_out (alu_read_out)
-    // //   //.led (buffer_debug_leds)
-    // // );
+    // INSA
+    circular_buffer #(
+      .N              (buffer_size)
+    ) lsu_i (
+      .clk_i,
+      .rst_ni,
+      .write          (buffer_write_i),
+      .find_in        (vaddr_i),
+      .data_in        (vaddr_i),
+      .data_in_memory (buffer_data_in_memory),
+      .read_index     (alu_read_index),
+      .read_out       (alu_read_out)
+      //.led (buffer_debug_leds)
+    );
     
-    // // INSA: Registers for overflow management (heap)
-    // parameter   bof_write_size = 32;
-    // parameter   bof_date_max = 10;
+    // INSA: Registers for overflow management (heap)
+    parameter   bof_write_size = 32;
+    parameter   bof_date_max = 10;
 
-    // logic[31:0] bof_start_d;
-    // logic[31:0] bof_end_d;
-    // logic       bof_active_d;
-    // logic       bof_load_in_range_d;
-    // logic[31:0] bof_count_d;
-    // logic[3:0]  bof_date_d;
+    logic[31:0] bof_start_d;
+    logic[31:0] bof_end_d;
+    logic       bof_active_d;
+    logic       bof_load_in_range_d;
+    logic[31:0] bof_count_d;
+    logic[3:0]  bof_date_d;
 
-    // logic[31:0] bof_start_q;
-    // logic[31:0] bof_end_q;
-    // logic       bof_active_q;
-    // logic       bof_load_in_range_q;
-    // logic[31:0] bof_count_q;
-    // logic[3:0]  bof_date_q;
+    logic[31:0] bof_start_q;
+    logic[31:0] bof_end_q;
+    logic       bof_active_q;
+    logic       bof_load_in_range_q;
+    logic[31:0] bof_count_q;
+    logic[3:0]  bof_date_q;
 
-    // logic[31:0]  bof_store_size;
+    logic[31:0] bof_store_size;
     
-    // logic       buffer_write_d;
-    // logic       buffer_write_q;
-    // logic       addr_in_buffer;
+    logic       buffer_write_d;
+    logic       buffer_write_q;
+    logic       addr_in_buffer;
 
-    // assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
-    // assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
+    assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
+    assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
 
-    // logic crash;
+    logic crash;
 
-    // circular_buffer_om insa_buffer_om (
-    //   .clk_i,
-    //   .rst_ni,
-    //   .rst_us           (rst_buf_i),
-    //   .en_write_i       (buffer_write_q),
-    //   .addr_first_i     (bof_start_q),   
-    //   .addr_last_i      (bof_end_q),    
-    //   .find_addr_i      (vaddr_i),
-    //   .addr_in_range_o  (addr_in_buffer),
-    //   .read_o           (alu_read_out),
-    //   .read2_o          (alu_read_out2)
-    //   //.fullo
-    // );
+    circular_buffer_om insa_buffer_om (
+      .clk_i,
+      .rst_ni,
+      .rst_us           (rst_buf_i),
+      .en_write_i       (buffer_write_q),
+      .addr_first_i     (bof_start_q),   
+      .addr_last_i      (bof_end_q),    
+      .find_addr_i      (vaddr_i),
+      .addr_in_range_o  (addr_in_buffer),
+      .read_o           (alu_read_out),
+      .read2_o          (alu_read_out2)
+      //.fullo
+    );
 
-    // assign data_in_buffer = bof_active_q; //debug
-    //   // base values for each signal
+    assign data_in_buffer = bof_active_q; //debug
+      // base values for each signal
 
-    // always_comb begin : store_size
-    //   case(fu_data_i.operator)
-    //     ariane_pkg::SW: bof_store_size = 4;
-    //     ariane_pkg::SH: bof_store_size = 2;
-    //     ariane_pkg::SB: bof_store_size = 1;
-    //     default:        bof_store_size = 0;
-    //   endcase
-    // end
+    always_comb begin : store_size
+      case(fu_data_i.operator)
+        ariane_pkg::SW: bof_store_size = 4;
+        ariane_pkg::SH: bof_store_size = 2;
+        ariane_pkg::SB: bof_store_size = 1;
+        default:        bof_store_size = 0;
+      endcase
+    end
+
+/***********************************************************************************************************/
+//                              BUFFER DLK                                                                 //
+/***********************************************************************************************************/
+    // INSA: Data leak signals
+    parameter dlk_size 32;
+    logic     dlk_buffer_write_d;
+    logic     dlk_buffer_write_q; 
+    logic     dlk_crash;
+    logic     dlk_read_overflow_o;
+
+    // for potential debug instruction :^)
+    logic[31:0] DUMMY_dlk_read_out;
+ 
+    circular_buffer_dlk insa_buffer_dlk (
+      .clk_i,
+      .rst_ni,
+      .rst_us           (rst_buf_i),
+      .en_write_i       (dlk_buffer_write_q),
+      .base_addr_i      (fu_data_i.operand_a),   // TODO: récupérer de plus haut...
+      .read_addr_i      (vaddr_i), 
+      .read_overflow_o  (dlk_read_overflow_o),
+      .read_o           (DUMMY_dlk_read_out)
+      //.fullo
+    );
+
+    always_comb begin : dlk_fix
+      dlk_buffer_write_d = 'b0;
+      dlk_crash = 'b0;
+      if (fu_data_i.operator == ariane_pkg::SB) begin // Store Byte
+        dlk_buffer_write_d = 'b1;
+      end else if (fu_data_i.operator inside {ariane_pkg::LW, ariane_pkg::LH, ariane_pkg::LB}) begin
+        if (dlk_read_overflow_o) begin
+          // CRASH LOL
+          dlk_crash = 1'b1;
+        end
+      end
+    end
+
+     // INSA : FLIP FLOP DLK
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+      if (~rst_ni) begin
+        dlk_buffer_write_q <= 'b0;
+      end else begin
+        dlk_buffer_write_q <= dlk_buffer_write_d;
+      end
+    end
+
+/***********************************************************************************************************/
+
 
     // always_comb begin : heap_safe
     //   buffer_write_d = 1'b0;
@@ -175,28 +225,28 @@ module branch_unit (
     //   end
     // end 
 
-    // // INSA : FLIP FLOP
-    // always_ff @(posedge clk_i or negedge rst_ni) begin
-    //   if (~rst_ni) begin
-    //     bof_active_q <= 1'b0;
-    //     bof_start_q <= 32'b0;
-    //     bof_end_q <= 32'b0;
-    //     bof_load_in_range_q <= 1'b0;
-    //     bof_count_q <= 32'b0;
-    //     bof_date_q <= 4'b0;
-    //     buffer_write_q <= 1'b0;
-    //   end else begin
-    //     bof_active_q <= bof_active_d;
-    //     bof_start_q <= bof_start_d;
-    //     bof_end_q <= bof_end_d;
-    //     bof_load_in_range_q <= bof_load_in_range_d;
-    //     bof_count_q <= bof_count_d;
-    //     bof_date_q <= bof_date_d;
-    //     buffer_write_q <= buffer_write_d;
-    //   end
-    // end
+    // INSA : FLIP FLOP HEAP
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+      if (~rst_ni) begin
+        // bof_active_q <= 1'b0;
+        // bof_start_q <= 32'b0;
+        // bof_end_q <= 32'b0;
+        // bof_load_in_range_q <= 1'b0;
+        // bof_count_q <= 32'b0;
+        // bof_date_q <= 4'b0;
+        // buffer_write_q <= 1'b0;
+      end else begin
+        // bof_active_q <= bof_active_d;
+        // bof_start_q <= bof_start_d;
+        // bof_end_q <= bof_end_d;
+        // bof_load_in_range_q <= bof_load_in_range_d;
+        // bof_count_q <= bof_count_d;
+        // bof_date_q <= bof_date_d;
+        // buffer_write_q <= buffer_write_d;
+      end
+    end
 
-    //assign resolved_branch_o.target_address = (~crash) ? target_address_bis : {riscv::VLEN{1'b0}};
+    assign resolved_branch_o.target_address = (~crash) ? target_address_bis : {riscv::VLEN{1'b0}};
 
    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
@@ -237,7 +287,8 @@ module branch_unit (
         else
           branch_result_o = next_pc;
 
-        //if (crash & en_crash_i)
+        //Ca c'est pour crasher
+        //if ((crash || blk_crask)& en_crash_i)
         //  target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 

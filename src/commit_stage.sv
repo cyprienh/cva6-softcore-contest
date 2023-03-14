@@ -51,9 +51,7 @@ module commit_stage import ariane_pkg::*; #(
     output logic                                    fence_i_o,          // flush I$ and pipeline
     output logic                                    fence_o,            // flush D$ and pipeline
     output logic                                    flush_commit_o,     // request a pipeline flush
-    output logic                                    sfence_vma_o,       // flush TLBs and pipeline
-    input  fu_data_t                                fu_data_i,          // INSA
-    output logic                                    crash
+    output logic                                    sfence_vma_o        // flush TLBs and pipeline
 );
 
 // ila_0 i_ila_commit (
@@ -70,26 +68,11 @@ module commit_stage import ariane_pkg::*; #(
 //     .probe9(1'b0) // input wire [0:0]  probe9
 // );
 
-    logic instr_valid;
-    logic to_crash;
-
-    assign instr_valid = commit_instr_i[0].valid && !commit_instr_i[0].ex.valid && !halt_i;
-    assign crash = to_crash;
-
-    bop_unit bopu (
-      .clk_i,
-      .rst_ni,
-      .is_instr_valid  ( instr_valid              ),
-      .fu_data_i,
-      .decoded_instr_i ( commit_instr_i[0]        ),
-      .to_crash        ( to_crash                 )
-    );
-
     for (genvar i = 0; i < NR_COMMIT_PORTS; i++) begin : gen_waddr
       assign waddr_o[i] = commit_instr_i[i].rd[4:0];
     end
 
-    assign pc_o       = (to_crash) ? 32'b0 : commit_instr_i[0].pc;
+    assign pc_o       = commit_instr_i[0].pc;
     // Dirty the FP state if we are committing anything related to the FPU
     always_comb begin : dirty_fp_state
       dirty_fp_state_o = 1'b0;

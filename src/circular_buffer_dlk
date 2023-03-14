@@ -1,0 +1,61 @@
+// INSA : circular buffer used to store the first and last 
+module circular_buffer_om
+#(
+  parameter SIZE = 32) //TODO: A voir...
+(
+  input  logic       clk_i,
+  input  logic       rst_ni,
+  input  logic       rst_us,          // Reset custom for debug instructions
+  input  logic       en_write_i,      // Write base address in memory
+  input  logic[31:0] base_addr_i,     // Base address to write or read into the buffer
+  input  logic[31:0] read_addr_i,     // Actual read address
+  output logic       read_overflow_o, // If we read over an address already in the buffer
+  output logic[31:0] read_o
+  );
+
+  logic[4:0] cursor; // FIXME: TO CHANGE IF SIZE CHANGES
+  // Circular buffer per se
+  logic[31:0] mem[SIZE-1:0];
+
+  logic[31:0] closest_base_address;
+  logic[31:0] addr_already_in_mem;
+
+  always_comb begin
+    //case pas de closest base addr?
+    //if lecture à rajouter pour opti
+    closest_base_address <= 32'b1;
+    for (genvar j=0; j < SIZE; j++) begin// Look for the closest (higher) base_adress
+      if (mem[j]<closest_base_address & mem[j]>base_addr_i) begin
+        closest_base_address <= mem[j];
+      end
+    end 
+    read_overflow_o <= (read_addr_i > closest_base_address);
+    //end
+  end
+
+  // Check if we attain this address
+  assign read_overflow_o = (data_vector != 0);
+
+  assign read_o = mem[cursor-1]; // debug si jamais :D
+
+  generate // check for address in memory
+    for (genvar i=0; i < SIZE; i++) assign addr_already_in_mem[i] = (base_addr_i == mem[i]);
+  endgenerate
+
+  // Writing data
+  always_ff @(posedge clk_i or negedge rst_ni) 
+  begin
+    if ((~rst_ni) || rst_us) begin
+      // reset : fill the circular buffer with 0s
+      for (integer i=0; i<SIZE; i++) mem[i] <=  32'b0;
+      // place cursor to index 0
+      cursor <= 0;
+    end else if (en_write_i && !addr_already_in_mem) begin
+      // store base address if it is not in memory
+      mem[cursor] <= base_addr_i;
+      // cursor is incremented and is 0 if the buffer is full
+      cursor <= cursor + 1;
+    end
+  end
+    
+endmodule // circular_buffer_om
