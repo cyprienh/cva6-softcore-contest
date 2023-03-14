@@ -131,7 +131,7 @@ module branch_unit (
 //                              BUFFER DLK                                                                 //
 /***********************************************************************************************************/
     // INSA: Data leak signals
-    parameter dlk_size 32;
+    parameter dlk_size = 32;
     logic     dlk_buffer_write_d;
     logic     dlk_buffer_write_q; 
     logic     dlk_crash;
