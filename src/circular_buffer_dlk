@@ -1,5 +1,5 @@
 // INSA : circular buffer used to store the first and last 
-module circular_buffer_om
+module circular_buffer_dlk
 #(
   parameter SIZE = 32) //TODO: A voir...
 (
@@ -58,4 +58,4 @@ module circular_buffer_om
     end
   end
     
-endmodule // circular_buffer_om
+endmodule // circular_buffer_dlk
