@@ -127,9 +127,9 @@ module branch_unit (
       endcase
     end
 
-/***********************************************************************************************************/
-//                              BUFFER DLK                                                                 //
-/***********************************************************************************************************/
+/*****************************************************************************/
+//                              BUFFER DLK                                   //
+/*****************************************************************************/
     // INSA: Data leak signals
     parameter dlk_size = 32;
     logic     dlk_buffer_write_d;
@@ -158,8 +158,7 @@ module branch_unit (
       if (fu_data_i.operator == ariane_pkg::SB) begin // Store Byte
         dlk_buffer_write_d = 'b1;
       end else if (fu_data_i.operator inside {ariane_pkg::LW, ariane_pkg::LH, ariane_pkg::LB}) begin
-        if (dlk_read_overflow_o) begin
-          // CRASH LOL
+        if (dlk_read_overflow_o) begin   // CRASH LOL
           dlk_crash = 1'b1;
         end
       end
@@ -174,7 +173,7 @@ module branch_unit (
       end
     end
 
-/***********************************************************************************************************/
+/*****************************************************************************/
 
 
     // always_comb begin : heap_safe
@@ -288,8 +287,8 @@ module branch_unit (
           branch_result_o = next_pc;
 
         //Ca c'est pour crasher
-        //if ((crash || blk_crask)& en_crash_i)
-        //  target_address = {riscv::VLEN{1'b0}};
+        if ((crash || blk_crash)& en_crash_i)
+          target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 
         // to_crash        = 1'b0;
