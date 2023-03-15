@@ -510,8 +510,6 @@ module ariane import ariane_pkg::*; #(
     .fence_o                ( fence_commit_controller       ),
     .sfence_vma_o           ( sfence_vma_commit_controller  ),
     .flush_commit_o         ( flush_commit                  ),
-    .fu_data_i              ( fu_data_id_ex_commit          ), // INSA
-    .crash                  ( crash                         ),
     .*
   );
 
