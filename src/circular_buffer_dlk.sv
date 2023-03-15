@@ -23,18 +23,15 @@ module circular_buffer_dlk
   always_comb begin
     //case pas de closest base addr?
     //if lecture à rajouter pour opti
-    closest_base_address <= 32'b1;
-    for (genvar j=0; j < SIZE; j++) begin// Look for the closest (higher) base_adress
+    closest_base_address = 32'b1;
+    for (int j=0; j < SIZE; j++) begin// Look for the closest (higher) base_adress
       if (mem[j]<closest_base_address & mem[j]>base_addr_i) begin
-        closest_base_address <= mem[j];
+        closest_base_address = mem[j];
       end
     end 
-    read_overflow_o <= (read_addr_i > closest_base_address);
+    read_overflow_o = (read_addr_i > closest_base_address);
     //end
   end
-
-  // Check if we attain this address
-  assign read_overflow_o = (data_vector != 0);
 
   assign read_o = mem[cursor-1]; // debug si jamais :D
 
