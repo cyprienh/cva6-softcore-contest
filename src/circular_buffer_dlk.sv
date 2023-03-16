@@ -33,8 +33,8 @@ module circular_buffer_dlk
     //case pas de closest base addr?
     //if lecture à rajouter pour opti
     closest_base_address = 32'b1;
-    for (int j=0; j < SIZE; j++) begin// Look for the closest (higher) base_adress
-      if (mem[j] < closest_base_address && mem[j] > base_addr_i) begin
+    for (int j=0; j < SIZE; j++) begin // Look for the closest (higher) base_adress
+      if ((mem[j] < closest_base_address) && (mem[j] > base_addr_i)) begin
         closest_base_address = mem[j];
       end
     end 
@@ -57,5 +57,4 @@ module circular_buffer_dlk
       cursor <= cursor + 1;
     end
   end
-    
 endmodule // circular_buffer_dlk
