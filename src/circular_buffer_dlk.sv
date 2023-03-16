@@ -1,4 +1,4 @@
-// INSA : circular buffer used to store the first and last 
+// INSA : circular buffer that stores the first adress of data blocks in memory
 module circular_buffer_dlk
 #(
   parameter SIZE = 32) //FIXME: A voir...
@@ -50,7 +50,7 @@ module circular_buffer_dlk
       end
       // place cursor to index 0
       cursor <= 0;
-    end else if (en_write_i && !addr_already_in_mem) begin
+    end else if (en_write_i && (addr_already_in_mem == 32'b0)) begin
       // store base address if it is not in memory
       mem[cursor] <= base_addr_i;
       // cursor is incremented and is 0 if the buffer is full
