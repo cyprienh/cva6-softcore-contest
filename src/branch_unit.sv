@@ -145,7 +145,7 @@ module branch_unit (
       .rst_ni,
       .rst_us           (rst_buf_i),
       .en_write_i       (dlk_buffer_write_q),
-      .base_addr_i      (fu_data_i.operand_a),   // TODO: récupérer de plus haut...
+      .base_addr_i      (fu_data_i.operand_a),
       .read_addr_i      (vaddr_i), 
       .read_overflow_o  (dlk_read_overflow_o),
       .read_o           (DUMMY_dlk_read_out)
@@ -153,14 +153,15 @@ module branch_unit (
     );
 
     always_comb begin : dlk_fix
-      dlk_buffer_write_d = 'b0;
-      dlk_crash = 'b0;
       if (fu_data_i.operator == ariane_pkg::SB) begin // Store Byte
         dlk_buffer_write_d = 'b1;
-      end else if (fu_data_i.operator inside {ariane_pkg::LW, ariane_pkg::LH, ariane_pkg::LB}) begin
-        if (dlk_read_overflow_o) begin   // CRASH LOL
-          dlk_crash = 1'b1;
-        end
+        dlk_crash = 'b0;
+      end else if (fu_data_i.operator inside {ariane_pkg::LW, ariane_pkg::LH, ariane_pkg::LB} && dlk_read_overflow_o) begin
+        dlk_buffer_write_d = 'b0;
+        dlk_crash = 'b1;
+      end else begin
+        dlk_buffer_write_d = 'b0;
+        dlk_crash = 'b0;
       end
     end
 
@@ -287,7 +288,7 @@ module branch_unit (
           branch_result_o = next_pc;
 
         //Ca c'est pour crasher
-        if ((crash || dlk_crash) & en_crash_i)
+        if ((crash | dlk_crash) & en_crash_i)
           target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 

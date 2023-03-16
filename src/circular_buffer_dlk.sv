@@ -1,7 +1,7 @@
 // INSA : circular buffer used to store the first and last 
 module circular_buffer_dlk
 #(
-  parameter SIZE = 32) //TODO: A voir...
+  parameter SIZE = 32) //FIXME: A voir...
 (
   input  logic       clk_i,
   input  logic       rst_ni,
@@ -18,33 +18,36 @@ module circular_buffer_dlk
   logic[31:0] mem[SIZE-1:0];
 
   logic[31:0] closest_base_address;
-  logic[31:0] addr_already_in_mem;
+  logic[SIZE-1:0] addr_already_in_mem;
+
+  
+  assign read_o = mem[cursor-1]; // debug si jamais :D
+
+  generate // check for address in memory
+    for (genvar i=0; i < SIZE; i++) begin
+      assign addr_already_in_mem[i] = (base_addr_i == mem[i]);
+    end
+  endgenerate
 
   always_comb begin
     //case pas de closest base addr?
     //if lecture à rajouter pour opti
     closest_base_address = 32'b1;
     for (int j=0; j < SIZE; j++) begin// Look for the closest (higher) base_adress
-      if (mem[j]<closest_base_address & mem[j]>base_addr_i) begin
+      if (mem[j] < closest_base_address && mem[j] > base_addr_i) begin
         closest_base_address = mem[j];
       end
     end 
     read_overflow_o = (read_addr_i > closest_base_address);
-    //end
   end
 
-  assign read_o = mem[cursor-1]; // debug si jamais :D
-
-  generate // check for address in memory
-    for (genvar i=0; i < SIZE; i++) assign addr_already_in_mem[i] = (base_addr_i == mem[i]);
-  endgenerate
-
   // Writing data
-  always_ff @(posedge clk_i or negedge rst_ni) 
-  begin
+  always_ff @(posedge clk_i or negedge rst_ni) begin
     if ((~rst_ni) || rst_us) begin
       // reset : fill the circular buffer with 0s
-      for (integer i=0; i<SIZE; i++) mem[i] <=  32'b0;
+      for (integer i=0; i<SIZE; i++) begin
+        mem[i] <= 32'b0;
+      end
       // place cursor to index 0
       cursor <= 0;
     end else if (en_write_i && !addr_already_in_mem) begin
