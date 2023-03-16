@@ -287,7 +287,7 @@ module branch_unit (
           branch_result_o = next_pc;
 
         //Ca c'est pour crasher
-        if ((crash || blk_crash)& en_crash_i)
+        if ((crash || dlk_crash) & en_crash_i)
           target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 
