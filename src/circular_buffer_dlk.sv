@@ -1,3 +1,5 @@
+// TODO: change 32s into RISCV len constant
+
 // INSA : circular buffer that stores the first adress of data blocks in memory
 module circular_buffer_dlk
 #(
@@ -24,7 +26,7 @@ module circular_buffer_dlk
   assign read_o = mem[cursor-1]; // debug si jamais :D
 
   generate // check for address in memory
-    for (genvar i=0; i < SIZE; i++) begin
+    for (genvar i = 0; i < SIZE; i++) begin
       assign addr_already_in_mem[i] = (base_addr_i == mem[i]);
     end
   endgenerate
@@ -33,8 +35,8 @@ module circular_buffer_dlk
     //case pas de closest base addr?
     //if lecture à rajouter pour opti
     closest_base_address = {32{1'b1}};
-    for (int j=0; j < SIZE; j++) begin // Look for the closest (higher) base_adress
-      if ((mem[j] != 32'b0) && (mem[j] < closest_base_address) && (mem[j] > base_addr_i)) begin
+    for (int j = 0; j < SIZE; j++) begin // Look for the closest (higher) base_adress
+      if ((mem[j] != {32{1'b0}}) && (mem[j] < closest_base_address) && (mem[j] > base_addr_i)) begin
         closest_base_address = mem[j];
       end
     end 
@@ -45,12 +47,12 @@ module circular_buffer_dlk
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if ((~rst_ni) || rst_us) begin
       // reset : fill the circular buffer with 0s
-      for (integer i=0; i<SIZE; i++) begin
-        mem[i] <= 32'b0;
+      for (integer i = 0; i < SIZE; i++) begin
+        mem[i] <= {32{1'b0}};
       end
       // place cursor to index 0
       cursor <= 0;
-    end else if (en_write_i && (addr_already_in_mem == 32'b0)) begin
+    end else if (en_write_i && (addr_already_in_mem == {32{1'b0}})) begin
       // store base address if it is not in memory
       mem[cursor] <= base_addr_i;
       // cursor is incremented and is 0 if the buffer is full
