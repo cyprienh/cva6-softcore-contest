@@ -32,7 +32,7 @@ module circular_buffer_dlk
   always_comb begin
     //case pas de closest base addr?
     //if lecture à rajouter pour opti
-    closest_base_address = 32'hFFFF_FFFF;
+    closest_base_address = {32{1'b1}};
     for (int j=0; j < SIZE; j++) begin // Look for the closest (higher) base_adress
       if ((mem[j] != 32'b0) && (mem[j] < closest_base_address) && (mem[j] > base_addr_i)) begin
         closest_base_address = mem[j];
