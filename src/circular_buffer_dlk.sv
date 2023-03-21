@@ -7,7 +7,7 @@ module circular_buffer_dlk
 (
   input  logic       clk_i,
   input  logic       rst_ni,
-  input  logic       rst_us,          // Reset custom for debug instructions
+  //input  logic       rst_us,          // Reset custom for debug instructions
   input  logic       en_write_i,      // Write base address in memory
   input  logic[31:0] base_addr_i,     // Base address to write or read into the buffer
   input  logic[31:0] read_addr_i,     // Actual read address
@@ -45,7 +45,7 @@ module circular_buffer_dlk
 
   // Writing data
   always_ff @(posedge clk_i or negedge rst_ni) begin
-    if ((~rst_ni) || rst_us) begin
+    if (~rst_ni) begin
       // reset : fill the circular buffer with 0s
       for (integer i = 0; i < SIZE; i++) begin
         mem[i] <= {32{1'b0}};

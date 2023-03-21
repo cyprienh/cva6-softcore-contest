@@ -104,7 +104,7 @@ module branch_unit (
     circular_buffer_om insa_buffer_om (
       .clk_i,
       .rst_ni,
-      .rst_us           (rst_buf_i),
+      //.rst_us           (rst_buf_i),
       .en_write_i       (buffer_write_q),
       .addr_first_i     (bof_start_q),   
       .addr_last_i      (bof_end_q),    
@@ -154,21 +154,21 @@ module branch_unit (
 
     always_comb begin : dlk_fix
       if (fu_data_i.operator == ariane_pkg::SB) begin // Store Byte
-        dlk_buffer_write_d = 'b1;
-        dlk_crash = 'b0;
+        dlk_buffer_write_d = 1'b1;
+        dlk_crash = 1'b0;
       end else if (fu_data_i.operator inside {ariane_pkg::LW, ariane_pkg::LH, ariane_pkg::LB} && dlk_read_overflow_o) begin
-        dlk_buffer_write_d = 'b0;
-        dlk_crash = 'b1;
+        dlk_buffer_write_d = 1'b0;
+        dlk_crash = 1'b1;
       end else begin
-        dlk_buffer_write_d = 'b0;
-        dlk_crash = 'b0;
+        dlk_buffer_write_d = 1'b0;
+        dlk_crash = 1'b0;
       end
     end
 
      // INSA : FLIP FLOP DLK
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (~rst_ni) begin
-        dlk_buffer_write_q <= 'b0;
+        dlk_buffer_write_q <= 1'b0;
       end else begin
         dlk_buffer_write_q <= dlk_buffer_write_d;
       end
