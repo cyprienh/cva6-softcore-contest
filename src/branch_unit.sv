@@ -226,25 +226,25 @@ module branch_unit (
     // end 
 
     // INSA : FLIP FLOP HEAP
-    always_ff @(posedge clk_i or negedge rst_ni) begin
+    /*always_ff @(posedge clk_i or negedge rst_ni) begin
       if (~rst_ni) begin
-        // bof_active_q <= 1'b0;
-        // bof_start_q <= 32'b0;
-        // bof_end_q <= 32'b0;
-        // bof_load_in_range_q <= 1'b0;
-        // bof_count_q <= 32'b0;
-        // bof_date_q <= 4'b0;
-        // buffer_write_q <= 1'b0;
+        bof_active_q <= 1'b0;
+        bof_start_q <= 32'b0;
+        bof_end_q <= 32'b0;
+        bof_load_in_range_q <= 1'b0;
+        bof_count_q <= 32'b0;
+        bof_date_q <= 4'b0;
+        buffer_write_q <= 1'b0;
       end else begin
-        // bof_active_q <= bof_active_d;
-        // bof_start_q <= bof_start_d;
-        // bof_end_q <= bof_end_d;
-        // bof_load_in_range_q <= bof_load_in_range_d;
-        // bof_count_q <= bof_count_d;
-        // bof_date_q <= bof_date_d;
-        // buffer_write_q <= buffer_write_d;
+        bof_active_q <= bof_active_d;
+        bof_start_q <= bof_start_d;
+        bof_end_q <= bof_end_d;
+        bof_load_in_range_q <= bof_load_in_range_d;
+        bof_count_q <= bof_count_d;
+        bof_date_q <= bof_date_d;
+        buffer_write_q <= buffer_write_d;
       end
-    end
+    end*/
 
     assign resolved_branch_o.target_address = (~crash) ? target_address_bis : {riscv::VLEN{1'b0}};
 
@@ -288,7 +288,7 @@ module branch_unit (
           branch_result_o = next_pc;
 
         //Ca c'est pour crasher
-        if ((crash | dlk_crash) & en_crash_i)
+        if ((/*crash |*/dlk_crash) & en_crash_i)
           target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 
