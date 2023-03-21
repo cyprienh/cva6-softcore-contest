@@ -124,7 +124,7 @@ main(void)
   //INSA_INST - enable crash
   //__asm__(".insn u 0x0B, x5, 831" : : : ); 
   //__asm__(".insn u 0x2B, x6, 91" : : : ); 
-#define ATTACK_NR   2
+#define ATTACK_NR   10
 // 1-5-9 ok  8 ok
 #if ATTACK_NR == 1  // patch retaddr
     attack.technique = DIRECT;
@@ -133,14 +133,14 @@ main(void)
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 2  // no fix
+#elif ATTACK_NR == 2  // heap fix
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= FUNC_PTR_STACK_VAR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 3 // no fix
+#elif ATTACK_NR == 3 // heap fix // ?
     attack.technique = INDIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= FUNC_PTR_STACK_VAR;
@@ -175,7 +175,7 @@ main(void)
     attack.location = HEAP;
     attack.function = HOMEBREW;
 
-#elif ATTACK_NR == 8 // heapfix
+#elif ATTACK_NR == 8 // patch
     attack.technique = INDIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= LONGJMP_BUF_HEAP;
@@ -197,7 +197,7 @@ main(void)
     attack.function = SPRINTF;
 
 #endif
-
+    // enable crash
     __asm__(".insn u 0x7B, x0, 0" : : : ); 
     __asm__(".insn u 0x0B, %0 , 813" :  "=r"(r1) : : ); 
     __asm__(".insn u 0x2B, %0 , 29" :   "=r"(r2) : : ); 
@@ -259,6 +259,8 @@ perform_attack(
     struct attackme * heap_struct =
       (struct attackme *) malloc(sizeof(struct attackme));
     heap_struct->func_ptr = dummy_function;
+
+    printf("heap_struct->func_ptr: %p\n", heap_struct->func_ptr);
 
     /* Two buffers declared to be able to chose buffer that gets allocated    */
     /* first on the heap. The other buffer will be set as a target, i.e. a    */
@@ -373,10 +375,10 @@ perform_attack(
                 heap_mem_ptr_aux = (long *) heap_buffer2;
                 heap_mem_ptr     = (long *) heap_buffer3;
 
-				if (attack.code_ptr == VAR_LEAK) {
-					heap_secret = heap_buffer2;
-					strcpy(heap_secret, data_secret);
-				}
+                if (attack.code_ptr == VAR_LEAK) {
+                  heap_secret = heap_buffer2;
+                  strcpy(heap_secret, data_secret);
+                }
                 // Also set the location of the function pointer and the
                 // longjmp buffer on the heap (the same since only choose one)
                 heap_func_ptr = malloc(sizeof(void *));
@@ -767,8 +769,6 @@ perform_attack(
     switch (attack.function) {
         case MEMCPY:
             // memcpy() shouldn't copy the terminating NULL, therefore - 1
-            __asm__(".insn u 0x0B, x5, 10" : : : ); 
-            __asm__(".insn u 0x2B, x6, 11" : : : ); 
             memcpy(buffer, payload.buffer, payload.size - 1);
             break;
         case STRCPY:
@@ -803,6 +803,11 @@ perform_attack(
             break;
     }
 
+    printf("\n");
+    __asm__(".insn u 0x0B, %0, 610" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 738" : "=r"(r2) : : ); 
+    printf("[INSA] interval after memcpy  = [%p, %p]\n", r1, r2);
+
 
     /*******************************************/
     /* Ensure that code pointer is overwritten */
@@ -833,7 +838,8 @@ perform_attack(
                         *(uint32_t *) (*(uint32_t *) target_addr) =
                           (uintptr_t) stack_mem_ptr_aux;
                         break;
-                    case HEAP:
+                    case HEAP: //atk 7
+                        printf("Je fais un load illegal juste apres\n");
                         *(uint32_t *) (*(uint32_t *) target_addr) =
                           (uintptr_t) *heap_mem_ptr_aux;
                         break;
@@ -859,29 +865,42 @@ perform_attack(
             break;
     }
 
-    //printf("\n");
-    __asm__(".insn u 0x0B, %0, 10" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 11" : "=r"(r2) : : ); 
+    printf("\n");
+    __asm__(".insn u 0x0B, %0, 612" : "=r"(r1) : : ); 
+    __asm__(".insn u 0x2B, %0, 732" : "=r"(r2) : : ); 
     printf("[INSA] interval before attack  = [%p, %p]\n", r1, r2);
 
     printf("\nExecuting attack... ");
+
+    static int r0;
 
     switch (attack.code_ptr) {
         case RET_ADDR:
             break;
         case FUNC_PTR_STACK_VAR:
+            //__asm__(".insn i 0x5B, 0, %0, %1, 0" : "=r"(r0) : "r"(&stack_func_ptr) : ); 
+            //printf("is stack_func_ptr in range? - %d\n", r0);
             stack_func_ptr(NULL);
+            // __asm__("lw a5,-340(s0)" : : : );
+            // __asm__("lw a5,0(a5)" : : : );
+            // __asm__("li a0,0" : : : );
+            // __asm__("li a1,0" : : : );
+            // __asm__("jalr a5" : : : );
             break;
         case FUNC_PTR_STACK_PARAM:
             ((int (*)(char *, int))(*stack_func_ptr_param))(NULL, 0);
             break;
         case FUNC_PTR_HEAP:
             ((int (*)(char *, int)) * heap_func_ptr)(NULL, 0);
+            // __asm__("lw a5,-1740(s0)" : : : );
+            // __asm__("lw a5,0(a5)" : : : );
+            // __asm__("li a0,0" : : : );
+            // __asm__("li a1,0" : : : );
+            // __asm__("jalr a5" : : : );
             break;
         case FUNC_PTR_BSS:
             ((int (*)(char *, int))(*bss_func_ptr))(NULL, 0);
             break;
-
         case FUNC_PTR_DATA:
             ((int (*)(char *, int))(*data_func_ptr))(NULL, 0);
             break;
@@ -903,8 +922,13 @@ perform_attack(
         case STRUCT_FUNC_PTR_STACK:
             ((int (*)(char *, int)) * (stack_struct.func_ptr))(NULL, 0);
             break;
-        case STRUCT_FUNC_PTR_HEAP:
+        case STRUCT_FUNC_PTR_HEAP: //atk 7
             (*heap_struct->func_ptr)(NULL, 0);
+            //__asm__("lw a5,-1748(s0)" : : : );
+            //__asm__("lw a5,256(a5)" : : : );
+            //__asm__("li a0,0" : : : );
+            //__asm__("li a1,0" : : : );
+            //__asm__("jalr a5" : : : );
             break;
         case STRUCT_FUNC_PTR_DATA:
             (*data_struct.func_ptr)(NULL, 0);

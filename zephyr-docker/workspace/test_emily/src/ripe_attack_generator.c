@@ -75,8 +75,8 @@ OU il ne faut pas que l'addr en memoire à load soit incrementee dans la boucle
 
 
 int ret2libc_target() {
-  printf("\n La mort pour toujours");
-  while(1);
+  printf("\n La mort pour toujours\n");
+  //while(1);
   return 0;
 }
 
@@ -93,11 +93,15 @@ int waste_time() {
 
 
 int main() {
+  static int r0;
   static int r1, r2;
   static int r3, r4;
   static int r5, r6;
   static int r7, r8;
   int length=123;
+  int a;
+
+  __asm__(".insn u 0x7B, x0, 0" : : : ); 
 
   printf("--------------BEGIN TEST----------------\n");
 
@@ -105,27 +109,23 @@ int main() {
   __asm__(".insn u 0x2B, %0, 1" : "=r"(r2) : : ); 
   printf("last interval = [%p, %p]\n", r1, r2);
 
-  __asm__(".insn u 0x7B, x0, 0" : : : ); 
-
-  
-  __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-  __asm__(".insn u 0x2B, %0, 1" : "=r"(r2) : : ); 
-  printf("last interval = [%p, %p]\n", r1, r2);
-
   int (*stack_func_ptr)(const char *);
-  char stack_buffer1[length];
-  static char * buffer1;
-  char stack_buffer2[length];
-  static char * buffer2;
-  char stack_buffer3[length];
-  static char * buffer3;
+  int stack_buffer1[length];
+  static int * buffer1;
+  int stack_buffer2[length];
+  static int * buffer2;
+  int stack_buffer3[length];
+  static int * buffer3;
+  int stack_buffer4[length];
+  static int * buffer4;
 
   buffer1 = stack_buffer1;
   buffer2 = stack_buffer2;
   buffer3 = stack_buffer3;
+  buffer4 = stack_buffer4;
 
   printf("buffer1: %p\n", buffer1);
-  memset(buffer1, 'A', length);
+  memset(buffer1, 'A', length*sizeof(int));
 
   waste_time();
 
@@ -134,7 +134,7 @@ int main() {
   printf("interval after memset buffer1 = [%p, %p]\n", r3, r4);
 
   printf("buffer2: %p\n", buffer2);
-  memset(buffer2, 'B', length);
+  memset(buffer2, 'A', length*sizeof(int));
 
   waste_time();
 
@@ -143,7 +143,7 @@ int main() {
   printf("interval after memset buffer2 = [%p, %p]\n", r5, r6);
 
   printf("buffer3: %p\n", buffer3);
-  memset(buffer3, 'B', length);
+  memset(buffer3, 'B', length*sizeof(int));
 
   waste_time();
 
@@ -151,32 +151,51 @@ int main() {
   __asm__(".insn u 0x2B, %0, 7" : "=r"(r8) : : ); 
   printf("interval after memset buffer3 = [%p, %p]\n", r7, r8);
 
-  memcpy(buffer1, buffer2, length);
-  __asm__(".insn u 0x0B, %0, 10" : "=r"(r1) : : ); 
-  __asm__(".insn u 0x2B, %0, 11" : "=r"(r2) : : ); 
-  __asm__(".insn u 0x0B, %0, 12" : "=r"(r1) : : ); 
-  __asm__(".insn u 0x2B, %0, 13" : "=r"(r2) : : ); 
-  __asm__(".insn u 0x0B, %0, 14" : "=r"(r1) : : ); 
-  __asm__(".insn u 0x2B, %0, 15" : "=r"(r2) : : ); 
-  __asm__(".insn u 0x0B, %0, 102" : "=r"(r1) : : ); 
-  __asm__(".insn u 0x2B, %0, 113" : "=r"(r2) : : ); 
-  __asm__(".insn u 0x0B, %0, 104" : "=r"(r1) : : ); 
-  __asm__(".insn u 0x2B, %0, 119" : "=r"(r2) : : ); 
+  memcpy(buffer4, buffer2, length*sizeof(int));
   
-  /*
-    Notes
-    en enlevant lb                                -> ca marche
-    en mettant autre chose à la place de lb (nop) -> ca marche (starts 1 late and stops 1 early ?)
-    avec un lw x0,0(a1)                           -> [0x80006fa1, 0x80006faf] ??
-    avec un lw x0,0(sp)                           -> ça marche
-  */
-  
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+
   waste_time();
 
-  __asm__(".insn u 0x0B, %0, 107" : "=r"(r1) : : ); 
-  __asm__(".insn u 0x2B, %0, 111" : "=r"(r2) : : ); 
-  printf("interval after memcpy = [%p, %p]\n", r1, r2);
+  __asm__(".insn u 0x0B, %0, 61" : "=r"(r3) : : ); 
+  __asm__(".insn u 0x2B, %0, 27" : "=r"(r4) : : ); 
+  // this one doesnt work (in_range=0)
+  // lw a1, -1292(s2)       --> s5=0x80005000
 
+  //__asm__("addi zero, zero, 0" : : : ); 
+  //__asm__("lui t2,0x80005" : : : );
+  //__asm__("mv s5,t2" : : : );  // mov s5,s6 -> le connard?
+  //__asm__(".insn u 0x0B, t1, 61" : : : ); 
+  //__asm__("sw a5, -1296(s6)" : : : ); 
+  //__asm__(".insn u 0x2B, t2, 27" : : : ); 
+  //__asm__("sw a5, -1300(s5)" : : : );
+  // lw a2, 4(s5)    
+
+  printf("interval after memcpy buffer4 = [%p, %p]\n", r3, r4);
+
+  //a=buffer4[1];
+  //__asm__(".insn u 0x5B, %0, 111" : "=r"(r0) : : ); 
+  //static int addr = ;
+  __asm__(".insn i 0x5B, 0, %0, %1, 0" : "=r"(r0) : "r"(buffer4 + 4) : ); 
+  __asm__("lw t2,0(%0)" : : "r"(buffer4 + 4) : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  __asm__("addi zero, zero, 0" : : : ); 
+  
+  ret2libc_target();
+
+  printf("is %p in range? - %d\n", buffer4 + 4, r0);
   /*
   __asm__(".insn s 0x23, 0, a4, 0(fp)" :  :  : ); 
   __asm__(".insn s 0x23, 0, a4, 1(fp)" :  :  : ); 
@@ -226,6 +245,7 @@ int main() {
   __asm__(".insn u 0x0B, %0, 8" : "=r"(r1) : : ); 
   __asm__(".insn u 0x2B, %0, 9" : "=r"(r2) : : ); 
   printf("interval end of program = [%p, %p]\n", r1, r2);
+
   printf("--------------END OF PROGRAM----------------\n");
   return 0;
 }
