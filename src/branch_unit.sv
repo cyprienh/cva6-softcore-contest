@@ -104,7 +104,7 @@ module branch_unit (
     circular_buffer_om insa_buffer_om (
       .clk_i,
       .rst_ni,
-      //.rst_us           (rst_buf_i),
+      .rst_us           (rst_buf_i),
       .en_write_i       (buffer_write_q),
       .addr_first_i     (bof_start_q),   
       .addr_last_i      (bof_end_q),    
@@ -143,7 +143,7 @@ module branch_unit (
     circular_buffer_dlk insa_buffer_dlk (
       .clk_i,
       .rst_ni,
-      .rst_us           (rst_buf_i),
+      //.rst_us           (rst_buf_i),
       .en_write_i       (dlk_buffer_write_q),
       .base_addr_i      (fu_data_i.operand_a),
       .read_addr_i      (vaddr_i), 
