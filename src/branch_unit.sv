@@ -99,7 +99,7 @@ module branch_unit (
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
 
-    logic crash;
+    //logic crash;
 
     circular_buffer_om insa_buffer_om (
       .clk_i,
@@ -246,7 +246,7 @@ module branch_unit (
       end
     end*/
 
-    assign resolved_branch_o.target_address = (~crash) ? target_address_bis : {riscv::VLEN{1'b0}};
+    assign resolved_branch_o.target_address = (/*~crash | */~dlk_crash) ? target_address_bis : {riscv::VLEN{1'b0}};
 
    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
