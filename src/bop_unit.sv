@@ -60,7 +60,20 @@ module bop_unit (
 
     // INSA: Registers for dataleak
 
+    parameter dlk_date_max = 10;
+
     logic read_overflow; // 1 if read overflow, output of circular_buffer_om
+
+    logic dlk_active_d;  // State of the defense mechanism
+    logic dlk_date_d;    // Remaining time before deactivation of the mechanism
+    logic dlk_start_d;   // Base address of the read overflow
+    logic dlk_end_d;     // Last address read
+    
+
+    logic dlk_active_q;
+    logic dlk_date_q;
+    logic dlk_end_q;
+    logic dlk_start_q;
 
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
@@ -201,10 +214,10 @@ module bop_unit (
             dlk_start_d = vaddr_i;     // base address of consecutive lBs is start
             dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
             dlk_date_d = dlk_date_max; // reset timer
-          end else if(bof_end_q + bof_store_size == vaddr_i) begin    
+          end else if(vaddr_i == dlk_end_q + 1) begin    
           // if next load is next to previous one
             dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
-            dlk_date_d = bof_date_max; // reset timer
+            dlk_date_d = dlk_date_max; // reset timer
           end else begin    
           // lb somewhere new
             dlk_active_d = 1'b0;
@@ -225,13 +238,11 @@ module bop_unit (
         dlk_active_q <= 1'b0;
         dlk_start_q <= {32{1'b0}};
         dlk_end_q <= {32{1'b0}};
-        dlk_load_in_range_q <= 1'b0;
         dlk_date_q <= {4{1'b0}};
       end else begin
         dlk_active_q <= dlk_active_d;
         dlk_start_q <= dlk_start_d;
         dlk_end_q <= dlk_end_d;
-        dlk_load_in_range_q <= dlk_load_in_range_d;
         dlk_date_q <= dlk_date_d;
       end
     end
