@@ -60,6 +60,7 @@ module bop_unit (
 
     // INSA: Registers for dataleak
 
+    logic read_overflow; // 1 if read overflow, output of circular_buffer_om
 
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
@@ -74,7 +75,10 @@ module bop_unit (
       .find_addr_i      (vaddr_i),
       .addr_in_range_o  (addr_in_buffer),
       .read_o           (alu_read_out),
-      .read2_o          (alu_read_out2)
+      .read2_o          (alu_read_out2),
+      // DLK
+      .base_addr_i      (dlk_start_q),
+      .read_overflow_o  (read_overflow)
     );
 
     assign data_in_buffer = addr_in_buffer; //debug
@@ -156,30 +160,6 @@ module bop_unit (
       end 
     end
 
-    // DATALEAK protection : if there are consecutive LBs, then 
-    // check for a load in an interval stored in circular buffer
-    always_comb begin : dataleak_safe
-      if ((decoded_instr_i.op == ariane_pkg::LB) && !(decoded_instr_i.rs1 inside {2, 8})) begin
-        // data is loaded from memory and check FP or SP (not used by memcpy)
-        if(~dlk_active_q) begin      // start tracking
-          dlk_active_d = 1'b1;       // activate protection
-          dlk_start_d = vaddr_i;     // base address of consecutive lBs is start
-          dlk_date_d = dlk_date_max; // reset timer
-        end else if(bof_end_q + bof_store_size == vaddr_i) begin    
-        // if next load is next to previous one
-          dlk_date_d = bof_date_max;
-        end else begin    // lb somewhere new
-          dlk_active_d = 1'b0;
-        end
-      end else if (dlk_active_q) begin
-        if(dlk_date_q != 0) begin
-          dlk_date_d = dlk_date_q - 1; // Decrement counter
-        end else begin                 // if date = 0, overflow timed out
-          dlk_active_d = 1'b0;
-        end
-      end
-    end
-
     // INSA : FLIP FLOP
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (~rst_ni) begin
@@ -206,6 +186,53 @@ module bop_unit (
         bof_last_reg_q <= bof_last_reg_d;
         illegal_load_q <= illegal_load_d;
         //crash_q <= crash_d;
+      end
+    end
+
+    // DATALEAK protection : if there are consecutive LBs, then 
+    // check for a load in an interval stored in circular buffer
+    // TODO: ff d<=q, crash signal, tests
+    always_comb begin : dataleak_safe
+      if ((bof_pc_q != decoded_instr_i.pc) && en_crash_i) begin // avoid taking slacks in account
+        if ((decoded_instr_i.op == ariane_pkg::LB) && !(decoded_instr_i.rs1 inside {2, 8})) begin
+          // data is loaded from memory and check FP or SP (not used by memcpy)
+          if (~dlk_active_q) begin     // start tracking
+            dlk_active_d = 1'b1;       // activate protection
+            dlk_start_d = vaddr_i;     // base address of consecutive lBs is start
+            dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
+            dlk_date_d = dlk_date_max; // reset timer
+          end else if(bof_end_q + bof_store_size == vaddr_i) begin    
+          // if next load is next to previous one
+            dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
+            dlk_date_d = bof_date_max; // reset timer
+          end else begin    
+          // lb somewhere new
+            dlk_active_d = 1'b0;
+          end
+        end else if (dlk_active_q) begin
+          if (dlk_date_q == 0) begin
+            dlk_active_d = 1'b0;         // Overflow timed out
+          end else begin
+            dlk_date_d = dlk_date_q - 1; // Decrement counter
+          end
+        end
+      end
+    end
+
+    // INSA : flip-flop for dataleak protection
+    always_ff @(posedge clk_i or negedge rst_ni) begin : dataleak_ff
+      if (~rst_ni) begin
+        dlk_active_q <= 1'b0;
+        dlk_start_q <= {32{1'b0}};
+        dlk_end_q <= {32{1'b0}};
+        dlk_load_in_range_q <= 1'b0;
+        dlk_date_q <= {4{1'b0}};
+      end else begin
+        dlk_active_q <= dlk_active_d;
+        dlk_start_q <= dlk_start_d;
+        dlk_end_q <= dlk_end_d;
+        dlk_load_in_range_q <= dlk_load_in_range_d;
+        dlk_date_q <= dlk_date_d;
       end
     end
 

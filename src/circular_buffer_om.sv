@@ -13,28 +13,32 @@ module circular_buffer_om
   output logic       addr_in_range_o,
   output logic[31:0] read_o,
   output logic[31:0] read2_o,
-  input  logic       find_i);
+  input  logic       find_i,
+  // DLK
+  input logic[31:0] base_addr_i,
+  output logic      read_overflow_o
+  );
 
   logic[3:0] cursor;
   // Circular buffer per se
   logic[63:0] mem[SIZE-1:0];
   logic[SIZE-1:0] data_vector;
 
-/**************************************************************************************************************/
-/*                                           BUFFER DLK                                                       */
-/**************************************************************************************************************/
-  logic[31:0] closest_base_address;
-  logic[SIZE-1:0] addr_already_in_mem;  //QUESTION: On est d'accord que ça correspond à leur data_vector?
+/******************************************************************************/
+/*                                BUFFER DLK                                  */
+/******************************************************************************/
+  logic[31:0] closest_base_addr;
 
-  closest_base_address = {32{1'b1}};
-  for (int j = 0; j < SIZE; j++) begin // Look for the closest (higher) base_adress
-    if ((mem[j] != {32{1'b0}}) && (mem[j] < closest_base_address) && (mem[j] > addr_first_i)) begin
-      closest_base_address = mem[j];
+  always_comb begin : check_for_closest_base_addr
+    closest_base_addr = {32{1'b1}};
+    for (int j = 0; j < SIZE; j++) begin // Look for the closest (higher) start adress of intervals
+      if ((mem[j][63:32] != {32{1'b0}}) && (mem[j][63:32] < closest_base_addr) && (mem[j][63:32] > addr_first_i)) begin
+        closest_base_addr = mem[j][63:32];
+      end
     end
+    read_overflow_o = (start_addr_i > closest_base_address);
   end 
-  addr_in_range_o = (find_addr_i > closest_base_address);
-
-/**************************************************************************************************************/
+/******************************************************************************/
 
   genvar i;
   generate
@@ -47,7 +51,7 @@ module circular_buffer_om
   assign read2_o = mem[cursor-1][31:0]; //end
 
   // Writing data
-  always_ff @(posedge clk_i or negedge rst_ni) 
+  always_ff @(posedge clk_i or negedge rst_ni) : writing_data_ff 
   begin
     if (~rst_ni) begin
       // reset : fill the circular buffer with 0s
