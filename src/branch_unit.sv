@@ -134,7 +134,8 @@ module branch_unit (
     parameter dlk_size = 32;
     logic     dlk_buffer_write_d;
     logic     dlk_buffer_write_q; 
-    logic     dlk_crash;
+    logic     dlk_crash_p;
+    logic     dlk_crash_q;
     logic     dlk_read_overflow_o;
 
     // for potential debug instruction :^)
@@ -155,13 +156,13 @@ module branch_unit (
     always_comb begin : dlk_fix
       if (fu_data_i.operator == ariane_pkg::SB) begin // Store Byte
         dlk_buffer_write_d = 1'b1;
-        dlk_crash = 1'b0;
+        dlk_crash_p = 1'b0;
       end else if (fu_data_i.operator inside {ariane_pkg::LW, ariane_pkg::LH, ariane_pkg::LB} && dlk_read_overflow_o) begin
         dlk_buffer_write_d = 1'b0;
-        dlk_crash = 1'b1;
+        dlk_crash_p = 1'b1;
       end else begin
         dlk_buffer_write_d = 1'b0;
-        dlk_crash = 1'b0;
+        dlk_crash_p = 1'b0;
       end
     end
 
@@ -169,8 +170,10 @@ module branch_unit (
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (~rst_ni) begin
         dlk_buffer_write_q <= 1'b0;
+        dlk_crash_q        <= 1'b0;
       end else begin
         dlk_buffer_write_q <= dlk_buffer_write_d;
+        dlk_crash_q        <= dlk_crash_p;
       end
     end
 
@@ -245,9 +248,7 @@ module branch_unit (
         buffer_write_q <= buffer_write_d;
       end
     end*/
-
-    assign resolved_branch_o.target_address = (/*~crash | */~dlk_crash) ? target_address_bis : {riscv::VLEN{1'b0}};
-
+    
    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
         // set the jump base, for JALR we need to look at the register, for all other control flow instructions we can take the current PC
@@ -288,7 +289,9 @@ module branch_unit (
           branch_result_o = next_pc;
 
         //Ca c'est pour crasher
-        if ((/*crash |*/dlk_crash) & en_crash_i)
+        /*if (crash & en_crash_i)
+          target_address = {riscv::VLEN{1'b0}};*/
+        if (dlk_crash_q /*& en_crash_i*/)
           target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 
