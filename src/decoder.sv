@@ -1022,21 +1022,14 @@ module decoder import ariane_pkg::*; (
                     instruction_o.op       = ariane_pkg::INSALAST;
                 end
 
-                /*riscv::OpcodeCustom1: begin
-                    instruction_o.fu  = ALU;
-                    imm_select = IIMM;
-                    instruction_o.rs1[4:0] = instr.itype.rs1;
-                    instruction_o.rd[4:0]  = instr.itype.rd;
-                    instruction_o.op       = ariane_pkg::DEBUG2;
-                end
-                */
-
+                /*
                 riscv::OpcodeCustom2: begin                     // En soit on s'en fiche
                     instruction_o.fu       = ALU;
                     imm_select             = UIMM;
                     instruction_o.rd[4:0]  = instr.utype.rd;
                     instruction_o.op       = ariane_pkg::RSTBUF;
                 end
+                */
                 
                 /*
                 riscv::OpcodeCustom2: begin                     // En soit on s'en fiche
@@ -1063,12 +1056,20 @@ module decoder import ariane_pkg::*; (
                 end
                 */
                 
-                /*riscv::OpcodeCustom4: begin                     // En soit on s'en fiche
+                /*riscv::OpcodeCustom2: begin                     // En soit on s'en fiche
                     instruction_o.fu       = ALU;
                     imm_select             = UIMM;
                     instruction_o.rd[4:0]  = instr.utype.rd;
                     instruction_o.op       = ariane_pkg::INSAACTIVE;
                 end*/
+
+                riscv::OpcodeCustom2: begin
+                    instruction_o.fu  = ALU;
+                    imm_select = IIMM;
+                    instruction_o.rs1[4:0] = instr.itype.rs1;
+                    instruction_o.rd[4:0]  = instr.itype.rd;
+                    instruction_o.op       = ariane_pkg::INSAACTIVE;
+                end
 
                 default: illegal_instr = 1'b1;
             endcase

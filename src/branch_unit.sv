@@ -37,8 +37,7 @@ module branch_unit (
     output logic [31:0]                           alu_read_out,
     output logic [31:0]                           alu_read_out2,
     //output logic[2:0] led
-    output logic       to_crash,
-    output logic       data_in_buffer,
+    output logic      data_in_buffer,
     //debug
     input logic       rst_buf_i,
     input logic       en_crash_i
@@ -75,9 +74,7 @@ module branch_unit (
     // INSA: Registers for overflow management (heap)
     
     logic crash;
-
-    assign to_crash = 'b0; //crash_test crash; // je le mets à zero pour pas qu'il essaye de crash en passant par le frontend
-    // on utilise le target addr depuis le branch_unit, donc c'est pas necessaire
+    logic[5:0] reg_load;
 
     bop_unit bopu (
       .clk_i,
@@ -89,12 +86,10 @@ module branch_unit (
       .data_in_buffer,
       .rst_buf_i,
       .en_crash_i,
-      .to_crash (crash)
+      .to_crash (crash) //test
     );
     
-    //assign resolved_branch_o.target_address = (~crash) ? target_address_bis : {riscv::VLEN{1'b0}};
-
-   // here we handle the various possibilities of mis-predicts
+    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
         // set the jump base, for JALR we need to look at the register, for all other control flow instructions we can take the current PC
         automatic logic [riscv::VLEN-1:0] jump_base;
@@ -109,7 +104,6 @@ module branch_unit (
         resolved_branch_o.valid          = branch_valid_i;
         resolved_branch_o.is_mispredict  = 1'b0;
         resolved_branch_o.cf_type        = branch_predict_i.cf;
-        resolved_branch_o.is_crash       = 1'b0;    // INSA
         // calculate next PC, depending on whether the instruction is compressed or not this may be different
         // TODO(zarubaf): We already calculate this a couple of times, maybe re-use?
         next_pc                          = pc_i + ((is_compressed_instr_i) ? {{riscv::VLEN-2{1'b0}}, 2'h2} : {{riscv::VLEN-3{1'b0}}, 3'h4});
@@ -133,7 +127,7 @@ module branch_unit (
         else
           branch_result_o = next_pc;
 
-        if (crash & en_crash_i)
+        if ((decoded_instr_i.op inside {ariane_pkg::JAL, ariane_pkg::JALR}) && crash && en_crash_i)
           target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 

@@ -1,7 +1,7 @@
 // INSA : circular buffer used to store the first and last 
 module circular_buffer_om
 #(
-  parameter SIZE = 32)
+  parameter SIZE = 8)
 (
   input  logic       clk_i,
   input  logic       rst_ni,
@@ -12,19 +12,20 @@ module circular_buffer_om
   input  logic[31:0] find_addr_i,
   output logic       addr_in_range_o,
   output logic[31:0] read_o,
-  output logic[31:0] read2_o);
+  output logic[31:0] read2_o,
+  input  logic       find_i);
 
-  logic[4:0] cursor;
+  logic[3:0] cursor;
   // Circular buffer per se
   logic[63:0] mem[SIZE-1:0];
   logic[SIZE-1:0] data_vector;
 
   genvar i;
   generate
-    for (i=0; i < SIZE; i++) assign data_vector[i] = ((find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}));
+    for (i=0; i < SIZE; i++) assign data_vector[i] = (find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}) ? 1'b1 : 1'b0;
   endgenerate
-
-  assign addr_in_range_o = (data_vector != 0);
+ 
+  assign addr_in_range_o = (data_vector != 8'b0) ? 1'b1 : 1'b0;
 
   assign read_o = mem[cursor-1][63:32]; //first
   assign read2_o = mem[cursor-1][31:0]; //end
@@ -32,7 +33,7 @@ module circular_buffer_om
   // Writing data
   always_ff @(posedge clk_i or negedge rst_ni) 
   begin
-    if ((~rst_ni) || rst_us) begin
+    if (~rst_ni) begin
       // reset : fill the circular buffer with 0s
       for (integer i=0; i<SIZE; i++) mem[i] <=  64'b0;
       // place cursor to index 0

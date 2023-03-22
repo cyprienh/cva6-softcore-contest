@@ -310,7 +310,6 @@ package ariane_pkg;
         logic [riscv::VLEN-1:0] target_address;  // target address at which to jump, or not
         logic                   is_mispredict;   // set if this was a mis-predict
         logic                   is_taken;        // branch is taken
-        logic                   is_crash;        // INSA -> pls crash   // INSA_crash
         cf_t                    cf_type;         // Type of control flow change
     } bp_resolve_t;
 
@@ -472,7 +471,7 @@ package ariane_pkg;
                                VFMIN, VFMAX, VFSGNJ, VFSGNJN, VFSGNJX, VFEQ, VFNE, VFLT, VFGE, VFLE, VFGT, VFCPKAB_S, VFCPKCD_S, VFCPKAB_D, VFCPKCD_D,
                                
                                // INSA_INST
-                               INSAFIRST, INSALAST, RSTBUF, ENCRASH //,  ENCRASH, RSTBUF, INSAACTIVE
+                               INSAFIRST, INSALAST, INSAACTIVE, ENCRASH //,  ENCRASH, RSTBUF, INSAACTIVE
                              } fu_op;
     typedef struct packed {
         fu_t                      fu;

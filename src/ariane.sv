@@ -69,9 +69,6 @@ module ariane import ariane_pkg::*; #(
   logic                       eret;
   logic [NR_COMMIT_PORTS-1:0] commit_ack;
 
-  // INSA
-  logic to_crash_pls;
-
   // --------------
   // PCGEN <-> CSR
   // --------------
@@ -269,9 +266,6 @@ module ariane import ariane_pkg::*; #(
     .fetch_entry_o       ( fetch_entry_if_id             ),
     .fetch_entry_valid_o ( fetch_valid_if_id             ),
     .fetch_entry_ready_i ( fetch_ready_id_if             ),
-    // INSA
-    //.debug_led(debug_led),
-    .to_crash(to_crash_pls),
     .*
   );
 
@@ -375,8 +369,6 @@ module ariane import ariane_pkg::*; #(
   ) ex_stage_i (
     // INSA
     .decoded_instr_i        ( issue_entry_issue_ex        ),
-    //.led,
-    .to_crash               ( to_crash_pls                ),
 
     .clk_i                  ( clk_i                       ),
     .rst_ni                 ( rst_ni                      ),
@@ -659,8 +651,6 @@ module ariane import ariane_pkg::*; #(
     .wbuffer_empty_o       ( dcache_commit_wbuffer_empty ),
     .wbuffer_not_ni_o      ( dcache_commit_wbuffer_not_ni ),
 
-    // INSA
-    //.to_crash              (to_crash_pls), 
 `ifdef PITON_ARIANE
     .l15_req_o             ( l15_req_o                   ),
     .l15_rtrn_i            ( l15_rtrn_i                  )

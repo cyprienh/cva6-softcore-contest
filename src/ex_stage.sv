@@ -108,9 +108,7 @@ module ex_stage import ariane_pkg::*; #(
     input  logic[15:0][53:0]                       pmpaddr_i,
 
     // INSA
-    input  scoreboard_entry_t                      decoded_instr_i,
-    //output logic[2:0] led
-    output logic      to_crash
+    input  scoreboard_entry_t                      decoded_instr_i
 );
 
     // -------------------------
@@ -202,8 +200,6 @@ module ex_stage import ariane_pkg::*; #(
         .alu_read_index   ( read_index ),
         .alu_read_out     ( read_out ),
         .alu_read_out2    ( read_out2 ),
-        //.led
-        .to_crash,
         .data_in_buffer   ( branch_data_in_buffer ),
         // debug
         .rst_buf_i        ( rst_buffer ),

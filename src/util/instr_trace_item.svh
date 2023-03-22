@@ -365,9 +365,9 @@ class instr_trace_item;
             instr_tracer_pkg::INSAFIRST:      s = this.printMnemonic("insafirst");
             instr_tracer_pkg::INSALAST:       s = this.printMnemonic("insalast");
             //instr_tracer_pkg::RSTBUF:         s = this.printMnemonic("rstbuf");
-            instr_tracer_pkg::COUNTER:        s = this.printMnemonic("counter");
-            //instr_tracer_pkg::ENCRASH:        s = this.printMnemonic("encrash");
-            instr_tracer_pkg::ENCOUNTER:        s = this.printMnemonic("encounter");
+            //instr_tracer_pkg::COUNTER:        s = this.printMnemonic("counter");
+            instr_tracer_pkg::ENCRASH:        s = this.printMnemonic("encrash");
+            //instr_tracer_pkg::ENCOUNTER:        s = this.printMnemonic("encounter");
             instr_tracer_pkg::INSAACTIVE:     s = this.printMnemonic("insaactive");
             default:                          s = this.printMnemonic("INVALID");
         endcase
