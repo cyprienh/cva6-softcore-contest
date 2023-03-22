@@ -58,6 +58,9 @@ module bop_unit (
     //logic crash_q;
     //logic crash_d;
 
+    // INSA: Registers for dataleak
+
+
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
 
@@ -129,7 +132,7 @@ module bop_unit (
               bof_end_d = vaddr_i;
               bof_date_d = bof_date_max;
               bof_count_d = 32'b1;
-            end else if(bof_end_q + bof_store_size == vaddr_i) begin    // if next store is next to previous one
+            end else if(bof_end_q + bof_store_size == vaddr_i) begin //if next store is next to previous one
               bof_end_d = vaddr_i;
               bof_count_d = bof_count_q + bof_store_size;
               bof_date_d = bof_date_max;
@@ -141,20 +144,40 @@ module bop_unit (
           end
         end else begin
           if(bof_active_q) begin    // if not store, decrement date
-            if(bof_date_q != 0)
+            if(bof_date_q != 0) begin
               bof_date_d = bof_date_q - 1;
-            else begin              // if date = 0, overflow timed out, writing
+            end else begin              // if date = 0, overflow timed out, writing
               bof_active_d = 1'b0;
-              if((bof_count_q > bof_write_size)) //test WOOOHOOO IT WORKS 
+              if((bof_count_q > bof_write_size))  //test WOOOHOOO IT WORKS 
                 buffer_write_d = 1'b1;
             end
           end
-          /* else if(decoded_instr_i.op inside {ariane_pkg::JAL, ariane_pkg::JALR}) begin  // if call after lw in range, crash
-            if(bof_load_in_range_q) // maybe check if register is same as lw and if its really a call
-              to_crash = 1'b1;
-          end*/
         end
       end 
+    end
+
+    // DATALEAK protection : if there are consecutive LBs, then 
+    // check for a load in an interval stored in circular buffer
+    always_comb begin : dataleak_safe
+      if ((decoded_instr_i.op == ariane_pkg::LB) && !(decoded_instr_i.rs1 inside {2, 8})) begin
+        // data is loaded from memory and check FP or SP (not used by memcpy)
+        if(~dlk_active_q) begin      // start tracking
+          dlk_active_d = 1'b1;       // activate protection
+          dlk_start_d = vaddr_i;     // base address of consecutive lBs is start
+          dlk_date_d = dlk_date_max; // reset timer
+        end else if(bof_end_q + bof_store_size == vaddr_i) begin    
+        // if next load is next to previous one
+          dlk_date_d = bof_date_max;
+        end else begin    // lb somewhere new
+          dlk_active_d = 1'b0;
+        end
+      end else if (dlk_active_q) begin
+        if(dlk_date_q != 0) begin
+          dlk_date_d = dlk_date_q - 1; // Decrement counter
+        end else begin                 // if date = 0, overflow timed out
+          dlk_active_d = 1'b0;
+        end
+      end
     end
 
     // INSA : FLIP FLOP
