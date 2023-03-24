@@ -13,7 +13,8 @@ module bop_unit (
     output logic      data_in_buffer,
 
     input logic       rst_buf_i,
-    input logic       en_crash_i
+    input logic       en_crash_i,
+    output logic      to_crash2
 );
 
     logic [riscv::VLEN-1:0]   vaddr_i;
@@ -206,6 +207,13 @@ module bop_unit (
     // check for a load in an interval stored in circular buffer
     // TODO: ff d<=q, crash signal, tests
     always_comb begin : dataleak_safe
+      to_crash2 = 1'b0;
+
+      dlk_active_d = dlk_active_q;
+      dlk_start_d = dlk_start_q;
+      dlk_end_d = dlk_end_q;
+      dlk_date_d = dlk_date_q;
+
       if ((bof_pc_q != decoded_instr_i.pc) && en_crash_i) begin // avoid taking slacks in account
         if ((decoded_instr_i.op == ariane_pkg::LB) && !(decoded_instr_i.rs1 inside {2, 8})) begin
           // data is loaded from memory and check FP or SP (not used by memcpy)
@@ -214,10 +222,13 @@ module bop_unit (
             dlk_start_d = vaddr_i;     // base address of consecutive lBs is start
             dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
             dlk_date_d = dlk_date_max; // reset timer
-          end else if(vaddr_i == dlk_end_q + 1) begin    
-          // if next load is next to previous one
+          end else if(vaddr_i == dlk_end_q+1) begin    
+            // if next load is next to previous one
             dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
             dlk_date_d = dlk_date_max; // reset timer
+            if(addr_in_buffer) begin
+              to_crash2 = 1'b1;
+            end
           end else begin    
           // lb somewhere new
             dlk_active_d = 1'b0;

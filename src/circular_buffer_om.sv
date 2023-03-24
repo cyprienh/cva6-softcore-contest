@@ -27,17 +27,17 @@ module circular_buffer_om
 /******************************************************************************/
 /*                                BUFFER DLK                                  */
 /******************************************************************************/
-  logic[31:0] closest_base_addr;
+  // logic[31:0] closest_base_addr;
 
-  always_comb begin : check_for_closest_base_addr
-    closest_base_addr = {32{1'b1}};
-    for (int j = 0; j < SIZE; j++) begin // Look for the closest (higher) start adress of intervals
-      if ((mem[j][63:32] != {32{1'b0}}) && (mem[j][63:32] < closest_base_addr) && (mem[j][63:32] > addr_first_i)) begin
-        closest_base_addr = mem[j][63:32];
-      end
-    end
-    read_overflow_o = (start_addr_i > closest_base_address);
-  end 
+  // always_comb begin : check_for_closest_base_addr
+  //   closest_base_addr = {32{1'b1}};
+  //   for (int j = 0; j < SIZE; j++) begin // Look for the closest (higher) start adress of intervals
+  //     if ((mem[j][63:32] != {32{1'b0}}) && (mem[j][63:32] < closest_base_addr) && (mem[j][63:32] > addr_first_i)) begin
+  //       closest_base_addr = mem[j][63:32];
+  //     end
+  //   end
+  //   read_overflow_o = (start_addr_i > closest_base_address);
+  // end 
 /******************************************************************************/
 
   genvar i;
@@ -51,8 +51,8 @@ module circular_buffer_om
   assign read2_o = mem[cursor-1][31:0]; //end
 
   // Writing data
-  always_ff @(posedge clk_i or negedge rst_ni) : writing_data_ff 
-  begin
+  always_ff @(posedge clk_i or negedge rst_ni) 
+  begin : writing_data_ff 
     if (~rst_ni) begin
       // reset : fill the circular buffer with 0s
       for (integer i=0; i<SIZE; i++) mem[i] <=  64'b0;

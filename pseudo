@@ -1,0 +1,17 @@
+if load then
+  if not load_active then
+    if vaddr_i inside one interval (except first) then
+      crash
+    else
+      load_active = true
+      last_addr = vaddr_i
+    end
+  else
+    if vaddr_i != last_addr+1 then
+      if vaddr_i inside one interval (except first) then
+        crash
+      end
+      load_active = false
+    end
+  end
+end
