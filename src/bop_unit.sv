@@ -21,7 +21,7 @@ module bop_unit (
     riscv::xlen_t             vaddr_xlen;
     
     // INSA: Registers for overflow management (heap)
-    parameter   bof_write_size = 32;
+    parameter   bof_write_size = 3;
     parameter   bof_date_max = 10;
 
     logic[31:0] bof_start_d;
@@ -56,8 +56,8 @@ module bop_unit (
     logic illegal_load_d;
     logic illegal_load_q;
 
-    //logic crash_q;
-    //logic crash_d;
+    logic crash_q;
+    logic crash_d;
 
     // INSA: Registers for dataleak
 
@@ -70,7 +70,6 @@ module bop_unit (
     logic dlk_start_d;   // Base address of the read overflow
     logic dlk_end_d;     // Last address read
     
-
     logic dlk_active_q;
     logic dlk_date_q;
     logic dlk_end_q;
@@ -125,7 +124,7 @@ module bop_unit (
       bof_last_reg_d = bof_last_reg_q;
       illegal_load_d = illegal_load_q;
 
-      //crash_d = crash_q;
+      crash_d = crash_q;
 
       if(decoded_instr_i.op == ariane_pkg::LW) begin   // if load inside one overflow range, take note 
         if(addr_in_buffer) begin // || (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q)
@@ -203,11 +202,13 @@ module bop_unit (
       end
     end
 
+    assign to_crash2 = crash_q;
+
     // DATALEAK protection : if there are consecutive LBs, then 
     // check for a load in an interval stored in circular buffer
     // TODO: ff d<=q, crash signal, tests
     always_comb begin : dataleak_safe
-      to_crash2 = 1'b0;
+      crash_d = crash_q;
 
       dlk_active_d = dlk_active_q;
       dlk_start_d = dlk_start_q;
@@ -227,7 +228,7 @@ module bop_unit (
             dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
             dlk_date_d = dlk_date_max; // reset timer
             if(addr_in_buffer) begin
-              to_crash2 = 1'b1;
+              crash_d = 1'b1;
             end
           end else begin    
           // lb somewhere new
@@ -250,11 +251,13 @@ module bop_unit (
         dlk_start_q <= {32{1'b0}};
         dlk_end_q <= {32{1'b0}};
         dlk_date_q <= {4{1'b0}};
+        crash_q <= 1'b0;
       end else begin
         dlk_active_q <= dlk_active_d;
         dlk_start_q <= dlk_start_d;
         dlk_end_q <= dlk_end_d;
         dlk_date_q <= dlk_date_d;
+        crash_q <= crash_d;
       end
     end
 

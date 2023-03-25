@@ -74,6 +74,7 @@ module branch_unit (
     // INSA: Registers for overflow management (heap)
     
     logic crash;
+    logic crash2;
     logic[5:0] reg_load;
 
     bop_unit bopu (
@@ -86,7 +87,8 @@ module branch_unit (
       .data_in_buffer,
       .rst_buf_i,
       .en_crash_i,
-      .to_crash (crash) //test
+      .to_crash (crash), //test
+      .to_crash2 (crash2) //test
     );
     
     // here we handle the various possibilities of mis-predicts
@@ -127,7 +129,7 @@ module branch_unit (
         else
           branch_result_o = next_pc;
 
-        if ((decoded_instr_i.op inside {ariane_pkg::JAL, ariane_pkg::JALR}) && crash && en_crash_i)
+        if ((decoded_instr_i.op inside {ariane_pkg::JAL, ariane_pkg::JALR}) && (crash || crash2) && en_crash_i)
           target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 
