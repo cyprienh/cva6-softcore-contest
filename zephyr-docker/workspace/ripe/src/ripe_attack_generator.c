@@ -300,7 +300,7 @@ perform_attack(
   	strcpy(bss_secret, data_secret);
 
     // write shellcode with correct jump address
-    build_shellcode(shellcode_nonop);
+    //build_shellcode(shellcode_nonop);
 
     switch (attack.location) {
         case STACK:
@@ -1115,7 +1115,7 @@ build_shellcode(char * shellcode)
 
     hex_to_string(addi_s, addi_val);
 
-    format_instruction(shellcode, lui_val);
+    format_instruction(shellcode, lui_val); // ???
     format_instruction(shellcode + 4, addi_val);
     format_instruction(shellcode + 8, jalr_val);
 

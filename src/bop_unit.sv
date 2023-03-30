@@ -49,6 +49,7 @@ module bop_unit (
     logic       buffer_write_d;
     logic       buffer_write_q;
     logic       addr_in_buffer;
+    logic       addr_is_first;
 
     logic en_crash_q;
     logic en_crash_d;
@@ -87,6 +88,7 @@ module bop_unit (
       .addr_last_i      (bof_end_q),    
       .find_addr_i      (vaddr_i),
       .addr_in_range_o  (addr_in_buffer),
+      .addr_is_first_o  (addr_is_first),
       .read_o           (alu_read_out),
       .read2_o          (alu_read_out2),
       // DLK
@@ -124,7 +126,7 @@ module bop_unit (
       bof_last_reg_d = bof_last_reg_q;
       illegal_load_d = illegal_load_q;
 
-      crash_d = crash_q;
+      //crash_d = crash_q;
 
       if(decoded_instr_i.op == ariane_pkg::LW) begin   // if load inside one overflow range, take note 
         if(addr_in_buffer) begin // || (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q)
@@ -227,13 +229,15 @@ module bop_unit (
             // if next load is next to previous one
             dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
             dlk_date_d = dlk_date_max; // reset timer
-            if(addr_in_buffer) begin
+            if(addr_is_first) begin
               crash_d = 1'b1;
             end
           end else begin    
           // lb somewhere new
             dlk_active_d = 1'b0;
           end
+        end else if (decoded_instr_i.op == ariane_pkg::JALR) begin
+          dlk_active_d = 1'b0;
         end else if (dlk_active_q) begin
           if (dlk_date_q == 0) begin
             dlk_active_d = 1'b0;         // Overflow timed out

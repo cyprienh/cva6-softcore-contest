@@ -11,6 +11,7 @@ module circular_buffer_om
   input  logic[31:0] addr_last_i,
   input  logic[31:0] find_addr_i,
   output logic       addr_in_range_o,
+  output logic       addr_is_first_o,
   output logic[31:0] read_o,
   output logic[31:0] read2_o,
   input  logic       find_i,
@@ -23,6 +24,7 @@ module circular_buffer_om
   // Circular buffer per se
   logic[63:0] mem[SIZE-1:0];
   logic[SIZE-1:0] data_vector;
+  logic[SIZE-1:0] data_vector2;
 
 /******************************************************************************/
 /*                                BUFFER DLK                                  */
@@ -42,10 +44,14 @@ module circular_buffer_om
 
   genvar i;
   generate
-    for (i=0; i < SIZE; i++) assign data_vector[i] = (find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}) ? 1'b1 : 1'b0;
+    for (i=0; i < SIZE; i++) begin 
+      assign data_vector[i] = (find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}) ? 1'b1 : 1'b0;
+      assign data_vector2[i] = (find_addr_i == mem[i][63:32]) ? 1'b1 : 1'b0;
+    end
   endgenerate
  
-  assign addr_in_range_o = (data_vector != 64'b0) ? 1'b1 : 1'b0; //Par contre le 8'b0 c'est SIZE'b0 non?
+  assign addr_in_range_o = (data_vector != {SIZE{1'b0}}) ? 1'b1 : 1'b0;
+  assign addr_is_first_o = (data_vector2 != {SIZE{1'b0}}) ? 1'b1 : 1'b0;
 
   assign read_o = mem[cursor-1][63:32]; //first
   assign read2_o = mem[cursor-1][31:0]; //end
