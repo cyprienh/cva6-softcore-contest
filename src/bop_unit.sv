@@ -1,4 +1,5 @@
-
+// Ignore memset ?
+// Ignore too long ?
 
 module bop_unit (
     input  logic                      clk_i,
@@ -21,8 +22,8 @@ module bop_unit (
     riscv::xlen_t             vaddr_xlen;
     
     // INSA: Registers for overflow management (heap)
-    parameter   bof_write_size = 3;
-    parameter   bof_date_max = 10;
+    parameter   bof_write_size = 16;
+    parameter   bof_date_max = 6;
 
     logic[31:0] bof_start_d;
     logic[31:0] bof_end_d;
@@ -49,6 +50,7 @@ module bop_unit (
     logic       buffer_write_d;
     logic       buffer_write_q;
     logic       addr_in_buffer;
+    //logic       addr_inside;
     logic       addr_is_first;
 
     logic en_crash_q;
@@ -76,6 +78,8 @@ module bop_unit (
     logic dlk_end_q;
     logic dlk_start_q;
 
+    logic is_big;
+
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
 
@@ -84,10 +88,12 @@ module bop_unit (
       .rst_ni,
       .rst_us           (rst_buf_i),
       .en_write_i       (buffer_write_q),
+      .is_big_i         (is_big),
       .addr_first_i     (bof_start_q),   
       .addr_last_i      (bof_end_q),    
       .find_addr_i      (vaddr_i),
       .addr_in_range_o  (addr_in_buffer),
+      //.addr_inside_o    (addr_inside),
       .addr_is_first_o  (addr_is_first),
       .read_o           (alu_read_out),
       .read2_o          (alu_read_out2),
@@ -99,6 +105,8 @@ module bop_unit (
     assign data_in_buffer = addr_in_buffer; //debug
     assign to_crash = bof_load_in_range_q || illegal_load_q;
     //assign to_crash = (decoded_instr_i.op == ariane_pkg::LW) ? addr_in_buffer : 1'b0;
+
+    assign is_big = (bof_count_q > 100) ? 1'b1 : 1'b0;
 
     always_comb begin : store_size
       case(decoded_instr_i.op)
@@ -126,13 +134,13 @@ module bop_unit (
       bof_last_reg_d = bof_last_reg_q;
       illegal_load_d = illegal_load_q;
 
-      //crash_d = crash_q;
+      crash_d = crash_q;
 
       if(decoded_instr_i.op == ariane_pkg::LW) begin   // if load inside one overflow range, take note 
         if(addr_in_buffer) begin // || (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q)
-            if (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q) begin // if illegal load in a row
-              illegal_load_d = 1'b1; // je le remets jamais à 0 pour qu'il reste à 1 jusqu'au prochain jump, meme si on fait d'autres load entre temps
-            end
+          if (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q) begin // if illegal load in a row
+            illegal_load_d = 1'b1; // je le remets jamais à 0 pour qu'il reste à 1 jusqu'au prochain jump, meme si on fait d'autres load entre temps
+          end
           bof_load_in_range_d = 1'b1;
           bof_last_reg_d = decoded_instr_i.rd;
         end else begin
@@ -157,8 +165,9 @@ module bop_unit (
               bof_date_d = bof_date_max;
             end else begin    // store somewhere new -> add to buffer
               bof_active_d = 1'b0;
-              if((bof_count_q > bof_write_size)) //test  
+              if(bof_count_q > bof_write_size) begin
                 buffer_write_d = 1'b1;
+              end
             end
           end
         end else begin
@@ -167,9 +176,15 @@ module bop_unit (
               bof_date_d = bof_date_q - 1;
             end else begin              // if date = 0, overflow timed out, writing
               bof_active_d = 1'b0;
-              if((bof_count_q > bof_write_size))  //test WOOOHOOO IT WORKS 
+              if(bof_count_q > bof_write_size) begin //test WOOOHOOO IT WORKS 
                 buffer_write_d = 1'b1;
+              end
             end
+            // if(decoded_instr_i.op == ariane_pkg::LB) begin
+            //   if(addr_is_first && bof_count_q > 8) begin
+            //     crash_d = 1'b1;
+            //   end
+            // end
           end
         end
       end 
@@ -188,7 +203,7 @@ module bop_unit (
         bof_pc_q <= 32'b0;
         bof_last_reg_q <= 6'b0;
         illegal_load_q <= 0'b0;
-        //crash_q <= 1'b0;
+        crash_q <= 1'b0;
       end else begin
         bof_active_q <= bof_active_d;
         bof_start_q <= bof_start_d;
@@ -200,69 +215,81 @@ module bop_unit (
         bof_pc_q <= bof_pc_d;
         bof_last_reg_q <= bof_last_reg_d;
         illegal_load_q <= illegal_load_d;
-        //crash_q <= crash_d;
+        crash_q <= crash_d;
       end
     end
 
     assign to_crash2 = crash_q;
 
+    //logic first_inside_q;
+    //logic first_inside_d;
+
     // DATALEAK protection : if there are consecutive LBs, then 
     // check for a load in an interval stored in circular buffer
     // TODO: ff d<=q, crash signal, tests
-    always_comb begin : dataleak_safe
-      crash_d = crash_q;
+    // always_comb begin : dataleak_safe
+    //   crash_d = crash_q;
 
-      dlk_active_d = dlk_active_q;
-      dlk_start_d = dlk_start_q;
-      dlk_end_d = dlk_end_q;
-      dlk_date_d = dlk_date_q;
+    //   dlk_active_d = dlk_active_q;
+    //   first_inside_d = first_inside_q;
+    //   dlk_start_d = dlk_start_q;
+    //   dlk_end_d = dlk_end_q;
+    //   dlk_date_d = dlk_date_q;
 
-      if ((bof_pc_q != decoded_instr_i.pc) && en_crash_i) begin // avoid taking slacks in account
-        if ((decoded_instr_i.op == ariane_pkg::LB) && !(decoded_instr_i.rs1 inside {2, 8})) begin
-          // data is loaded from memory and check FP or SP (not used by memcpy)
-          if (~dlk_active_q) begin     // start tracking
-            dlk_active_d = 1'b1;       // activate protection
-            dlk_start_d = vaddr_i;     // base address of consecutive lBs is start
-            dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
-            dlk_date_d = dlk_date_max; // reset timer
-          end else if(vaddr_i == dlk_end_q+1) begin    
-            // if next load is next to previous one
-            dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
-            dlk_date_d = dlk_date_max; // reset timer
-            if(addr_is_first) begin
-              crash_d = 1'b1;
-            end
-          end else begin    
-          // lb somewhere new
-            dlk_active_d = 1'b0;
-          end
-        end else if (decoded_instr_i.op == ariane_pkg::JALR) begin
-          dlk_active_d = 1'b0;
-        end else if (dlk_active_q) begin
-          if (dlk_date_q == 0) begin
-            dlk_active_d = 1'b0;         // Overflow timed out
-          end else begin
-            dlk_date_d = dlk_date_q - 1; // Decrement counter
-          end
-        end
-      end
-    end
+    //   if(decoded_instr_i.op == ariane_pkg::LB && dlk_active_q) begin
+    //     if(addr_is_first) begin
+    //       crash_d = 1'b1;
+    //     end
+    //   end
 
-    // INSA : flip-flop for dataleak protection
-    always_ff @(posedge clk_i or negedge rst_ni) begin : dataleak_ff
-      if (~rst_ni) begin
-        dlk_active_q <= 1'b0;
-        dlk_start_q <= {32{1'b0}};
-        dlk_end_q <= {32{1'b0}};
-        dlk_date_q <= {4{1'b0}};
-        crash_q <= 1'b0;
-      end else begin
-        dlk_active_q <= dlk_active_d;
-        dlk_start_q <= dlk_start_d;
-        dlk_end_q <= dlk_end_d;
-        dlk_date_q <= dlk_date_d;
-        crash_q <= crash_d;
-      end
-    end
+    //   if ((bof_pc_q != decoded_instr_i.pc) && en_crash_i) begin // avoid taking slacks in account
+    //     if ((decoded_instr_i.op == ariane_pkg::LB) && !(decoded_instr_i.rs1 inside {2, 8})) begin
+    //       // data is loaded from memory and check FP or SP (not used by memcpy)
+    //       if (~dlk_active_q) begin     // start tracking
+    //         dlk_active_d = 1'b1;       // activate protection
+    //         dlk_start_d = vaddr_i;     // base address of consecutive lBs is start
+    //         dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
+    //         dlk_date_d = dlk_date_max; // reset timer
+    //       end else if(vaddr_i == dlk_end_q+1) begin    
+    //         // if next load is next to previous one
+    //         dlk_end_d = vaddr_i;       // saving last address to check for consecutiveness
+    //         dlk_date_d = dlk_date_max; // reset timer
+    //         // if(addr_is_first && bof_count_q >= 8) begin
+    //         //   crash_d = 1'b1;
+    //         // end
+    //       end else begin    
+    //       // lb somewhere new
+    //         dlk_active_d = 1'b0;
+    //       end
+    //     end else if (decoded_instr_i.op == ariane_pkg::JALR) begin
+    //       dlk_active_d = 1'b0;
+    //     end else if (dlk_active_q) begin
+    //       if (dlk_date_q == 0) begin
+    //         dlk_active_d = 1'b0;         // Overflow timed out
+    //       end else begin
+    //         dlk_date_d = dlk_date_q - 1; // Decrement counter
+    //       end
+    //     end
+    //   end
+    // end
+
+    // // INSA : flip-flop for dataleak protection
+    // always_ff @(posedge clk_i or negedge rst_ni) begin : dataleak_ff
+    //   if (~rst_ni) begin
+    //     dlk_active_q <= 1'b0;
+    //     dlk_start_q <= {32{1'b0}};
+    //     dlk_end_q <= {32{1'b0}};
+    //     dlk_date_q <= {4{1'b0}};
+    //     crash_q <= 1'b0;
+    //     first_inside_q <= 1'b0;
+    //   end else begin
+    //     dlk_active_q <= dlk_active_d;
+    //     dlk_start_q <= dlk_start_d;
+    //     dlk_end_q <= dlk_end_d;
+    //     dlk_date_q <= dlk_date_d;
+    //     crash_q <= crash_d;
+    //     first_inside_q <= first_inside_d;
+    //   end
+    // end
 
 endmodule

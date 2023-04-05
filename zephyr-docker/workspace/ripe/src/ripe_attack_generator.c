@@ -119,7 +119,7 @@ print_current_test_parameters(void) {
 void
 main(void)
 {
-#define ATTACK_NR   4
+#define ATTACK_NR 4
 #if ATTACK_NR == 1
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
@@ -220,12 +220,14 @@ perform_attack(
 	Overflow buffer
 	Vulnerable struct
 	*/
+    static int r3,r4;
     int (* stack_func_ptr)(const char *);
     long * stack_mem_ptr;
     long * stack_mem_ptr_aux;
     int stack_flag;
-	char stack_secret[32];
-	strcpy(stack_secret, data_secret);
+	  char stack_secret[32];
+   
+	  strcpy(stack_secret, data_secret);
     char stack_buffer[1024];
     struct attackme stack_struct;
     stack_struct.func_ptr = &dummy_function;
@@ -240,6 +242,8 @@ perform_attack(
 	Function pointer array
 	Longjmp buffer
 	*/
+    printf("boop\n");
+
     struct attackme * heap_struct =
       (struct attackme *) malloc(sizeof(struct attackme));
     heap_struct->func_ptr = dummy_function;
@@ -300,7 +304,7 @@ perform_attack(
   	strcpy(bss_secret, data_secret);
 
     // write shellcode with correct jump address
-    //build_shellcode(shellcode_nonop);
+    build_shellcode(shellcode_nonop);
 
     switch (attack.location) {
         case STACK:
@@ -348,12 +352,10 @@ perform_attack(
                 heap_mem_ptr     = (long *) heap_buffer3;
 
 				if (attack.code_ptr == VAR_LEAK) {
-          static int r3, r4;
-          __asm__(".insn u 0x0B, %0, 61" : "=r"(r3) : : ); 
-          __asm__(".insn u 0x2B, %0, 27" : "=r"(r4) : : ); 
-          printf("intervalle: %p - %p\n", r3, r4);
 					heap_secret = heap_buffer2;
 					strcpy(heap_secret, data_secret);
+          __asm__(".insn u 0x0B, %0, 61" : "=r"(r3) : : ); 
+          __asm__(".insn u 0x2B, %0, 27" : "=r"(r4) : : ); 
 				}
                 // Also set the location of the function pointer and the
                 // longjmp buffer on the heap (the same since only choose one)
@@ -725,7 +727,9 @@ perform_attack(
     switch (attack.function) {
         case MEMCPY:
             // memcpy() shouldn't copy the terminating NULL, therefore - 1
+            printf("before\n");
             memcpy(buffer, payload.buffer, payload.size - 1);
+            printf("after\n");
             break;
         case STRCPY:
             strcpy(buffer, payload.buffer);
@@ -1115,7 +1119,7 @@ build_shellcode(char * shellcode)
 
     hex_to_string(addi_s, addi_val);
 
-    format_instruction(shellcode, lui_val); // ???
+    format_instruction(shellcode, lui_val);
     format_instruction(shellcode + 4, addi_val);
     format_instruction(shellcode + 8, jalr_val);
 

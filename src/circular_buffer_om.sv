@@ -7,10 +7,12 @@ module circular_buffer_om
   input  logic       rst_ni,
   input  logic       rst_us,
   input  logic       en_write_i,
+  input  logic       is_big_i,
   input  logic[31:0] addr_first_i,
   input  logic[31:0] addr_last_i,
   input  logic[31:0] find_addr_i,
   output logic       addr_in_range_o,
+  //output logic       addr_inside_o,
   output logic       addr_is_first_o,
   output logic[31:0] read_o,
   output logic[31:0] read2_o,
@@ -23,8 +25,10 @@ module circular_buffer_om
   logic[3:0] cursor;
   // Circular buffer per se
   logic[63:0] mem[SIZE-1:0];
+  logic[SIZE-1:0] is_big_vec; /// TODO
   logic[SIZE-1:0] data_vector;
   logic[SIZE-1:0] data_vector2;
+  logic[SIZE-1:0] data_vector3;
 
 /******************************************************************************/
 /*                                BUFFER DLK                                  */
@@ -46,12 +50,14 @@ module circular_buffer_om
   generate
     for (i=0; i < SIZE; i++) begin 
       assign data_vector[i] = (find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}) ? 1'b1 : 1'b0;
-      assign data_vector2[i] = (find_addr_i == mem[i][63:32]) ? 1'b1 : 1'b0;
+      //assign data_vector2[i] = (mem[i][31:28] == 4'h8  && (find_addr_i inside {[(mem[i][63:32]+1):(mem[i][31:0]-1)]})) ? 1'b1 : 1'b0;
+      assign data_vector3[i] = (find_addr_i == mem[i][63:32] && ~is_big_vec[i]) ? 1'b1 : 1'b0;
     end
   endgenerate
  
   assign addr_in_range_o = (data_vector != {SIZE{1'b0}}) ? 1'b1 : 1'b0;
-  assign addr_is_first_o = (data_vector2 != {SIZE{1'b0}}) ? 1'b1 : 1'b0;
+  //assign addr_inside_o = (data_vector2 != {SIZE{1'b0}}) ? 1'b1 : 1'b0;
+  assign addr_is_first_o = (data_vector3 != {SIZE{1'b0}}) ? 1'b1 : 1'b0;
 
   assign read_o = mem[cursor-1][63:32]; //first
   assign read2_o = mem[cursor-1][31:0]; //end
@@ -67,6 +73,7 @@ module circular_buffer_om
     end else if (en_write_i) begin
       // store both addresses in a 64 word
       mem[cursor] <= {addr_first_i, addr_last_i};
+      is_big_vec[cursor] <= is_big_i;
       // cursor is incremented and is 0 if the buffer is full
       cursor <= cursor + 1;
     end
