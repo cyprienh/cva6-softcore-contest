@@ -10,6 +10,7 @@ module bop_unit (
     output logic [31:0]                           alu_read_out2,
 
     output logic      to_crash,
+    output logic      to_crash2,
     output logic      data_in_buffer,
 
     input logic       rst_buf_i,
@@ -20,8 +21,8 @@ module bop_unit (
     riscv::xlen_t             vaddr_xlen;
     
     // INSA: Registers for overflow management (heap)
-    parameter   bof_write_size = 32;
-    parameter   bof_date_max = 10;
+    parameter   bof_write_size = 16;
+    parameter   bof_date_max = 6;
 
     logic[31:0] bof_start_d;
     logic[31:0] bof_end_d;
@@ -48,6 +49,7 @@ module bop_unit (
     logic       buffer_write_d;
     logic       buffer_write_q;
     logic       addr_in_buffer;
+    logic       addr_is_first;
 
     logic en_crash_q;
     logic en_crash_d;
@@ -55,8 +57,10 @@ module bop_unit (
     logic illegal_load_d;
     logic illegal_load_q;
 
-    //logic crash_q;
-    //logic crash_d;
+    logic crash_q;
+    logic crash_d;
+
+    logic is_big;
 
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
@@ -65,18 +69,22 @@ module bop_unit (
       .clk_i,
       .rst_ni,
       .rst_us           (rst_buf_i),
+      .is_big_i         (is_big),
       .en_write_i       (buffer_write_q),
       .addr_first_i     (bof_start_q),   
       .addr_last_i      (bof_end_q),    
       .find_addr_i      (vaddr_i),
       .addr_in_range_o  (addr_in_buffer),
+      .addr_is_first_o  (addr_is_first),
       .read_o           (alu_read_out),
       .read2_o          (alu_read_out2)
     );
 
     assign data_in_buffer = addr_in_buffer; //debug
     assign to_crash = bof_load_in_range_q || illegal_load_q;
-    //assign to_crash = (decoded_instr_i.op == ariane_pkg::LW) ? addr_in_buffer : 1'b0;
+    assign to_crash2 = crash_q;
+
+    assign is_big = (bof_count_q > 100) ? 1'b1 : 1'b0;
 
     always_comb begin : store_size
       case(decoded_instr_i.op)
@@ -104,7 +112,7 @@ module bop_unit (
       bof_last_reg_d = bof_last_reg_q;
       illegal_load_d = illegal_load_q;
 
-      //crash_d = crash_q;
+      crash_d = crash_q;
 
       if(decoded_instr_i.op == ariane_pkg::LW) begin   // if load inside one overflow range, take note 
         if(addr_in_buffer) begin // || (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q)
@@ -149,10 +157,11 @@ module bop_unit (
                 buffer_write_d = 1'b1;
             end
           end
-          /* else if(decoded_instr_i.op inside {ariane_pkg::JAL, ariane_pkg::JALR}) begin  // if call after lw in range, crash
-            if(bof_load_in_range_q) // maybe check if register is same as lw and if its really a call
-              to_crash = 1'b1;
-          end*/
+          if(decoded_instr_i.op == ariane_pkg::LB) begin
+            if(addr_is_first && bof_count_q > 8) begin
+              crash_d = 1'b1;
+            end
+          end
         end
       end 
     end
@@ -170,7 +179,7 @@ module bop_unit (
         bof_pc_q <= 32'b0;
         bof_last_reg_q <= 6'b0;
         illegal_load_q <= 0'b0;
-        //crash_q <= 1'b0;
+        crash_q <= 1'b0;
       end else begin
         bof_active_q <= bof_active_d;
         bof_start_q <= bof_start_d;
@@ -182,7 +191,7 @@ module bop_unit (
         bof_pc_q <= bof_pc_d;
         bof_last_reg_q <= bof_last_reg_d;
         illegal_load_q <= illegal_load_d;
-        //crash_q <= crash_d;
+        crash_q <= crash_d;
       end
     end
 

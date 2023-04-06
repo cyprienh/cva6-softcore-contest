@@ -124,7 +124,7 @@ main(void)
   //INSA_INST - enable crash
   //__asm__(".insn u 0x0B, x5, 831" : : : ); 
   //__asm__(".insn u 0x2B, x6, 91" : : : ); 
-#define ATTACK_NR   10
+#define ATTACK_NR   4
 // 1-5-9 ok  8 ok
 #if ATTACK_NR == 1  // patch retaddr
     attack.technique = DIRECT;
@@ -853,6 +853,7 @@ perform_attack(
                         break;
                 }
             } else if (attack.inject_param == INJECTED_CODE_NO_NOP) {
+                printf("Je fais un load illegal juste apres\n");
                 *(uintptr_t *) (*(uintptr_t *) target_addr) =
                   (uintptr_t) buffer;
             }
