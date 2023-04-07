@@ -121,3 +121,12 @@ lw @a1
 autre instr 
 autre lw??? -> met à 0
 jalr @1  -> on saute pas
+
+
+_____________
+
+0x80007610 <- sortie du fprintf
+-> on ne sort pas du fprintf, on l'atteint pas
+
+-> l'existence d'un fprintf fait crash tout court, même sans variables
+printk fonctionne mais pas fprintf?

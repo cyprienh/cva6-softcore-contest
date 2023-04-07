@@ -27,8 +27,8 @@ void main(void)
    uint64_t total_cycles;
 
    // arguments
-   depth = 12;
-   callsnb = 50;
+   depth = 12; //12
+   callsnb = 50; //50
    double value = 63728127;
    double sum = 0.0;
 
@@ -41,12 +41,13 @@ void main(void)
       fprintf(stderr,"ERROR: specified call number (%d) is out of allowed range (1-%d)\n", callsnb, MAX_CALLS);
       exit(1);
    }
+   // dies in fprintf
+   //fprintf(stdout,"Beginning of execution with depth %d, call number %d, seed value %f\n", depth, callsnb, value);
+   //printf("Beginning of execution with depth %d, call number %d, seed value %f\n", depth, callsnb, value);
 
-   fprintf(stdout,"Begining of execution with depth %d, call number %d, seed value %f\n", depth, callsnb, value);
+   start = get_mcycle(); //ded
 
-   start = get_mcycle();
-
-   // main computation loop
+   // main computation loop 
    for (int i = 0; i < callsnb; i++)
       sum += main_func_rec(value, 0, 1);
 
@@ -54,6 +55,8 @@ void main(void)
    total_cycles = end - start;
 
    fprintf(stdout,"SUCCESS: computed value %f - duration: %f sec %u cycles\n", sum, total_cycles/FREQ, total_cycles);
+   //printk("SUCCESS: computed value %p - duration: %p sec %u cycles\n", sum, total_cycles/FREQ, total_cycles);
+   //fprintf(stdout,"hi");
 }
 
 

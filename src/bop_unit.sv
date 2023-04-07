@@ -21,8 +21,8 @@ module bop_unit (
     riscv::xlen_t             vaddr_xlen;
     
     // INSA: Registers for overflow management (heap)
-    parameter   bof_write_size = 16;
-    parameter   bof_date_max = 6;
+    parameter   bof_write_size = 32;  // 16
+    parameter   bof_date_max = 10;     // 6
 
     logic[31:0] bof_start_d;
     logic[31:0] bof_end_d;
@@ -157,11 +157,11 @@ module bop_unit (
                 buffer_write_d = 1'b1;
             end
           end
-          if(decoded_instr_i.op == ariane_pkg::LB) begin
-            if(addr_is_first && bof_count_q > 8) begin
-              crash_d = 1'b1;
-            end
-          end
+          // if((decoded_instr_i.op == ariane_pkg::LB) && !(decoded_instr_i.rs1 inside {2, 8})) begin //here
+          //   if(addr_is_first && bof_count_q > 8) begin
+          //     crash_d = 1'b1;
+          //   end
+          // end
         end
       end 
     end

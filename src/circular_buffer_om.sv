@@ -31,8 +31,8 @@ module circular_buffer_om
       assign data_vector2[i] = (find_addr_i == mem[i][63:32] && ~is_big_vec[i]) ? 1'b1 : 1'b0;
     end
   endgenerate
- 
-  assign addr_in_range_o = (data_vector != 8'b0) ? 1'b1 : 1'b0;
+  
+  assign addr_in_range_o = (data_vector != {SIZE{1'b0}}) ? 1'b1 : 1'b0;
   assign addr_is_first_o = (data_vector2 != {SIZE{1'b0}}) ? 1'b1 : 1'b0;
 
   assign read_o = mem[cursor-1][63:32]; //first
