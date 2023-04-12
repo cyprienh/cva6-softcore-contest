@@ -12,8 +12,7 @@ module circular_buffer_om
   input  logic[31:0] find_addr_i,
   output logic       addr_in_range_o,
   output logic[31:0] read_o,
-  output logic[31:0] read2_o,
-  input  logic       find_i);
+  output logic[31:0] read2_o);
 
   logic[3:0] cursor;
   // Circular buffer per se
@@ -22,7 +21,7 @@ module circular_buffer_om
 
   genvar i;
   generate
-    for (i=0; i < SIZE; i++) assign data_vector[i] = (find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}) ? 1'b1 : 1'b0;
+    for (i=0; i < SIZE; i++) assign data_vector[i] = (find_addr_i[31:28] == 4'h8 && find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}) ? 1'b1 : 1'b0;
   endgenerate
  
   assign addr_in_range_o = (data_vector != 8'b0) ? 1'b1 : 1'b0;

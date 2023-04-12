@@ -106,13 +106,13 @@ module bop_unit (
 
       //crash_d = crash_q;
 
-      if(decoded_instr_i.op == ariane_pkg::LW) begin   // if load inside one overflow range, take note 
+      // NOTES -> checking not sp or fp = useless apparently
+      if(decoded_instr_i.op == ariane_pkg::LW && !(decoded_instr_i.rs1 inside {2, 8})) begin   // if load inside one overflow range, take note 
         if(addr_in_buffer) begin // || (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q)
-            if (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q) begin // if illegal load in a row
-              illegal_load_d = 1'b1; // je le remets jamais à 0 pour qu'il reste à 1 jusqu'au prochain jump, meme si on fait d'autres load entre temps
-            end
           bof_load_in_range_d = 1'b1;
           bof_last_reg_d = decoded_instr_i.rd;
+        end else if (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q) begin // if illegal load in a row
+            //illegal_load_d = 1'b1; // je le remets jamais à 0 pour qu'il reste à 1 jusqu'au prochain jump, meme si on fait d'autres load entre temps
         end else begin
           bof_load_in_range_d = 1'b0;
           bof_last_reg_d = 6'b0;
