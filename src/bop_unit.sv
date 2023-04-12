@@ -30,9 +30,6 @@ module bop_unit (
 
     logic [riscv::VLEN-1:0]   vaddr_i;
     riscv::xlen_t             vaddr_xlen;
-
-    logic [riscv::VLEN-1:0]   rd;
-    riscv::xlen_t             rd_xlen;
     
     // INSA: Registers for overflow management (heap)
     parameter   bof_write_size = 32;
@@ -70,9 +67,6 @@ module bop_unit (
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
 
-    assign rd_xlen = $unsigned($signed(fu_data_i.operand_b));
-    assign rd = rd_xlen[riscv::VLEN-1:0];
-
     circular_buffer_om insa_buffer_om (
       .clk_i,
       .rst_ni,
@@ -88,6 +82,7 @@ module bop_unit (
     );
 
     assign data_in_buffer = bof_active_q; //debug
+    assign to_crash = bof_load_in_range_q;
 
     always_comb begin : store_size
       case(decoded_instr_i.op)
@@ -100,7 +95,6 @@ module bop_unit (
 
     always_comb begin : heap_safe
       buffer_write_d = 1'b0;
-      to_crash = 1'b0;
 
       bof_active_d = bof_active_q;
       bof_start_d = bof_start_q;
@@ -113,6 +107,13 @@ module bop_unit (
       bof_pc_d = bof_pc_q;
       bof_load_limit_d = bof_load_limit_q;
 
+      if(decoded_instr_i.op == ariane_pkg::LW) begin   // if load inside one overflow range, take note 
+        if (addr_in_buffer) begin           // test to fix lw/jalr visiblement ça fait rien
+          bof_load_in_range_d = 1'b1;
+        end else begin
+          bof_load_in_range_d = 1'b0;
+        end
+      end
 
       if ((bof_pc_q != decoded_instr_i.pc) && en_crash_i) begin 
         bof_pc_d = decoded_instr_i.pc;
@@ -144,21 +145,14 @@ module bop_unit (
                 buffer_write_d = 1'b1;
             end
           end
-          if((decoded_instr_i.op == ariane_pkg::LW)  && (rd[31:28] == 4'h8)) begin   // if load inside one overflow range, take note 
-            bof_load_in_range_d = ((bof_load_limit_q != 'b0) || addr_in_buffer || (bof_active_q && vaddr_i inside {[bof_start_q:bof_end_q]}));
-            if (addr_in_buffer) begin           // test to fix lw/jalr visiblement ça fait rien
-              bof_load_limit_d = bof_load_time;
-            end else begin
-              if (bof_load_limit_q > 'b0)
-                bof_load_limit_d = bof_load_limit_q-1;
-            end
+          
             // load dans la range = (on était dans la range recemment || on est dans la range mtn)
             // si on était déjà dans la range: range =-1 
             // sinon (on load a l'instant): mettre la range au max
-          end else if(decoded_instr_i.op == ariane_pkg::JALR) begin  // if call after lw in range, crash
-            if(bof_load_in_range_q && en_crash_i)
-              to_crash = 1'b1;
-          end
+          // end else if(decoded_instr_i.op == ariane_pkg::JALR) begin  // if call after lw in range, crash
+          //   if(bof_load_in_range_q && en_crash_i)
+          //     to_crash = 1'b1;
+          // end
         end
       end 
     end
@@ -174,7 +168,6 @@ module bop_unit (
         bof_date_q <= 4'b0;
         buffer_write_q <= 1'b0;
         bof_pc_q <= 32'b0;
-        bof_load_limit_q <= 'b0;
       end else begin
         bof_active_q <= bof_active_d;
         bof_start_q <= bof_start_d;
@@ -184,7 +177,6 @@ module bop_unit (
         bof_date_q <= bof_date_d;
         buffer_write_q <= buffer_write_d;
         bof_pc_q <= bof_pc_d;
-        bof_load_limit_q <= bof_load_limit_d;
       end
     end
 

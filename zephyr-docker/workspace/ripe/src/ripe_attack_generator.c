@@ -124,72 +124,72 @@ main(void)
   //INSA_INST - enable crash
   //__asm__(".insn u 0x0B, x5, 831" : : : ); 
   //__asm__(".insn u 0x2B, x6, 91" : : : ); 
-#define ATTACK_NR   10
+#define ATTACK_NR   2
 // 1-5-9 ok  8 ok
-#if ATTACK_NR == 1  // patch retaddr
+#if ATTACK_NR == 1  // okk
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= RET_ADDR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 2  // heap fix
+#elif ATTACK_NR == 2  // okk
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= FUNC_PTR_STACK_VAR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 3 // heap fix // ?
+#elif ATTACK_NR == 3 // okk 
     attack.technique = INDIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= FUNC_PTR_STACK_VAR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 4 // no fix
+#elif ATTACK_NR == 4 // no okk
     attack.technique = DIRECT;
     attack.inject_param = DATA_ONLY;
     attack.code_ptr= VAR_LEAK;
     attack.location = HEAP;
     attack.function = SPRINTF;
 
-#elif ATTACK_NR == 5 // patch retaddr
+#elif ATTACK_NR == 5 // okk
     attack.technique = DIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= RET_ADDR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 6 
+#elif ATTACK_NR == 6 //no okk
     attack.technique = INDIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= FUNC_PTR_HEAP;
     attack.location = HEAP;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 7
+#elif ATTACK_NR == 7 //no okk
     attack.technique = INDIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= STRUCT_FUNC_PTR_HEAP;
     attack.location = HEAP;
     attack.function = HOMEBREW;
 
-#elif ATTACK_NR == 8 // patch
+#elif ATTACK_NR == 8 // okk
     attack.technique = INDIRECT;
     attack.inject_param = RETURN_INTO_LIBC;
     attack.code_ptr= LONGJMP_BUF_HEAP;
     attack.location = HEAP;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 9 // retaddr fix
+#elif ATTACK_NR == 9 // okk
     attack.technique = DIRECT;
     attack.inject_param = RETURN_ORIENTED_PROGRAMMING;
     attack.code_ptr= RET_ADDR;
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 10 
+#elif ATTACK_NR == 10 // okk 
     attack.technique = DIRECT;
     attack.inject_param = RETURN_ORIENTED_PROGRAMMING;
     attack.code_ptr= STRUCT_FUNC_PTR_HEAP;

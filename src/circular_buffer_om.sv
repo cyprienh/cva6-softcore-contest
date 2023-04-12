@@ -21,10 +21,11 @@ module circular_buffer_om
 
   genvar i;
   generate
-    for (i=0; i < SIZE; i++) assign data_vector[i] = ((find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}));
+    for (i=0; i < SIZE; i++) 
+    assign data_vector[i] = (find_addr_i inside {[mem[i][63:32]:mem[i][31:0]]}) ? 1'b1 : 1'b0;
   endgenerate
 
-  assign addr_in_range_o = (data_vector != 0);
+  assign addr_in_range_o = (data_vector != {SIZE{1'b0}}) ? 1'b1 : 1'b0;
 
   assign read_o = mem[cursor-1][63:32]; //first
   assign read2_o = mem[cursor-1][31:0]; //end
