@@ -29,7 +29,8 @@ module bop_unit (
     input logic       rst_buf_i,
     input logic       en_crash_i,
 
-    output logic      illegal_load_o
+    output logic      illegal_load_o,
+    output logic      lb_crash
 );
 
     logic [riscv::VLEN-1:0]   vaddr_i;
@@ -61,6 +62,7 @@ module bop_unit (
     logic       buffer_write_d;
     logic       buffer_write_q;
     logic       addr_in_buffer;
+    logic       addr_is_first;
 
     logic[6:0] bof_last_reg_d;
     logic[6:0] bof_last_reg_q;
@@ -71,19 +73,26 @@ module bop_unit (
     logic       illegal_load_d;
     logic       illegal_load_q;
 
+    logic crash_q;
+    logic crash_d;
+    logic is_big;
+
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
     assign illegal_load_o = illegal_load_q;
+    assign lb_crash = crash_q;
 
     circular_buffer_om insa_buffer_om (
       .clk_i,
       .rst_ni,
       .rst_us           (rst_buf_i),
+      .is_big_i         (is_big),
       .en_write_i       (buffer_write_q),
       .addr_first_i     (bof_start_q),   
       .addr_last_i      (bof_end_q),    
       .find_addr_i      (vaddr_i),
       .addr_in_range_o  (addr_in_buffer),
+      .addr_is_first_o  (addr_is_first),
       .read_o           (alu_read_out),
       .read2_o          (alu_read_out2)
       //.fullo
@@ -93,6 +102,8 @@ module bop_unit (
     assign to_crash = bof_load_in_range_q;
     assign load_reg = bof_last_reg_q;
     assign illegal_load = illegal_load_q;
+
+    assign is_big = (bof_count_q > 100) ? 1'b1 : 1'b0;
 
     always_comb begin : heap_safe
       buffer_write_d = 1'b0;
@@ -110,6 +121,8 @@ module bop_unit (
 
       bof_last_reg_d = bof_last_reg_q;
       illegal_load_d = illegal_load_q;
+
+      crash_d = crash_q;
 
       // DETECTING INTERACTIONS WITH SAVED INTERVALS
       if(decoded_instr_i.op == ariane_pkg::LW && !(decoded_instr_i.rs1 inside {2, 8})) begin   // if load inside one overflow range, take note 
@@ -160,6 +173,11 @@ module bop_unit (
                 buffer_write_d = 1'b1;
             end
           end
+          if(decoded_instr_i.op == ariane_pkg::LB) begin
+            if(addr_is_first && bof_count_q > 8) begin
+              crash_d = 1'b1;
+            end
+          end
         end
       end 
     end
@@ -179,6 +197,7 @@ module bop_unit (
         illegal_load_q <= 1'b0;
         bof_last_data_q <= 32'b0;
         bof_same_q <= 32'b0;
+        crash_q <= 1'b0;
       end else begin
         bof_active_q <= bof_active_d;
         bof_start_q <= bof_start_d;
@@ -192,6 +211,7 @@ module bop_unit (
         illegal_load_q <= illegal_load_d;
         bof_last_data_q <= bof_last_data_d;
         bof_same_q <= bof_same_d;
+        crash_q <= crash_d;
       end
     end
 
