@@ -120,17 +120,6 @@ module bop_unit (
           bof_last_reg_d = 0;
         end
       end
-       if(decoded_instr_i.op == ariane_pkg::LW && !(decoded_instr_i.rs1 inside {2, 8})) begin   // if load inside one overflow range, take note 
-         if (addr_in_buffer) begin
-           bof_load_in_range_d = 1'b1;
-           bof_last_reg_d = decoded_instr_i.rd;
-         end else if (decoded_instr_i.rs1 == bof_last_reg_q && bof_load_in_range_q) begin // if illegal load in a row
-           illegal_load_d = 1'b1;
-         end else begin
-           bof_load_in_range_d = 1'b0;
-           bof_last_reg_d = 0;
-         end
-       end
 
       // SAVING INTERVALS
       if (bof_pc_q != decoded_instr_i.pc && en_crash_i) begin 
@@ -154,7 +143,7 @@ module bop_unit (
               end
             end else begin    // store somewhere new -> add to buffer
               bof_active_d = 1'b0;
-              if(bof_count_q > bof_write_size)// && bof_same_q < bof_count_q) //test  
+              if(bof_count_q > bof_write_size && bof_same_q < bof_count_q) //test  
                 buffer_write_d = 1'b1;
             end
           end
@@ -164,7 +153,7 @@ module bop_unit (
               bof_date_d = bof_date_q - 1;
             else begin              // if date = 0, overflow timed out, writing
               bof_active_d = 1'b0;
-              if(bof_count_q > bof_write_size) //&& bof_same_q < bof_count_q)
+              if(bof_count_q > bof_write_size && bof_same_q < bof_count_q)
                 buffer_write_d = 1'b1;
             end
           end
