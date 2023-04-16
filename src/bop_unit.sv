@@ -27,7 +27,9 @@ module bop_unit (
     output logic [6:0] load_reg,
 
     input logic       rst_buf_i,
-    input logic       en_crash_i
+    input logic       en_crash_i,
+
+    output logic      illegal_load_o
 );
 
     logic [riscv::VLEN-1:0]   vaddr_i;
@@ -71,6 +73,7 @@ module bop_unit (
 
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
+    assign illegal_load_o = illegal_load_q;
 
     circular_buffer_om insa_buffer_om (
       .clk_i,

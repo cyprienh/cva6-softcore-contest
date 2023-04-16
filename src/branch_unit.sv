@@ -75,8 +75,9 @@ module branch_unit (
     // INSA: Registers for overflow management (heap)
     
     logic crash;
+    logic crash2;
 
-    assign to_crash = 'b0; //crash_test crash; // je le mets à zero pour pas qu'il essaye de crash en passant par le frontend
+    //assign to_crash = 'b0; //crash_test crash; // je le mets à zero pour pas qu'il essaye de crash en passant par le frontend
     // on utilise le target addr depuis le branch_unit, donc c'est pas necessaire
 
     bop_unit bopu (
@@ -89,7 +90,8 @@ module branch_unit (
       .data_in_buffer,
       .rst_buf_i,
       .en_crash_i,
-      .to_crash (crash)
+      .to_crash (crash),
+      .illegal_load_o (crash2)
     );
     
     //assign resolved_branch_o.target_address = (~crash) ? target_address_bis : {riscv::VLEN{1'b0}};
@@ -133,7 +135,7 @@ module branch_unit (
         else
           branch_result_o = next_pc;
 
-        if (crash & en_crash_i)
+        if ((crash || crash2) && en_crash_i)
           target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 
