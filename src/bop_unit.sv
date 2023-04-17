@@ -37,8 +37,8 @@ module bop_unit (
     riscv::xlen_t             vaddr_xlen;
     
     // INSA: Registers for overflow management (heap)
-    parameter   bof_write_size = 32;    // 200 -> crash -- 1000 -> pas crash -> 416 (5*message ?)
-    parameter   bof_date_max = 10;
+    parameter   bof_write_size = 16;    // 200 -> crash -- 1000 -> pas crash -> 416 (5*message ?)
+    parameter   bof_date_max = 6;
 
     logic[31:0] bof_start_d;
     logic[31:0] bof_end_d;
