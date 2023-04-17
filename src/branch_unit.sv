@@ -137,7 +137,7 @@ module branch_unit (
         else
           branch_result_o = next_pc;
 
-        if ((crash_varleak || crash || crash_loadcons) && en_crash_i)
+        if ((crash_varleak || (crash && decoded_instr_i.op inside {ariane_pkg::JALR, ariane_pkg::JAL}) || crash_loadcons) && en_crash_i)
           target_address = {riscv::VLEN{1'b0}};
   
         // INSA -> SW LIFO 

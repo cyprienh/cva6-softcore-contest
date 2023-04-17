@@ -124,7 +124,7 @@ main(void)
   //INSA_INST - enable crash
   //__asm__(".insn u 0x0B, x5, 831" : : : ); 
   //__asm__(".insn u 0x2B, x6, 91" : : : ); 
-#define ATTACK_NR   4
+#define ATTACK_NR   10
 // 1-5-9 ok  8 ok
 #if ATTACK_NR == 1  // okk //ok
     attack.technique = DIRECT;
@@ -140,7 +140,7 @@ main(void)
     attack.location = STACK;
     attack.function = MEMCPY;
 
-#elif ATTACK_NR == 3 // okk //rip
+#elif ATTACK_NR == 3 // okk //rip // okkkk
     attack.technique = INDIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
     attack.code_ptr= FUNC_PTR_STACK_VAR;
@@ -881,11 +881,6 @@ perform_attack(
             //__asm__(".insn i 0x5B, 0, %0, %1, 0" : "=r"(r0) : "r"(&stack_func_ptr) : ); 
             //printf("is stack_func_ptr in range? - %d\n", r0);
             stack_func_ptr(NULL);
-            // __asm__("lw a5,-340(s0)" : : : );
-            // __asm__("lw a5,0(a5)" : : : );
-            // __asm__("li a0,0" : : : );
-            // __asm__("li a1,0" : : : );
-            // __asm__("jalr a5" : : : );
             break;
         case FUNC_PTR_STACK_PARAM:
             ((int (*)(char *, int))(*stack_func_ptr_param))(NULL, 0);

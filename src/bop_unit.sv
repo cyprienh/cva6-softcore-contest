@@ -22,7 +22,6 @@ module bop_unit (
     output logic [31:0]                           alu_read_out2,
 
     output logic       to_crash,
-    output logic       illegal_load,
     output logic       data_in_buffer,
     output logic [6:0] load_reg,
 
@@ -79,6 +78,7 @@ module bop_unit (
 
     assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
     assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
+
     assign illegal_load_o = illegal_load_q;
     assign lb_crash = crash_q;
 
@@ -95,13 +95,11 @@ module bop_unit (
       .addr_is_first_o  (addr_is_first),
       .read_o           (alu_read_out),
       .read2_o          (alu_read_out2)
-      //.fullo
     );
 
     assign data_in_buffer = bof_active_q; //debug
     assign to_crash = bof_load_in_range_q;
     assign load_reg = bof_last_reg_q;
-    assign illegal_load = illegal_load_q;
 
     assign is_big = (bof_count_q > 100) ? 1'b1 : 1'b0;
 
@@ -125,7 +123,7 @@ module bop_unit (
       crash_d = crash_q;
 
       // DETECTING INTERACTIONS WITH SAVED INTERVALS
-      if(decoded_instr_i.op == ariane_pkg::LW && !(decoded_instr_i.rs1 inside {2, 8})) begin   // if load inside one overflow range, take note 
+      if(decoded_instr_i.op == ariane_pkg::LW && decoded_instr_i.rs1 != 2) begin   // if load inside one overflow range, take note 
         if (addr_in_buffer) begin
           bof_load_in_range_d = 1'b1;
           bof_last_reg_d = decoded_instr_i.rd;
