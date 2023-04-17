@@ -1,4 +1,7 @@
-// INSA : circular buffer used to store the first and last 
+// Authors: Emily Holmes, Cyprien Heusse, Maïlis Dy, Arthur Gautheron, INSA Toulouse
+// Date: 17.04.2023
+// Description: Circular buffer used to store the intervals of overflows
+
 module circular_buffer_om
 #(
   parameter SIZE = 32)
