@@ -310,7 +310,6 @@ package ariane_pkg;
         logic [riscv::VLEN-1:0] target_address;  // target address at which to jump, or not
         logic                   is_mispredict;   // set if this was a mis-predict
         logic                   is_taken;        // branch is taken
-        logic                   is_crash;        // INSA -> pls crash   // INSA_crash
         cf_t                    cf_type;         // Type of control flow change
     } bp_resolve_t;
 
@@ -442,7 +441,7 @@ package ariane_pkg;
                                SRA, SRL, SLL, SRLW, SLLW, SRAW,
                                // comparisons
                                LTS, LTU, GES, GEU, EQ, NE,
-                               // jumps INSA -> AJOUT DE JAL parce que je peux
+                               // jumps
                                JAL, JALR, BRANCH,
                                // set lower than operations
                                SLTS, SLTU,
@@ -472,7 +471,7 @@ package ariane_pkg;
                                VFMIN, VFMAX, VFSGNJ, VFSGNJN, VFSGNJX, VFEQ, VFNE, VFLT, VFGE, VFLE, VFGT, VFCPKAB_S, VFCPKCD_S, VFCPKAB_D, VFCPKCD_D,
                                
                                // INSA_INST
-                               INSAFIRST, INSALAST, RSTBUF, ENCRASH //,  ENCRASH, RSTBUF, INSAACTIVE
+                               ENCRASH
                              } fu_op;
     typedef struct packed {
         fu_t                      fu;
@@ -481,8 +480,6 @@ package ariane_pkg;
         riscv::xlen_t             operand_b;
         riscv::xlen_t             imm;
         logic [TRANS_ID_BITS-1:0] trans_id;
-        logic [REG_ADDR_SIZE-1:0] rs1;      // INSA
-        logic [REG_ADDR_SIZE-1:0] rs2;      // INSA
     } fu_data_t;
 
     function automatic logic op_is_branch (input fu_op op);

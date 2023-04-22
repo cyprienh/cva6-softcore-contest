@@ -26,7 +26,7 @@ module issue_stage import ariane_pkg::*; #(
     input  logic                                     flush_unissued_instr_i,
     input  logic                                     flush_i,
     // from ISSUE
-    input  scoreboard_entry_t                        decoded_instr_i,     // INSA -> C'EST LUI QU'ON VEUT 100%
+    input  scoreboard_entry_t                        decoded_instr_i,
     input  logic                                     decoded_instr_valid_i,
     input  logic                                     is_ctrl_flow_i,
     output logic                                     decoded_instr_ack_o,
@@ -179,10 +179,10 @@ module issue_stage import ariane_pkg::*; #(
         .branch_valid_o      ( branch_valid_o                  ),
         .csr_valid_o         ( csr_valid_o                     ),
         .mult_valid_o        ( mult_valid_o                    ),
-        .*  // INSA -> l'addresse elle est là cette batarde
+        .*
     );
 
-    // INSA -> Je crois que je fais la bascule entre ISSUE et EX ?
+    // INSA -> bascule entre issue et ex
     always_ff @(posedge clk_i or negedge rst_ni) begin
         if(~rst_ni) begin
             decoded_instr_o <= '0;

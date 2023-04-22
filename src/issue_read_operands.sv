@@ -63,7 +63,7 @@ module issue_read_operands import ariane_pkg::*; #(
     // CSR
     output logic                                   csr_valid_o,      // Output is valid
     // commit port
-    input  logic [NR_COMMIT_PORTS-1:0][4:0]        waddr_i,           // INSA -> Je voudrais récupérer waddr_i[0] à l'étage d'après je crois
+    input  logic [NR_COMMIT_PORTS-1:0][4:0]        waddr_i,
     input  logic [NR_COMMIT_PORTS-1:0][riscv::XLEN-1:0] wdata_i,
     input  logic [NR_COMMIT_PORTS-1:0]             we_gpr_i,
     input  logic [NR_COMMIT_PORTS-1:0]             we_fpr_i
@@ -94,9 +94,6 @@ module issue_read_operands import ariane_pkg::*; #(
     fu_op operator_n, operator_q; // operation to perform
     fu_t  fu_n,       fu_q; // functional unit to use
 
-    // INSA
-    logic [REG_ADDR_SIZE-1:0] rs1_n, rs1_q, rs2_n, rs2_q;  
-
     // forwarding signals
     logic forward_rs1, forward_rs2, forward_rs3;
 
@@ -115,8 +112,6 @@ module issue_read_operands import ariane_pkg::*; #(
     assign fu_data_o.operator  = operator_q;
     assign fu_data_o.trans_id  = trans_id_q;
     assign fu_data_o.imm       = imm_q;
-    assign fu_data_o.rs1       = rs1_q;     // INSA
-    assign fu_data_o.rs2       = rs2_q;     // INSA
     assign alu_valid_o         = alu_valid_q;
     assign branch_valid_o      = branch_valid_q;
     assign lsu_valid_o         = lsu_valid_q;
@@ -209,8 +204,6 @@ module issue_read_operands import ariane_pkg::*; #(
         trans_id_n = issue_instr_i.trans_id;
         fu_n       = issue_instr_i.fu;
         operator_n = issue_instr_i.op;
-        rs1_n      = issue_instr_i.rs1;
-        rs2_n      = issue_instr_i.rs2;
         // or should we forward
         if (forward_rs1) begin
             operand_a_n  = rs1_i;
@@ -326,7 +319,7 @@ module issue_read_operands import ariane_pkg::*; #(
                 // commit stage
                 for (int unsigned i = 0; i < NR_COMMIT_PORTS; i++)
                     if (is_rd_fpr(issue_instr_i.op) ? (we_fpr_i[i] && waddr_i[i] == issue_instr_i.rd)
-                                                    : (we_gpr_i[i] && waddr_i[i] == issue_instr_i.rd)) begin  // INSA -> LOOKS INTERESTING
+                                                    : (we_gpr_i[i] && waddr_i[i] == issue_instr_i.rd)) begin
                         issue_ack_o = 1'b1;
                     end
             end
@@ -435,8 +428,6 @@ module issue_read_operands import ariane_pkg::*; #(
             pc_o                  <= '0;
             is_compressed_instr_o <= 1'b0;
             branch_predict_o      <= {cf_t'(0), {riscv::VLEN{1'b0}}};
-            rs1_q                 <= '0;                // INSA
-            rs2_q                 <= '0;                // INSA
         end else begin
             operand_a_q           <= operand_a_n;
             operand_b_q           <= operand_b_n;
@@ -447,8 +438,6 @@ module issue_read_operands import ariane_pkg::*; #(
             pc_o                  <= issue_instr_i.pc;
             is_compressed_instr_o <= issue_instr_i.is_compressed;
             branch_predict_o      <= issue_instr_i.bp;
-            rs1_q                 <= rs1_n;         // INSA
-            rs1_q                 <= rs2_n;         // INSA
         end
     end
 

@@ -227,7 +227,6 @@ package riscv;
     localparam OpcodeSystem    = 7'b11_100_11;
     localparam OpcodeRsrvd3    = 7'b11_101_11;
     localparam OpcodeCustom3   = 7'b11_110_11; // INSA_INST et lui encore //0x7B
-    localparam OpcodeCustom4   = 7'b11_111_11; // INSA_INST et lui encore //0x7F
 
     // RV64C listings:
     // Quadrant 0

@@ -87,7 +87,6 @@ module scoreboard #(
   always_comb begin : commit_ports
     for (int unsigned i = 0; i < NR_COMMIT_PORTS; i++) begin
       commit_instr_o[i] = mem_q[commit_pointer_q[i]].sbe;
-      // INSA -> je crois que la faut recuperer mem_n mais il faut aussi vérifier si c'est valide en vrai ...
       commit_instr_o[i].trans_id = commit_pointer_q[i];
     end
   end

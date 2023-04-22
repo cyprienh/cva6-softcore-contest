@@ -35,42 +35,16 @@ module branch_unit (
     input logic       en_crash_i
 );
 
-    //parameter   buffer_size = 6;
-    //logic       buffer_write_i;
-    //logic       buffer_data_in_memory;
-
-    //logic[1:0]  buffer_debug_leds;
-
     logic [riscv::VLEN-1:0] target_address;
-    //logic [riscv::VLEN-1:0] target_address_bis;
     logic [riscv::VLEN-1:0] next_pc;
 
     logic [riscv::VLEN-1:0]   vaddr_i;
     riscv::xlen_t             vaddr_xlen;
-
-    // // INSA
-    // circular_buffer #(
-    //   .N        (buffer_size)
-    // ) lsu_i (
-    //   .clk_i,
-    //   .rst_ni,
-    //   .write    (buffer_write_i),
-    //   .find_in  (vaddr_i),
-    //   .data_in  (vaddr_i),
-    //   .data_in_memory (buffer_data_in_memory),
-    //   .read_index (alu_read_index),
-    //   .read_out (alu_read_out)
-    //   //.led (buffer_debug_leds)
-    // );
     
     // INSA: Registers for overflow management (heap)
-    
     logic crash;
     logic crash_loadcons;
     logic crash_varleak;
-
-    //assign to_crash = 'b0; //crash_test crash; // je le mets à zero pour pas qu'il essaye de crash en passant par le frontend
-    // on utilise le target addr depuis le branch_unit, donc c'est pas necessaire
 
     bop_unit bopu (
       .clk_i,
@@ -82,10 +56,8 @@ module branch_unit (
       .illegal_load_o (crash_loadcons),
       .lb_crash (crash_varleak)
     );
-    
-    //assign resolved_branch_o.target_address = (~crash) ? target_address_bis : {riscv::VLEN{1'b0}};
 
-   // here we handle the various possibilities of mis-predicts
+    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
         // set the jump base, for JALR we need to look at the register, for all other control flow instructions we can take the current PC
         automatic logic [riscv::VLEN-1:0] jump_base;
@@ -100,7 +72,6 @@ module branch_unit (
         resolved_branch_o.valid          = branch_valid_i;
         resolved_branch_o.is_mispredict  = 1'b0;
         resolved_branch_o.cf_type        = branch_predict_i.cf;
-        resolved_branch_o.is_crash       = 1'b0;    // INSA
         // calculate next PC, depending on whether the instruction is compressed or not this may be different
         // TODO(zarubaf): We already calculate this a couple of times, maybe re-use?
         next_pc                          = pc_i + ((is_compressed_instr_i) ? {{riscv::VLEN-2{1'b0}}, 2'h2} : {{riscv::VLEN-3{1'b0}}, 3'h4});
@@ -110,10 +81,6 @@ module branch_unit (
         if (fu_data_i.operator == ariane_pkg::JALR) target_address[0] = 1'b0;
         // we need to put the branch target address into rd, this is the result of this unit
 
-        // INSA -> We want to perform security checks only on the applicative (user) level
-        // INSA -> Check if should be moved to if(branch_valid_i)
-        // if (priv_lvl_i == riscv::PRIV_LVL_U) begin
-        // INSA -> RAJOUTER LE TEST DE X0 et aussi on peut vérifier decoded_instr_i.rs1 == 1 pour être bien sur que c'est un ret de con
         if (fu_data_i.operator == ariane_pkg::JALR | (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1)) begin
           branch_result_o = {1'b0,next_pc[30:0] ^ (31'h73fa06c2)};
           //branch_result_o = next_pc + (1 << (riscv::VLEN - 2));
