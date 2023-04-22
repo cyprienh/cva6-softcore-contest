@@ -32,15 +32,6 @@ module branch_unit (
 
     // INSA
     input  ariane_pkg::scoreboard_entry_t         decoded_instr_i,     // INSA -> JE CROIS QUE C'EST BON
-    input  riscv::priv_lvl_t                      priv_lvl_i,
-    input logic [19:0]                            alu_read_index,
-    output logic [31:0]                           alu_read_out,
-    output logic [31:0]                           alu_read_out2,
-    //output logic[2:0] led
-    output logic       to_crash,
-    output logic       data_in_buffer,
-    //debug
-    input logic       rst_buf_i,
     input logic       en_crash_i
 );
 
@@ -86,10 +77,6 @@ module branch_unit (
       .rst_ni,
       .fu_data_i,
       .decoded_instr_i,
-      .alu_read_out,
-      .alu_read_out2,
-      .data_in_buffer,
-      .rst_buf_i,
       .en_crash_i,
       .to_crash (crash),
       .illegal_load_o (crash_loadcons),
@@ -139,18 +126,6 @@ module branch_unit (
 
         if ((crash_varleak || (crash && decoded_instr_i.op inside {ariane_pkg::JALR, ariane_pkg::JAL}) || crash_loadcons) && en_crash_i)
           target_address = {riscv::VLEN{1'b0}};
-  
-        // INSA -> SW LIFO 
-        // to_crash        = 1'b0;
-        // buffer_write_i  = 1'b0;
-        // if(pc_i inside {[32'h800001e4:32'h800025d8]}) begin
-        //   if (decoded_instr_i.op inside {ariane_pkg::SW, ariane_pkg::SH, ariane_pkg::SB}) begin
-        //       if (decoded_instr_i.rs1 == 8)  // Is the STORE using sp or fp ?
-        //           buffer_write_i = 1'b1;
-        //       else if (decoded_instr_i.rs1 != 8 & buffer_data_in_memory)         //Crash
-        //           to_crash = 1'b1;
-        //   end
-        // end
 
         resolved_branch_o.pc = pc_i;
         // There are only two sources of mispredicts:

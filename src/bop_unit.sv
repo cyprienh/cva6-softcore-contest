@@ -8,16 +8,9 @@ module bop_unit (
     input  ariane_pkg::fu_data_t      fu_data_i,
     input  ariane_pkg::scoreboard_entry_t         decoded_instr_i,
 
-    output logic [31:0]                           alu_read_out,
-    output logic [31:0]                           alu_read_out2,
-
-    output logic       to_crash,
-    output logic       data_in_buffer,
-    output logic [6:0] load_reg,
-
-    input logic       rst_buf_i,
     input logic       en_crash_i,
 
+    output logic       to_crash,
     output logic      illegal_load_o,
     output logic      lb_crash
 );
@@ -87,9 +80,7 @@ module bop_unit (
       .read2_o          (alu_read_out2)
     );
 
-    assign data_in_buffer = bof_active_q; //debug
     assign to_crash = bof_load_in_range_q;
-    assign load_reg = bof_last_reg_q;
 
     assign is_big = (bof_count_q > 100) ? 1'b1 : 1'b0;
 

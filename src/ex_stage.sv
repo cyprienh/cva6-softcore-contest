@@ -108,9 +108,7 @@ module ex_stage import ariane_pkg::*; #(
     input  logic[15:0][53:0]                       pmpaddr_i,
 
     // INSA
-    input  scoreboard_entry_t                      decoded_instr_i,
-    //output logic[2:0] led
-    output logic      to_crash
+    input  scoreboard_entry_t                      decoded_instr_i
 );
 
     // -------------------------
@@ -149,11 +147,6 @@ module ex_stage import ariane_pkg::*; #(
     logic mult_valid;
 
     // INSA
-    logic [19:0]    read_index;
-    logic [31:0]    read_out;
-    logic [31:0]    read_out2; 
-    logic           branch_data_in_buffer;
-    logic           rst_buffer;
     logic           en_crash;
 
     // 1. ALU (combinatorial)
@@ -168,12 +161,6 @@ module ex_stage import ariane_pkg::*; #(
         .result_o         ( alu_result     ),
         .alu_branch_res_o ( alu_branch_res ),
         // INSA
-        .alu_read_index   ( read_index ),
-        .alu_read_out     ( read_out ),
-        .alu_read_out2    ( read_out2 ),
-        .data_in_buffer   ( branch_data_in_buffer ),
-        .decoded_instr_i,
-        .rst_buf_o        ( rst_buffer ),
         .en_crash_o       ( en_crash)
     );
 
@@ -198,15 +185,6 @@ module ex_stage import ariane_pkg::*; #(
         .branch_exception_o ( flu_exception_o ),
         // INSA
         .decoded_instr_i, 
-        .priv_lvl_i,
-        .alu_read_index   ( read_index ),
-        .alu_read_out     ( read_out ),
-        .alu_read_out2    ( read_out2 ),
-        //.led
-        .to_crash,
-        .data_in_buffer   ( branch_data_in_buffer ),
-        // debug
-        .rst_buf_i        ( rst_buffer ),
         .en_crash_i       ( en_crash )
     );
 

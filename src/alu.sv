@@ -26,12 +26,6 @@ module alu import ariane_pkg::*;(
     output logic                     alu_branch_res_o,
 
     // INSA
-    output logic [19:0]              alu_read_index,
-    input  logic [31:0]              alu_read_out,
-    input  logic [31:0]              alu_read_out2,
-    input  logic                     data_in_buffer,
-    input  scoreboard_entry_t        decoded_instr_i,
-    output logic                     rst_buf_o,
     output logic                     en_crash_o
 );
 
@@ -184,9 +178,7 @@ module alu import ariane_pkg::*;(
     // -----------
     always_comb begin
         result_o   = '0;
-        rst_buf_o  = 1'b0; // insa
         en_crash_d   = en_crash_q; // insa
-        alu_read_index = fu_data_i.imm;
 
         unique case (fu_data_i.operator)
             // Standard Operations
@@ -208,15 +200,8 @@ module alu import ariane_pkg::*;(
             // Comparison Operations
             SLTS,  SLTU: result_o = {{riscv::XLEN-1{1'b0}}, less};
 
-            //INSA_INST 
-            INSAFIRST: result_o = alu_read_out;  
-            INSALAST: result_o = alu_read_out2;
-            // DEBUG2: result_o = {1'b1, {riscv::XLEN-7{1'b0}}, decoded_instr_i.rs1};
-            RSTBUF: rst_buf_o = 1'b1;
-            //COUNTER: result_o = counter_q;
             ENCRASH: en_crash_d  = 1'b1;
-            //ENCOUNTER: en_count_d = 1'b1;
-            //INSAACTIVE: result_o = {31'b0, data_in_buffer};
+
             default: ; // default case to suppress unique warning
         endcase
     end

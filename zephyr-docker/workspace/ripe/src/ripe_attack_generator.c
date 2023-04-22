@@ -124,7 +124,7 @@ main(void)
   //INSA_INST - enable crash
   //__asm__(".insn u 0x0B, x5, 831" : : : ); 
   //__asm__(".insn u 0x2B, x6, 91" : : : ); 
-#define ATTACK_NR   10
+#define ATTACK_NR   4
 // 1-5-9 ok  8 ok
 #if ATTACK_NR == 1  // okk //ok
     attack.technique = DIRECT;
