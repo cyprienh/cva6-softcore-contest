@@ -25,8 +25,8 @@ module alu import ariane_pkg::*;(
     output riscv::xlen_t             result_o,
     output logic                     alu_branch_res_o,
 
-    // INSA
-    output logic                     en_crash_o
+    // BOP Unit
+    output logic                     en_crash_o      // Enable crash
 );
 
     riscv::xlen_t operand_a_rev;
@@ -35,7 +35,7 @@ module alu import ariane_pkg::*;(
     logic [riscv::XLEN+1:0] adder_result_ext_o;
     logic        less;  // handles both signed and unsigned forms
 
-    // INSA
+    // BOP Unit
     logic        en_crash_d;
     logic        en_crash_q;
 
@@ -178,7 +178,7 @@ module alu import ariane_pkg::*;(
     // -----------
     always_comb begin
         result_o   = '0;
-        en_crash_d   = en_crash_q; // insa
+        en_crash_d   = en_crash_q; // BOP Unit
 
         unique case (fu_data_i.operator)
             // Standard Operations
@@ -200,13 +200,14 @@ module alu import ariane_pkg::*;(
             // Comparison Operations
             SLTS,  SLTU: result_o = {{riscv::XLEN-1{1'b0}}, less};
 
+            // BOP Unit
             ENCRASH: en_crash_d  = 1'b1;
 
             default: ; // default case to suppress unique warning
         endcase
     end
 
-    // INSA : FLIP FLOP
+    // Flip-flops to keep values over multiple ticks
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (~rst_ni) begin
         en_crash_q <= 1'b0;

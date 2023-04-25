@@ -41,9 +41,9 @@ module branch_unit (
     logic [riscv::VLEN-1:0]   vaddr_i;
     riscv::xlen_t             vaddr_xlen;
     
-    // INSA: Registers for overflow management (heap)
-    logic crash;
-    logic crash_loadcons;
+    // INSA: Registers for overflow management 
+    logic load_in_buffer;
+    logic crash_doublederef;
     logic crash_varleak;
 
     bop_unit bopu (
@@ -52,8 +52,8 @@ module branch_unit (
       .fu_data_i,
       .decoded_instr_i,
       .en_crash_i,
-      .to_crash (crash),
-      .illegal_load_o (crash_loadcons),
+      .bop_load_in_buffer_o (load_in_buffer),
+      .illegal_double_dereference_o (crash_doublederef),
       .lb_crash (crash_varleak)
     );
 
@@ -81,19 +81,19 @@ module branch_unit (
         if (fu_data_i.operator == ariane_pkg::JALR) target_address[0] = 1'b0;
         // we need to put the branch target address into rd, this is the result of this unit
 
-        // Encoding and decoding (XOR) return addresses
+        // BOP Unit 
+        //Encoding and decoding (XOR) return addresses
         if (fu_data_i.operator == ariane_pkg::JALR | (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1)) begin
           branch_result_o = {1'b0,next_pc[30:0] ^ (31'h73fa06c2)};
-          //branch_result_o = next_pc + (1 << (riscv::VLEN - 2));
           if ((fu_data_i.operator == ariane_pkg::JALR & decoded_instr_i.rd == 0 & decoded_instr_i.rs1 == 1) | target_address[riscv::VLEN-1] == 1'b0) // target_address[riscv::VLEN-2] == 1'b1
             target_address = {1'b1,target_address[30:0] ^ (31'h73fa06c2)};
-            //target_address = target_address - (1 << (riscv::VLEN - 2));
         end else begin
           branch_result_o = next_pc;
         end
 
-        // Crashing on ret when illegal operation is detected
-        if ((crash_varleak || (crash && decoded_instr_i.op inside {ariane_pkg::JALR, ariane_pkg::JAL}) || crash_loadcons) && en_crash_i)
+        // BOP Unit
+        // Crashing on next jump when illegal operation is detected, if BOP Unit is enabled
+        if ((crash_varleak || (load_in_buffer && decoded_instr_i.op inside {ariane_pkg::JALR, ariane_pkg::JAL}) || crash_doublederef) && en_crash_i)
           target_address = {riscv::VLEN{1'b0}};
 
         resolved_branch_o.pc = pc_i;

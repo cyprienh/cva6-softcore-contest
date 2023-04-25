@@ -90,8 +90,8 @@ module ariane import ariane_pkg::*; #(
   // --------------
   logic [riscv::VLEN-1:0] rs1_forwarding_id_ex; // unregistered version of fu_data_o.operanda
   logic [riscv::VLEN-1:0] rs2_forwarding_id_ex; // unregistered version of fu_data_o.operandb
-  // INSA
-  scoreboard_entry_t        issue_entry_issue_ex;
+  // BOP Unit
+  scoreboard_entry_t        issue_entry_issue_ex; // carry over decoded_instr to execute stage
 
   fu_data_t                 fu_data_id_ex;
   logic [riscv::VLEN-1:0]   pc_id_ex;
@@ -309,8 +309,8 @@ module ariane import ariane_pkg::*; #(
     .flush_i                    ( flush_ctrl_id                ),
     // ID Stage
     .decoded_instr_i            ( issue_entry_id_issue         ),
-    // INSA
-    .decoded_instr_o            ( issue_entry_issue_ex         ),
+    // BOP Unit
+    .decoded_instr_o            ( issue_entry_issue_ex         ), // carry over decoded_instr to execute stage
     .decoded_instr_valid_i      ( issue_entry_valid_id_issue   ),
     .is_ctrl_flow_i             ( is_ctrl_fow_id_issue         ),
     .decoded_instr_ack_o        ( issue_instr_issue_id         ),
@@ -363,8 +363,8 @@ module ariane import ariane_pkg::*; #(
     .ASID_WIDTH ( ASID_WIDTH ),
     .ArianeCfg  ( ArianeCfg  )
   ) ex_stage_i (
-    // INSA
-    .decoded_instr_i        ( issue_entry_issue_ex        ),
+    // BOP Unit
+    .decoded_instr_i        ( issue_entry_issue_ex        ), // carry over decoded_instr to execute stage
 
     .clk_i                  ( clk_i                       ),
     .rst_ni                 ( rst_ni                      ),
