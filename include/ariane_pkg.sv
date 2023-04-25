@@ -442,7 +442,7 @@ package ariane_pkg;
                                // comparisons
                                LTS, LTU, GES, GEU, EQ, NE,
                                // jumps
-                               JALR, BRANCH,
+                               JAL, JALR, BRANCH,
                                // set lower than operations
                                SLTS, SLTU,
                                // CSR functions
@@ -468,9 +468,11 @@ package ariane_pkg;
                                // Floating-Point Classify Instruction
                                FCLASS,
                                // Vectorial Floating-Point Instructions that don't directly map onto the scalar ones
-                               VFMIN, VFMAX, VFSGNJ, VFSGNJN, VFSGNJX, VFEQ, VFNE, VFLT, VFGE, VFLE, VFGT, VFCPKAB_S, VFCPKCD_S, VFCPKAB_D, VFCPKCD_D
+                               VFMIN, VFMAX, VFSGNJ, VFSGNJN, VFSGNJX, VFEQ, VFNE, VFLT, VFGE, VFLE, VFGT, VFCPKAB_S, VFCPKCD_S, VFCPKAB_D, VFCPKCD_D,
+                               
+                               // INSA_INST
+                               ENCRASH
                              } fu_op;
-
     typedef struct packed {
         fu_t                      fu;
         fu_op                     operator;

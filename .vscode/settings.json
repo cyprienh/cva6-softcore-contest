@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.ejs": "html",
+    "local.h": "c",
+    "mutex": "c"
+  }
+}

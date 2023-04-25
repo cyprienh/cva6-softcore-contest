@@ -27,7 +27,7 @@
 # 2020-10-06  0.1      S.Jacq       Created
 # =========================================================================== #
 
-VIVADO ?= vivado
+VIVADO ?= vivado -stack 2000
 
 work-dir := work-fpga
 bit := $(work-dir)/cva6_fpga.bit

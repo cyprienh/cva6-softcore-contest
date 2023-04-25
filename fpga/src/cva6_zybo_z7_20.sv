@@ -60,10 +60,7 @@ module cva6_zybo_z7_20 (
   input  logic     tdi       ,
   output wire      tdo       ,
   input  logic     rx        ,
-  output logic     tx	
-
-
-
+  output logic     tx
 
 );
 // 24 MByte in 8 byte words

@@ -985,6 +985,7 @@ module decoder import ariane_pkg::*; (
                 // Jump and link
                 riscv::OpcodeJal: begin
                     instruction_o.fu        = CTRL_FLOW;
+                    instruction_o.op        = ariane_pkg::JAL;
                     imm_select              = JIMM;
                     instruction_o.rd[4:0]   = instr.utype.rd;
                     is_control_flow_instr_o = 1'b1;
@@ -1001,6 +1002,17 @@ module decoder import ariane_pkg::*; (
                     imm_select            = UIMM;
                     instruction_o.fu      = ALU;
                     instruction_o.rd[4:0] = instr.utype.rd;
+                end
+
+                // --------------------------------
+                // INSA_INST Control Instruction
+                // --------------------------------
+
+                riscv::OpcodeCustom3: begin
+                    instruction_o.fu       = ALU;
+                    imm_select             = UIMM;
+                    instruction_o.rd[4:0]  = instr.utype.rd;
+                    instruction_o.op       = ariane_pkg::ENCRASH;
                 end
 
                 default: illegal_instr = 1'b1;

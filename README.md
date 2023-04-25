@@ -6,7 +6,7 @@ https://cva6.readthedocs.io/en/latest/
 
 Checkout the repository and initialize all submodules:
 ```
-$ git clone --recursive https://github.com/ThalesGroup/cva6-softcore-contest.git
+git clone --recursive https://github.com/cyprienh/cva6-softcore-contest.git
 ```
 
 Do not forget to check all the details of the contest in [Annonce RISC-V contest 2022-2023 v1.pdf](./Annonce%20RISC-V%20contest%202022-2023%20v1.pdf).
@@ -61,12 +61,12 @@ In our case, we use this cable to program software applications on the CV32A6 in
 
 2. Generate the bitstream of the FPGA platform:
 ```
-$ make cva6_fpga
+make cva6_fpga
 ```
 
 3. When the bitstream is generated, switch on Zybo board and run:
 ```
-$ make program_cva6_fpga
+make program_cva6_fpga
 ```
 When the bitstream is loaded, the green LED `done` lights up.
 ![alt text](./docs/pictures/20201204_160542.jpg)
@@ -85,13 +85,13 @@ The developer docker image can be built using the following command from the zep
 
 ```
 cd zephyr-docker
-docker build -f Dockerfile --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr-build:v1 .
+sudo docker build -f Dockerfile --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr-build:v1 .
 ```
 
 It can be used for building Zephyr samples and tests by mounting the Zephyr workspace into it:
 
 ```
-docker run -ti --privileged -v `realpath workspace`:/workdir zephyr-build:v1
+sudo docker run -ti --privileged -v /dev/bus/usb:/dev/bus/usb -v `realpath workspace`:/workdir zephyr-build:v1
 ```
 
 All the following commands should be run from the docker.

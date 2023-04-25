@@ -105,7 +105,10 @@ module ex_stage import ariane_pkg::*; #(
     output logic                                   dtlb_miss_o,
     // PMPs
     input  riscv::pmpcfg_t [15:0]                  pmpcfg_i,
-    input  logic[15:0][53:0]                       pmpaddr_i
+    input  logic[15:0][53:0]                       pmpaddr_i,
+
+    // INSA
+    input  scoreboard_entry_t                      decoded_instr_i
 );
 
     // -------------------------
@@ -143,6 +146,9 @@ module ex_stage import ariane_pkg::*; #(
     logic [TRANS_ID_BITS-1:0] mult_trans_id;
     logic mult_valid;
 
+    // INSA
+    logic           en_crash;
+
     // 1. ALU (combinatorial)
     // data silence operation
     fu_data_t alu_data;
@@ -153,7 +159,9 @@ module ex_stage import ariane_pkg::*; #(
         .rst_ni,
         .fu_data_i        ( alu_data       ),
         .result_o         ( alu_result     ),
-        .alu_branch_res_o ( alu_branch_res )
+        .alu_branch_res_o ( alu_branch_res ),
+        // INSA
+        .en_crash_o       ( en_crash)
     );
 
     // 2. Branch Unit (combinatorial)
@@ -174,7 +182,10 @@ module ex_stage import ariane_pkg::*; #(
         .branch_predict_i,
         .resolved_branch_o,
         .resolve_branch_o,
-        .branch_exception_o ( flu_exception_o )
+        .branch_exception_o ( flu_exception_o ),
+        // INSA
+        .decoded_instr_i, 
+        .en_crash_i       ( en_crash )
     );
 
     // 3. CSR (sequential)

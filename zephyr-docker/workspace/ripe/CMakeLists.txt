@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+set(GCC_PLUGIN_COMPILE_FLAGS "-fdump-tree-ssa -freport-bug -fplugin=/workdir/plugin.so -g -fdump-tree-optimized -Wall")
+set(CMAKE_C_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_PLUGIN_COMPILE_FLAGS}")
+
 cmake_minimum_required(VERSION 3.20.0)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})

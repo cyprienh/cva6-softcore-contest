@@ -23,7 +23,10 @@ module alu import ariane_pkg::*;(
     input  logic                     rst_ni,         // Asynchronous reset active low
     input  fu_data_t                 fu_data_i,
     output riscv::xlen_t             result_o,
-    output logic                     alu_branch_res_o
+    output logic                     alu_branch_res_o,
+
+    // BOP Unit
+    output logic                     en_crash_o      // Enable crash
 );
 
     riscv::xlen_t operand_a_rev;
@@ -31,6 +34,12 @@ module alu import ariane_pkg::*;(
     logic [riscv::XLEN:0] operand_b_neg;
     logic [riscv::XLEN+1:0] adder_result_ext_o;
     logic        less;  // handles both signed and unsigned forms
+
+    // BOP Unit
+    logic        en_crash_d;
+    logic        en_crash_q;
+
+    assign en_crash_o = en_crash_q;
 
     // bit reverse operand_a for left shifts and bit counting
     generate
@@ -49,6 +58,12 @@ module alu import ariane_pkg::*;(
     logic        adder_z_flag;
     logic [riscv::XLEN:0] adder_in_a, adder_in_b;
     riscv::xlen_t adder_result;
+
+    logic [riscv::VLEN-1:0]   vaddr_i;
+    riscv::xlen_t             vaddr_xlen;
+
+    assign vaddr_xlen = $unsigned($signed(fu_data_i.imm) + $signed(fu_data_i.operand_a));
+    assign vaddr_i = vaddr_xlen[riscv::VLEN-1:0];
 
     always_comb begin
       adder_op_b_negate = 1'b0;
@@ -163,6 +178,7 @@ module alu import ariane_pkg::*;(
     // -----------
     always_comb begin
         result_o   = '0;
+        en_crash_d   = en_crash_q; // BOP Unit
 
         unique case (fu_data_i.operator)
             // Standard Operations
@@ -184,7 +200,21 @@ module alu import ariane_pkg::*;(
             // Comparison Operations
             SLTS,  SLTU: result_o = {{riscv::XLEN-1{1'b0}}, less};
 
+            // BOP Unit
+            ENCRASH: en_crash_d  = 1'b1;
+
             default: ; // default case to suppress unique warning
         endcase
     end
+
+    // Flip-flops to keep values over multiple ticks
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+      if (~rst_ni) begin
+        en_crash_q <= 1'b0;
+      end else begin
+        en_crash_q <= en_crash_d;
+      end
+
+    end
+
 endmodule

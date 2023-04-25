@@ -198,7 +198,7 @@ package riscv;
     // Quadrant 0
     localparam OpcodeLoad      = 7'b00_000_11;
     localparam OpcodeLoadFp    = 7'b00_001_11;
-    localparam OpcodeCustom0   = 7'b00_010_11;
+    localparam OpcodeCustom0   = 7'b00_010_11; // INSA_INST On vole lui? // 0x0B
     localparam OpcodeMiscMem   = 7'b00_011_11;
     localparam OpcodeOpImm     = 7'b00_100_11;
     localparam OpcodeAuipc     = 7'b00_101_11;
@@ -206,7 +206,7 @@ package riscv;
     // Quadrant 1
     localparam OpcodeStore     = 7'b01_000_11;
     localparam OpcodeStoreFp   = 7'b01_001_11;
-    localparam OpcodeCustom1   = 7'b01_010_11;
+    localparam OpcodeCustom1   = 7'b01_010_11; // INSA_INST et lui ! //0x2B
     localparam OpcodeAmo       = 7'b01_011_11;
     localparam OpcodeOp        = 7'b01_100_11;
     localparam OpcodeLui       = 7'b01_101_11;
@@ -218,7 +218,7 @@ package riscv;
     localparam OpcodeNmadd     = 7'b10_011_11;
     localparam OpcodeOpFp      = 7'b10_100_11;
     localparam OpcodeRsrvd1    = 7'b10_101_11;
-    localparam OpcodeCustom2   = 7'b10_110_11;
+    localparam OpcodeCustom2   = 7'b10_110_11; // INSA_INST et lui aussi ! //0x5B
     // Quadrant 3
     localparam OpcodeBranch    = 7'b11_000_11;
     localparam OpcodeJalr      = 7'b11_001_11;
@@ -226,7 +226,7 @@ package riscv;
     localparam OpcodeJal       = 7'b11_011_11;
     localparam OpcodeSystem    = 7'b11_100_11;
     localparam OpcodeRsrvd3    = 7'b11_101_11;
-    localparam OpcodeCustom3   = 7'b11_110_11;
+    localparam OpcodeCustom3   = 7'b11_110_11; // INSA_INST et lui encore //0x7B
 
     // RV64C listings:
     // Quadrant 0

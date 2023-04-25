@@ -16,7 +16,7 @@ module branch_unit (
     input  logic                      clk_i,
     input  logic                      rst_ni,
     input  logic                      debug_mode_i,
-    input  ariane_pkg::fu_data_t      fu_data_i,
+    input  ariane_pkg::fu_data_t      fu_data_i,              // DATA WITH VALUE OF REGISTERS
     input  logic [riscv::VLEN-1:0]    pc_i,                   // PC of instruction
     input  logic                      is_compressed_instr_i,
     input  logic                      fu_valid_i,             // any functional unit is valid, check that there is no accidental mis-predict
@@ -28,12 +28,36 @@ module branch_unit (
     output ariane_pkg::bp_resolve_t               resolved_branch_o,      // this is the actual address we are targeting
     output logic                      resolve_branch_o,       // to ID to clear that we resolved the branch and we can
                                                               // accept new entries to the scoreboard
-    output ariane_pkg::exception_t    branch_exception_o      // branch exception out
+    output ariane_pkg::exception_t    branch_exception_o,      // branch exception out
+
+    // INSA
+    input  ariane_pkg::scoreboard_entry_t decoded_instr_i,
+    input logic       en_crash_i
 );
+
     logic [riscv::VLEN-1:0] target_address;
     logic [riscv::VLEN-1:0] next_pc;
 
-   // here we handle the various possibilities of mis-predicts
+    logic [riscv::VLEN-1:0]   vaddr_i;
+    riscv::xlen_t             vaddr_xlen;
+    
+    // INSA: Registers for overflow management 
+    logic load_in_buffer;
+    logic crash_doublederef;
+    logic crash_varleak;
+
+    bop_unit bopu (
+      .clk_i,
+      .rst_ni,
+      .fu_data_i,
+      .decoded_instr_i,
+      .en_crash_i,
+      .bop_load_in_buffer_o (load_in_buffer),
+      .illegal_double_dereference_o (crash_doublederef),
+      .lb_crash (crash_varleak)
+    );
+
+    // here we handle the various possibilities of mis-predicts
     always_comb begin : mispredict_handler
         // set the jump base, for JALR we need to look at the register, for all other control flow instructions we can take the current PC
         automatic logic [riscv::VLEN-1:0] jump_base;
@@ -43,6 +67,7 @@ module branch_unit (
         target_address                   = {riscv::VLEN{1'b0}};
         resolve_branch_o                 = 1'b0;
         resolved_branch_o.target_address = {riscv::VLEN{1'b0}};
+        //target_address_bis               = {riscv::VLEN{1'b0}};
         resolved_branch_o.is_taken       = 1'b0;
         resolved_branch_o.valid          = branch_valid_i;
         resolved_branch_o.is_mispredict  = 1'b0;
@@ -55,7 +80,22 @@ module branch_unit (
         // on a JALR we are supposed to reset the LSB to 0 (according to the specification)
         if (fu_data_i.operator == ariane_pkg::JALR) target_address[0] = 1'b0;
         // we need to put the branch target address into rd, this is the result of this unit
-        branch_result_o = next_pc;
+
+        // BOP Unit 
+        //Encoding and decoding (XOR) return addresses
+        if (fu_data_i.operator == ariane_pkg::JALR | (decoded_instr_i.op == ariane_pkg::JAL & decoded_instr_i.rd == 1)) begin
+          branch_result_o = {1'b0,next_pc[30:0] ^ (31'h73fa06c2)};
+          if ((fu_data_i.operator == ariane_pkg::JALR & decoded_instr_i.rd == 0 & decoded_instr_i.rs1 == 1) | target_address[riscv::VLEN-1] == 1'b0) // target_address[riscv::VLEN-2] == 1'b1
+            target_address = {1'b1,target_address[30:0] ^ (31'h73fa06c2)};
+        end else begin
+          branch_result_o = next_pc;
+        end
+
+        // BOP Unit
+        // Crashing on next jump when illegal operation is detected, if BOP Unit is enabled
+        if ((crash_varleak || (load_in_buffer && decoded_instr_i.op inside {ariane_pkg::JALR, ariane_pkg::JAL}) || crash_doublederef) && en_crash_i)
+          target_address = {riscv::VLEN{1'b0}};
+
         resolved_branch_o.pc = pc_i;
         // There are only two sources of mispredicts:
         // 1. Branches
@@ -63,6 +103,7 @@ module branch_unit (
         if (branch_valid_i) begin
             // write target address which goes to PC Gen
             resolved_branch_o.target_address = (branch_comp_res_i) ? target_address : next_pc;
+            //target_address_bis = (branch_comp_res_i) ? target_address : next_pc;
             resolved_branch_o.is_taken = branch_comp_res_i;
             // check the outcome of the branch speculation
             if (ariane_pkg::op_is_branch(fu_data_i.operator) && branch_comp_res_i != (branch_predict_i.cf == ariane_pkg::Branch)) begin
@@ -82,6 +123,7 @@ module branch_unit (
             resolve_branch_o = 1'b1;
         end
     end
+    
     // use ALU exception signal for storing instruction fetch exceptions if
     // the target address is not aligned to a 2 byte boundary
     always_comb begin : exception_handling
