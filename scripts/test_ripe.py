@@ -72,7 +72,7 @@ for i in range(100,102):
             child.expect(r'\$')
             child.sendline("sudo kill -9 $(ps -aux | grep 'zephyr' | awk '{print $2}')")
             child.expect('password')
-            child.sendline('Ubuntu@INSA31400')
+            child.sendline('password')
             child.expect(r'\$')
             child.sendline(cmd_i)
             child.expect('Type <RET>', timeout=300)

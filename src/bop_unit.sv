@@ -155,7 +155,7 @@ module bop_unit (
         end
         // Detecting illegal copying of data
         if(decoded_instr_i.op == ariane_pkg::LB) begin
-          if(addr_in_buffer && !addr_is_first && bop_count_q != 0) begin               // if more than one load in middle of array
+          if(addr_is_first && bop_count_q > 8) begin                                   // if starts reading saved interval from outside (before)      
             crash_d = 1'b1;
           end
         end

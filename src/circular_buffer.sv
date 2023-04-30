@@ -14,7 +14,7 @@
 
 module circular_buffer
 #(
-  parameter SIZE = 32)                  // buffer holds SIZE intervals
+  parameter SIZE = 4)                  // buffer holds SIZE intervals
 (
   input  logic       clk_i,
   input  logic       rst_ni,

@@ -1,0 +1,78 @@
+
+;; Function g (g, funcdef_no=0, decl_uid=2381, cgraph_uid=1, symbol_order=0)
+
+int g ()
+{
+  int D.2394;
+  int _3;
+
+  <bb 2> :
+  __builtin_puts (&"function g"[0]);
+  _3 = 123;
+
+  <bb 3> :
+<L0>:
+  return _3;
+
+}
+
+
+
+;; Function f (f, funcdef_no=1, decl_uid=2384, cgraph_uid=2, symbol_order=1)
+
+int f ()
+{
+  int D.2396;
+  int _3;
+
+  <bb 2> :
+  __builtin_puts (&"function f"[0]);
+  _3 = 123;
+
+  <bb 3> :
+<L0>:
+  return _3;
+
+}
+
+
+
+;; Function test (test, funcdef_no=2, decl_uid=2388, cgraph_uid=3, symbol_order=2)
+
+void test (int i, long int v)
+{
+  int __GUARD_TMP2.1;
+  int __GUARD_TMP1.0;
+  int fun_ptr__guard = 287454020;
+  int (*<T43a>) (void) fun_ptr;
+  char m[16];
+  char _1;
+  int __GUARD_TMP1.0_11;
+  int __GUARD_TMP2.1_12;
+
+  <bb 2> :
+  fun_ptr__guard = 287454020;
+  __builtin_puts (&"function test"[0]);
+  fun_ptr_6 = g;
+  fun_ptr__guard = fun_ptr_6;
+  _1 = (char) v_8(D);
+  m[i_9(D)] = _1;
+  __GUARD_TMP1.0_11 = fun_ptr_6;
+  __GUARD_TMP2.1_12 = fun_ptr__guard;
+  if (__GUARD_TMP1.0_11 != __GUARD_TMP2.1_12)
+    goto <bb 4>; [0.05%]
+  else
+    goto <bb 3>; [99.95%]
+
+  <bb 4> :
+  exit ();
+
+  <bb 3> :
+  fun_ptr_6 ();
+  f ();
+  m ={v} {CLOBBER(eol)};
+  return;
+
+}
+
+
