@@ -119,7 +119,7 @@ print_current_test_parameters(void) {
 void
 main(void)
 {
-#define ATTACK_NR   6
+#define ATTACK_NR   10
 #if ATTACK_NR == 1
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;

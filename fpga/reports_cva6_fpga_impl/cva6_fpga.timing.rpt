@@ -1,7 +1,7 @@
 Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 --------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2020.1 (lin64) Build 2902540 Wed May 27 19:54:35 MDT 2020
-| Date         : Sat Apr 22 22:48:28 2023
+| Date         : Tue May  2 11:21:23 2023
 | Host         : beepboop running 64-bit Ubuntu 22.04.1 LTS
 | Command      : report_timing -nworst 1 -delay_type max -sort_by group -file reports_cva6_fpga_impl/cva6_fpga.timing.rpt
 | Design       : cva6_zybo_z7_20
@@ -11,7 +11,7 @@ Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 
 Timing Report
 
-Slack (MET) :             1.636ns  (required time - arrival time)
+Slack (MET) :             1.615ns  (required time - arrival time)
   Source:                 i_dmi_jtag/i_dmi_jtag_tap/td_o_reg/C
                             (falling edge-triggered cell FDCE clocked by tck  {rise@0.000ns fall@50.000ns period=100.000ns})
   Destination:            tdo
@@ -19,12 +19,12 @@ Slack (MET) :             1.636ns  (required time - arrival time)
   Path Group:             tck
   Path Type:              Max at Slow Process Corner
   Requirement:            20.000ns  (MaxDelay Path 20.000ns)
-  Data Path Delay:        5.541ns  (logic 4.015ns (72.468%)  route 1.526ns (27.532%))
+  Data Path Delay:        5.755ns  (logic 4.080ns (70.906%)  route 1.674ns (29.094%))
   Logic Levels:           1  (OBUF=1)
   Output Delay:           5.000ns
-  Clock Path Skew:        -7.321ns (DCD - SCD + CPR)
+  Clock Path Skew:        -7.129ns (DCD - SCD + CPR)
     Destination Clock Delay (DCD):    0.000ns
-    Source Clock Delay      (SCD):    7.321ns
+    Source Clock Delay      (SCD):    7.129ns
     Clock Pessimism Removal (CPR):    0.000ns
   Clock Uncertainty:      0.501ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
     Total System Jitter     (TSJ):    0.071ns
@@ -41,13 +41,13 @@ Slack (MET) :             1.636ns  (required time - arrival time)
     H15                  IBUF (Prop_ibuf_I_O)         1.500     1.500 f  tck_IBUF_inst/O
                          net (fo=1, routed)           3.659     5.159    tck_IBUF
     BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.101     5.260 f  tck_IBUF_BUFG_inst/O
-                         net (fo=257, routed)         2.061     7.321    i_dmi_jtag/i_dmi_jtag_tap/tck_ni
-    SLICE_X113Y100       FDCE                                         r  i_dmi_jtag/i_dmi_jtag_tap/td_o_reg/C  (IS_INVERTED)
+                         net (fo=257, routed)         1.869     7.129    i_dmi_jtag/i_dmi_jtag_tap/tck_ni
+    SLICE_X112Y99        FDCE                                         r  i_dmi_jtag/i_dmi_jtag_tap/td_o_reg/C  (IS_INVERTED)
   -------------------------------------------------------------------    -------------------
-    SLICE_X113Y100       FDCE (Prop_fdce_C_Q)         0.459     7.780 r  i_dmi_jtag/i_dmi_jtag_tap/td_o_reg/Q
-                         net (fo=1, routed)           1.526     9.306    tdo_OBUF
-    J15                  OBUF (Prop_obuf_I_O)         3.556    12.862 r  tdo_OBUF_inst/O
-                         net (fo=0)                   0.000    12.862    tdo
+    SLICE_X112Y99        FDCE (Prop_fdce_C_Q)         0.524     7.653 r  i_dmi_jtag/i_dmi_jtag_tap/td_o_reg/Q
+                         net (fo=1, routed)           1.674     9.328    tdo_OBUF
+    J15                  OBUF (Prop_obuf_I_O)         3.556    12.884 r  tdo_OBUF_inst/O
+                         net (fo=0)                   0.000    12.884    tdo
     J15                                                               r  tdo (OUT)
   -------------------------------------------------------------------    -------------------
 
@@ -57,23 +57,23 @@ Slack (MET) :             1.636ns  (required time - arrival time)
                          output delay                -5.000    14.499    
   -------------------------------------------------------------------
                          required time                         14.499    
-                         arrival time                         -12.862    
+                         arrival time                         -12.884    
   -------------------------------------------------------------------
-                         slack                                  1.636    
+                         slack                                  1.615    
 
-Slack (MET) :             9.259ns  (required time - arrival time)
-  Source:                 i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_dst/ack_dst_q_reg/C
+Slack (MET) :             9.160ns  (required time - arrival time)
+  Source:                 i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_src/data_src_q_reg[data][27]/C
                             (rising edge-triggered cell FDCE clocked by tck  {rise@0.000ns fall@50.000ns period=100.000ns})
-  Destination:            i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_src/ack_src_q_reg/D
+  Destination:            i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_dst/data_dst_q_reg[data][27]/D
                             (rising edge-triggered cell FDCE clocked by clk_out1_xlnx_clk_gen  {rise@0.000ns fall@20.000ns period=40.000ns})
   Path Group:             clk_out1_xlnx_clk_gen
   Path Type:              Setup (Max at Slow Process Corner)
   Requirement:            20.000ns  (clk_out1_xlnx_clk_gen rise@120.000ns - tck rise@100.000ns)
-  Data Path Delay:        1.449ns  (logic 0.456ns (31.474%)  route 0.993ns (68.527%))
+  Data Path Delay:        1.427ns  (logic 0.478ns (33.498%)  route 0.949ns (66.502%))
   Logic Levels:           0  
-  Clock Path Skew:        -8.606ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    -1.303ns = ( 118.697 - 120.000 ) 
-    Source Clock Delay      (SCD):    7.303ns = ( 107.303 - 100.000 ) 
+  Clock Path Skew:        -8.591ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    -1.467ns = ( 118.533 - 120.000 ) 
+    Source Clock Delay      (SCD):    7.123ns = ( 107.123 - 100.000 ) 
     Clock Pessimism Removal (CPR):    0.000ns
   Clock Uncertainty:      0.605ns  ((TSJ^2 + TIJ^2 + DJ^2)^1/2) / 2 + PE
     Total System Jitter     (TSJ):    0.071ns
@@ -90,12 +90,12 @@ Slack (MET) :             9.259ns  (required time - arrival time)
     H15                  IBUF (Prop_ibuf_I_O)         1.500   101.500 r  tck_IBUF_inst/O
                          net (fo=1, routed)           3.659   105.159    tck_IBUF
     BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.101   105.260 r  tck_IBUF_BUFG_inst/O
-                         net (fo=257, routed)         2.043   107.303    i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_dst/tck_IBUF_BUFG
-    SLICE_X110Y122       FDCE                                         r  i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_dst/ack_dst_q_reg/C
+                         net (fo=257, routed)         1.863   107.123    i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_src/tck_IBUF_BUFG
+    SLICE_X108Y88        FDCE                                         r  i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_src/data_src_q_reg[data][27]/C
   -------------------------------------------------------------------    -------------------
-    SLICE_X110Y122       FDCE (Prop_fdce_C_Q)         0.456   107.759 r  i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_dst/ack_dst_q_reg/Q
-                         net (fo=6, routed)           0.993   108.752    i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_src/ack_src_q_reg_0
-    SLICE_X109Y123       FDCE                                         r  i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_src/ack_src_q_reg/D
+    SLICE_X108Y88        FDCE (Prop_fdce_C_Q)         0.478   107.601 r  i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_src/data_src_q_reg[data][27]/Q
+                         net (fo=1, routed)           0.949   108.550    i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_dst/data_dst_q_reg[data][31]_3[27]
+    SLICE_X107Y86        FDCE                                         r  i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_dst/data_dst_q_reg[data][27]/D
   -------------------------------------------------------------------    -------------------
 
                          (clock clk_out1_xlnx_clk_gen rise edge)
@@ -108,30 +108,30 @@ Slack (MET) :             9.259ns  (required time - arrival time)
                                                      -7.814   114.752 r  i_xlnx_clk_gen/inst/mmcm_adv_inst/CLKOUT0
                          net (fo=1, routed)           2.012   116.764    i_xlnx_clk_gen/inst/clk_out1_xlnx_clk_gen
     BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.091   116.855 r  i_xlnx_clk_gen/inst/clkout1_buf/O
-                         net (fo=24704, routed)       1.842   118.697    i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_src/clk_out1
-    SLICE_X109Y123       FDCE                                         r  i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_src/ack_src_q_reg/C
-                         clock pessimism              0.000   118.697    
-                         clock uncertainty           -0.605   118.092    
-    SLICE_X109Y123       FDCE (Setup_fdce_C_D)       -0.081   118.011    i_dmi_jtag/i_dmi_cdc/i_cdc_resp/i_src/ack_src_q_reg
+                         net (fo=22908, routed)       1.678   118.533    i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_dst/clk_out1
+    SLICE_X107Y86        FDCE                                         r  i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_dst/data_dst_q_reg[data][27]/C
+                         clock pessimism              0.000   118.533    
+                         clock uncertainty           -0.605   117.928    
+    SLICE_X107Y86        FDCE (Setup_fdce_C_D)       -0.218   117.710    i_dmi_jtag/i_dmi_cdc/i_cdc_req/i_dst/data_dst_q_reg[data][27]
   -------------------------------------------------------------------
-                         required time                        118.011    
-                         arrival time                        -108.752    
+                         required time                        117.710    
+                         arrival time                        -108.550    
   -------------------------------------------------------------------
-                         slack                                  9.259    
+                         slack                                  9.160    
 
-Slack (MET) :             35.406ns  (required time - arrival time)
-  Source:                 i_dm_top/i_dm_csrs/dmcontrol_q_reg[ndmreset]/C
-                            (rising edge-triggered cell FDCE clocked by clk_out1_xlnx_clk_gen  {rise@0.000ns fall@20.000ns period=40.000ns})
-  Destination:            i_rstgen_main/i_rstgen_bypass/synch_regs_q_reg[3]/CLR
+Slack (MET) :             36.646ns  (required time - arrival time)
+  Source:                 i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/rstblk/ngwrdrst.grst.g7serrst.gnsckt_wrst.gcc_rst.sckt_wr_rst_cc_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by clk_out1_xlnx_clk_gen  {rise@0.000ns fall@20.000ns period=40.000ns})
+  Destination:            i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gl0.rd/rpntr/gc0.count_d1_reg[1]/CLR
                             (recovery check against rising-edge clock clk_out1_xlnx_clk_gen  {rise@0.000ns fall@20.000ns period=40.000ns})
   Path Group:             **async_default**
   Path Type:              Recovery (Max at Slow Process Corner)
   Requirement:            40.000ns  (clk_out1_xlnx_clk_gen rise@40.000ns - clk_out1_xlnx_clk_gen rise@0.000ns)
-  Data Path Delay:        3.826ns  (logic 0.580ns (15.159%)  route 3.246ns (84.841%))
-  Logic Levels:           1  (LUT2=1)
-  Clock Path Skew:        -0.274ns (DCD - SCD + CPR)
-    Destination Clock Delay (DCD):    -1.465ns = ( 38.535 - 40.000 ) 
-    Source Clock Delay      (SCD):    -0.724ns
+  Data Path Delay:        2.871ns  (logic 0.642ns (22.360%)  route 2.229ns (77.640%))
+  Logic Levels:           1  (LUT3=1)
+  Clock Path Skew:        0.011ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    -1.284ns = ( 38.716 - 40.000 ) 
+    Source Clock Delay      (SCD):    -0.828ns
     Clock Pessimism Removal (CPR):    0.467ns
   Clock Uncertainty:      0.089ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
     Total System Jitter     (TSJ):    0.071ns
@@ -150,14 +150,14 @@ Slack (MET) :             35.406ns  (required time - arrival time)
                                                      -7.759    -4.999 r  i_xlnx_clk_gen/inst/mmcm_adv_inst/CLKOUT0
                          net (fo=1, routed)           2.206    -2.793    i_xlnx_clk_gen/inst/clk_out1_xlnx_clk_gen
     BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.101    -2.692 r  i_xlnx_clk_gen/inst/clkout1_buf/O
-                         net (fo=24704, routed)       1.968    -0.724    i_dm_top/i_dm_csrs/clk_out1
-    SLICE_X101Y117       FDCE                                         r  i_dm_top/i_dm_csrs/dmcontrol_q_reg[ndmreset]/C
+                         net (fo=22908, routed)       1.864    -0.828    i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/rstblk/clk
+    SLICE_X108Y98        FDRE                                         r  i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/rstblk/ngwrdrst.grst.g7serrst.gnsckt_wrst.gcc_rst.sckt_wr_rst_cc_reg[1]/C
   -------------------------------------------------------------------    -------------------
-    SLICE_X101Y117       FDCE (Prop_fdce_C_Q)         0.456    -0.268 f  i_dm_top/i_dm_csrs/dmcontrol_q_reg[ndmreset]/Q
-                         net (fo=3, routed)           2.109     1.841    i_dm_top/i_dm_csrs/ndmreset
-    SLICE_X109Y101       LUT2 (Prop_lut2_I0_O)        0.124     1.965 f  i_dm_top/i_dm_csrs/synch_regs_q[3]_i_1/O
-                         net (fo=4, routed)           1.138     3.102    i_rstgen_main/i_rstgen_bypass/synch_regs_q_reg[3]_1
-    SLICE_X109Y88        FDCE                                         f  i_rstgen_main/i_rstgen_bypass/synch_regs_q_reg[3]/CLR
+    SLICE_X108Y98        FDRE (Prop_fdre_C_Q)         0.518    -0.310 f  i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/rstblk/ngwrdrst.grst.g7serrst.gnsckt_wrst.gcc_rst.sckt_wr_rst_cc_reg[1]/Q
+                         net (fo=2, routed)           0.890     0.580    i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/rstblk/sckt_wr_rst_cc[1]
+    SLICE_X108Y98        LUT3 (Prop_lut3_I0_O)        0.124     0.704 f  i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/rstblk/gc0.count_d1[4]_i_2/O
+                         net (fo=32, routed)          1.339     2.043    i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gl0.rd/rpntr/gc0.count_d1_reg[0]_0
+    SLICE_X111Y101       FDCE                                         f  i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gl0.rd/rpntr/gc0.count_d1_reg[1]/CLR
   -------------------------------------------------------------------    -------------------
 
                          (clock clk_out1_xlnx_clk_gen rise edge)
@@ -170,16 +170,16 @@ Slack (MET) :             35.406ns  (required time - arrival time)
                                                      -7.814    34.752 r  i_xlnx_clk_gen/inst/mmcm_adv_inst/CLKOUT0
                          net (fo=1, routed)           2.012    36.764    i_xlnx_clk_gen/inst/clk_out1_xlnx_clk_gen
     BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.091    36.855 r  i_xlnx_clk_gen/inst/clkout1_buf/O
-                         net (fo=24704, routed)       1.680    38.535    i_rstgen_main/i_rstgen_bypass/clk_out1
-    SLICE_X109Y88        FDCE                                         r  i_rstgen_main/i_rstgen_bypass/synch_regs_q_reg[3]/C
-                         clock pessimism              0.467    39.001    
-                         clock uncertainty           -0.089    38.913    
-    SLICE_X109Y88        FDCE (Recov_fdce_C_CLR)     -0.405    38.508    i_rstgen_main/i_rstgen_bypass/synch_regs_q_reg[3]
+                         net (fo=22908, routed)       1.861    38.716    i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gl0.rd/rpntr/clk
+    SLICE_X111Y101       FDCE                                         r  i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gl0.rd/rpntr/gc0.count_d1_reg[1]/C
+                         clock pessimism              0.467    39.183    
+                         clock uncertainty           -0.089    39.094    
+    SLICE_X111Y101       FDCE (Recov_fdce_C_CLR)     -0.405    38.689    i_axi_dwidth_converter_dm_slave/inst/gen_downsizer.gen_simple_downsizer.axi_downsizer_inst/USE_WRITE.write_addr_inst/USE_B_CHANNEL.cmd_b_queue/inst/fifo_gen_inst/inst_fifo_gen/gconvfifo.rf/grf.rf/gntv_or_sync_fifo.gl0.rd/rpntr/gc0.count_d1_reg[1]
   -------------------------------------------------------------------
-                         required time                         38.508    
-                         arrival time                          -3.102    
+                         required time                         38.689    
+                         arrival time                          -2.043    
   -------------------------------------------------------------------
-                         slack                                 35.406    
+                         slack                                 36.646    
 
 
 

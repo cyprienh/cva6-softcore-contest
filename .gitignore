@@ -33,3 +33,4 @@ work-dpi/
 tb/riscv-isa-sim/
 work-*/*
 install/
+**/.vscode
