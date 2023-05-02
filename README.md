@@ -104,7 +104,7 @@ To initialize Zephyr environment with the Thales modified Zephyr:
 
 ```
 cd /workdir
-west init -m https://github.com/ThalesGroup/riscv-zephyr --mr main
+west init -m https://github.com/cyprienh/riscv-zephyr --mr main
 west update
 ```
 
