@@ -1,0 +1,192 @@
+-- west build: making build dir /workdir/build pristine
+-- west build: generating a build system
+Loading Zephyr default modules (Zephyr base).
+-- Application: /workdir/ripe
+-- Found Python3: /usr/bin/python3.8 (found suitable exact version "3.8.10") found components: Interpreter 
+-- Cache files will be written to: /workdir/zephyr/.cache
+-- Zephyr version: 3.2.99 (/workdir/zephyr)
+-- Found west (found suitable version "0.14.0", minimum required is "0.7.1")
+-- Board: cv32a6_zybo
+-- Found host-tools: zephyr 0.15.1 (/opt/toolchains/zephyr-sdk-0.15.1)
+-- Found toolchain: zephyr 0.15.1 (/opt/toolchains/zephyr-sdk-0.15.1)
+-- Found Dtc: /opt/toolchains/zephyr-sdk-0.15.1/sysroots/x86_64-pokysdk-linux/usr/bin/dtc (found suitable version "1.6.0", minimum required is "1.4.6") 
+-- Found BOARD.dts: /workdir/zephyr/boards/riscv/cv32a6_zybo/cv32a6_zybo.dts
+node '/cpus/cpu@0' compatible 'ohwg,cva6' has unknown vendor prefix 'ohwg'
+node '/soc' compatible 'eth,cva6-bare-soc' has unknown vendor prefix 'eth'
+-- Generated zephyr.dts: /workdir/build/zephyr/zephyr.dts
+-- Generated devicetree_generated.h: /workdir/build/zephyr/include/generated/devicetree_generated.h
+-- Including generated dts.cmake file: /workdir/build/zephyr/dts.cmake
+Parsing /workdir/zephyr/Kconfig
+Loaded configuration '/workdir/zephyr/boards/riscv/cv32a6_zybo/cv32a6_zybo_defconfig'
+Merged configuration '/workdir/ripe/prj.conf'
+Configuration saved to '/workdir/build/zephyr/.config'
+Kconfig header saved to '/workdir/build/zephyr/include/generated/autoconf.h'
+
+warning: The choice symbol BOARD_CV32A6_ZYBO (defined at boards/riscv/cv32a6_zybo/Kconfig.board:3)
+was selected (set =y), but no symbol ended up as the choice selection. See
+http://docs.zephyrproject.org/latest/kconfig.html#CONFIG_BOARD_CV32A6_ZYBO and/or look up
+BOARD_CV32A6_ZYBO in the menuconfig/guiconfig interface. The Application Development Primer, Setting
+Configuration Values, and Kconfig - Tips and Best Practices sections of the manual might be helpful
+too.
+
+-- The C compiler identification is GNU 12.1.0
+-- The CXX compiler identification is GNU 12.1.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /opt/toolchains/zephyr-sdk-0.15.1/riscv64-zephyr-elf/bin/riscv64-zephyr-elf-gcc
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /workdir/build
+-- west build: building application
+[1/104] Preparing syscall dependency handling
+
+[2/104] Generating include/generated/version.h
+-- Zephyr version: 3.2.99 (/workdir/zephyr), build: zephyr-v3.2.0-327-g869365ab012b
+[25/104] Building C object CMakeFiles/app.dir/src/ripe_attack_generator.c.obj
+/workdir/ripe/src/ripe_attack_generator.c:39:48: warning: initialization of 'int (*)(const char *, int)' from incompatible pointer type 'int (*)(const char *)' [-Wincompatible-pointer-types]
+   39 | static struct attackme data_struct = { "AAAA", &dummy_function };
+      |                                                ^
+/workdir/ripe/src/ripe_attack_generator.c:39:48: note: (near initialization for 'data_struct.func_ptr')
+/workdir/ripe/src/ripe_attack_generator.c:44:44: warning: initialization of 'uint32_t *' {aka 'unsigned int *'} from incompatible pointer type 'int (*)(const char *)' [-Wincompatible-pointer-types]
+   44 | static uint32_t * data_mem_ptr_aux[64] = { &dummy_function };
+      |                                            ^
+/workdir/ripe/src/ripe_attack_generator.c:44:44: note: (near initialization for 'data_mem_ptr_aux[0]')
+/workdir/ripe/src/ripe_attack_generator.c:45:40: warning: initialization of 'uint32_t *' {aka 'unsigned int *'} from incompatible pointer type 'int (*)(const char *)' [-Wincompatible-pointer-types]
+   45 | static uint32_t * data_mem_ptr[64] = { &dummy_function };
+      |                                        ^
+/workdir/ripe/src/ripe_attack_generator.c:45:40: note: (near initialization for 'data_mem_ptr[0]')
+/workdir/ripe/src/ripe_attack_generator.c: In function 'main':
+/workdir/ripe/src/ripe_attack_generator.c:200:12: warning: 'return' with a value, in function returning void [-Wreturn-type]
+  200 |     return 0;
+      |            ^
+/workdir/ripe/src/ripe_attack_generator.c:120:1: note: declared here
+  120 | main(void)
+      | ^~~~
+/workdir/ripe/src/ripe_attack_generator.c: In function 'perform_attack':
+/workdir/ripe/src/ripe_attack_generator.c:231:27: warning: assignment to 'int (*)(const char *, int)' from incompatible pointer type 'int (*)(const char *)' [-Wincompatible-pointer-types]
+  231 |     stack_struct.func_ptr = &dummy_function;
+      |                           ^
+/workdir/ripe/src/ripe_attack_generator.c:245:27: warning: assignment to 'int (*)(const char *, int)' from incompatible pointer type 'int (*)(const char *)' [-Wincompatible-pointer-types]
+  245 |     heap_struct->func_ptr = dummy_function;
+      |                           ^
+/workdir/ripe/src/ripe_attack_generator.c:303:21: warning: passing argument 1 of 'build_shellcode' from incompatible pointer type [-Wincompatible-pointer-types]
+  303 |     build_shellcode(shellcode_nonop);
+      |                     ^~~~~~~~~~~~~~~
+      |                     |
+      |                     char **
+In file included from /workdir/ripe/src/ripe_attack_generator.c:15:
+/workdir/ripe/src/ripe_attack_generator.h:179:28: note: expected 'char *' but argument is of type 'char **'
+  179 | void build_shellcode(char *shellcode);
+      |                      ~~~~~~^~~~~~~~~
+/workdir/ripe/src/ripe_attack_generator.c:323:31: warning: assignment to 'long int *' from incompatible pointer type 'int *' [-Wincompatible-pointer-types]
+  323 |                 stack_mem_ptr = &stack_flag;
+      |                               ^
+/workdir/ripe/src/ripe_attack_generator.c:359:33: warning: assignment to 'long long int (*)[38]' from incompatible pointer type 'int *' [-Wincompatible-pointer-types]
+  359 |                 heap_jmp_buffer = (int *) malloc(sizeof(jmp_buf));
+      |                                 ^
+/workdir/ripe/src/ripe_attack_generator.c:371:30: warning: assignment to 'long int *' from incompatible pointer type 'int *' [-Wincompatible-pointer-types]
+  371 |                 heap_mem_ptr = heap_flag;
+      |                              ^
+/workdir/ripe/src/ripe_attack_generator.c:400:29: warning: assignment to 'long long int (*)[38]' from incompatible pointer type 'char *' [-Wincompatible-pointer-types]
+  400 |             heap_jmp_buffer = heap_buffer1;
+      |                             ^
+/workdir/ripe/src/ripe_attack_generator.c:415:29: warning: assignment to 'long int *' from incompatible pointer type 'int (*)(const char *)' [-Wincompatible-pointer-types]
+  415 |             bss_mem_ptr_aux = &dummy_function;
+      |                             ^
+/workdir/ripe/src/ripe_attack_generator.c:416:29: warning: assignment to 'long int *' from incompatible pointer type 'int (*)(const char *)' [-Wincompatible-pointer-types]
+  416 |             bss_mem_ptr     = &dummy_function;
+      |                             ^
+/workdir/ripe/src/ripe_attack_generator.c:420:29: warning: assignment to 'long int *' from incompatible pointer type 'int **' [-Wincompatible-pointer-types]
+  420 |                 bss_mem_ptr = &bss_flag;
+      |                             ^
+/workdir/ripe/src/ripe_attack_generator.c:473:56: warning: pointer of type 'void *' used in arithmetic [-Wpointer-arith]
+  473 |                     target_addr = (void *) heap_struct + 256;
+      |                                                        ^
+/workdir/ripe/src/ripe_attack_generator.c:556:32: warning: assignment to 'long long int (*)[38]' from incompatible pointer type 'long long int **' [-Wincompatible-pointer-types]
+  556 |             payload.jmp_buffer = &stack_jmp_buffer_param;
+      |                                ^
+/workdir/ripe/src/ripe_attack_generator.c:564:44: warning: assignment to 'long int' from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  564 |             payload.stack_jmp_buffer_param = NULL;
+      |                                            ^
+/workdir/ripe/src/ripe_attack_generator.c:572:44: warning: assignment to 'long int' from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  572 |             payload.stack_jmp_buffer_param = NULL;
+      |                                            ^
+/workdir/ripe/src/ripe_attack_generator.c:580:44: warning: assignment to 'long int' from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  580 |             payload.stack_jmp_buffer_param = NULL;
+      |                                            ^
+/workdir/ripe/src/ripe_attack_generator.c:586:40: warning: assignment to 'long int *' from incompatible pointer type 'void **' [-Wincompatible-pointer-types]
+  586 |     payload.ptr_to_correct_return_addr = RET_ADDR_PTR;
+      |                                        ^
+/workdir/ripe/src/ripe_attack_generator.c:600:42: warning: assignment to 'void *' from 'long unsigned int' makes pointer from integer without a cast [-Wint-conversion]
+  600 |                     payload.overflow_ptr = (uintptr_t) &rop_target;
+      |                                          ^
+/workdir/ripe/src/ripe_attack_generator.c:607:42: warning: assignment to 'void *' from 'unsigned int' makes pointer from integer without a cast [-Wint-conversion]
+  607 |                     payload.overflow_ptr = 0xdeadbeef;
+      |                                          ^
+/workdir/ripe/src/ripe_attack_generator.c:643:65: warning: pointer of type 'void *' used in arithmetic [-Wpointer-arith]
+  643 |                     payload.overflow_ptr = (void *) heap_struct + 256;
+      |                                                                 ^
+/workdir/ripe/src/ripe_attack_generator.c: In function 'build_payload':
+/workdir/ripe/src/ripe_attack_generator.c:906:28: warning: assignment to 'char *' from incompatible pointer type 'char **' [-Wincompatible-pointer-types]
+  906 |             shellcode      = shellcode_nonop;
+      |                            ^
+/workdir/ripe/src/ripe_attack_generator.c:892:45: warning: unused variable 'temp_char_ptr' [-Wunused-variable]
+  892 |     char * shellcode, * temp_char_buffer, * temp_char_ptr;
+      |                                             ^~~~~~~~~~~~~
+/workdir/ripe/src/ripe_attack_generator.c:892:25: warning: unused variable 'temp_char_buffer' [-Wunused-variable]
+  892 |     char * shellcode, * temp_char_buffer, * temp_char_ptr;
+      |                         ^~~~~~~~~~~~~~~~
+/workdir/ripe/src/ripe_attack_generator.c: In function 'dop_target':
+/workdir/ripe/src/ripe_attack_generator.c:1007:18: warning: passing argument 2 of 'iof' makes integer from pointer without a cast [-Wint-conversion]
+ 1007 |         iof(buf, &auth_loc);
+      |                  ^~~~~~~~~
+      |                  |
+      |                  size_t * {aka unsigned int *}
+/workdir/ripe/src/ripe_attack_generator.c:65:26: note: expected 'uint32_t' {aka 'unsigned int'} but argument is of type 'size_t *' {aka 'unsigned int *'}
+   65 | iof(char * buf, uint32_t iv);
+      |                 ~~~~~~~~~^~
+/workdir/ripe/src/ripe_attack_generator.c: In function 'set_low_buf':
+/workdir/ripe/src/ripe_attack_generator.c:1032:10: warning: assignment to 'char *' from incompatible pointer type 'char (*)[1024]' [-Wincompatible-pointer-types]
+ 1032 |     *buf = &low_buf;
+      |          ^
+/workdir/ripe/src/ripe_attack_generator.c: In function 'build_shellcode':
+/workdir/ripe/src/ripe_attack_generator.c:1083:62: warning: pointer to a function used in arithmetic [-Wpointer-arith]
+ 1083 |                 hex_to_string(attack_addr, &shellcode_target + 0x1000);
+      |                                                              ^
+/workdir/ripe/src/ripe_attack_generator.c:1083:62: warning: passing argument 2 of 'hex_to_string' makes integer from pointer without a cast [-Wint-conversion]
+ 1083 |                 hex_to_string(attack_addr, &shellcode_target + 0x1000);
+      |                                            ~~~~~~~~~~~~~~~~~~^~~~~~~~
+      |                                                              |
+      |                                                              void (*)()
+/workdir/ripe/src/ripe_attack_generator.h:180:38: note: expected 'size_t' {aka 'unsigned int'} but argument is of type 'void (*)()'
+  180 | void hex_to_string(char *str, size_t val);
+      |                               ~~~~~~~^~~
+/workdir/ripe/src/ripe_attack_generator.c:1085:44: warning: passing argument 2 of 'hex_to_string' makes integer from pointer without a cast [-Wint-conversion]
+ 1085 |                 hex_to_string(attack_addr, &shellcode_target);
+      |                                            ^~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            void (*)()
+/workdir/ripe/src/ripe_attack_generator.h:180:38: note: expected 'size_t' {aka 'unsigned int'} but argument is of type 'void (*)()'
+  180 | void hex_to_string(char *str, size_t val);
+      |                               ~~~~~~~^~~
+/workdir/ripe/src/ripe_attack_generator.c: In function 'set_low_buf':
+/workdir/ripe/src/ripe_attack_generator.c:1032:10: warning: storing the address of local variable 'low_buf' in '*buf' [-Wdangling-pointer=]
+ 1032 |     *buf = &low_buf;
+      |     ~~~~~^~~~~~~~~~
+/workdir/ripe/src/ripe_attack_generator.c:1028:10: note: 'low_buf' declared here
+ 1028 |     char low_buf[1024];
+      |          ^~~~~~~
+/workdir/ripe/src/ripe_attack_generator.c:1028:10: note: 'buf' declared here
+In file included from /opt/toolchains/zephyr-sdk-0.15.1/riscv64-zephyr-elf/riscv64-zephyr-elf/sys-include/string.h:180,
+                 from /workdir/ripe/src/ripe_attack_generator.h:40:
+/workdir/ripe/src/ripe_attack_generator.c: In function 'data_leak':
+/workdir/ripe/src/ripe_attack_generator.c:1054:25: warning: starting memcpy after beginning of buffer will result in a crash on the CV32A6 processor [-Woverflow]
+ 1054 |         memcpy(msg, buf + 2, size);
+      |                     ~~~~^~~
+[94/104] Linking C executable zephyr/zephyr_pre0.elf
+
+[98/104] Linking C executable zephyr/zephyr_pre1.elf
+
+[104/104] Linking C executable zephyr/zephyr.elf
+Memory region         Used Size  Region Size  %age Used
+             RAM:       47176 B         1 GB      0.00%
+        IDT_LIST:          0 GB         2 KB      0.00%

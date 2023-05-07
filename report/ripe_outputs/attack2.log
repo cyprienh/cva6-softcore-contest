@@ -1,0 +1,23 @@
+*** Booting Zephyr OS build zephyr-v3.2.0-327-g869365ab012b  ***
+RIPE is alive! cv32a6_zybo
+RIPE parameters:
+technique       direct
+inject param    shellcode
+code pointer    funcptrstackvar
+location        stack
+function        memcpy
+----------------
+Shellcode instructions:
+lui t1,  0x80001                     80001337
+addi t1, t1, 0xb1c                   b1c30313
+jalr t1                              000300e7
+----------------
+target_addr == 0x8000aeac
+buffer == 0x8000aa80
+payload size == 1073
+bytes to pad: 1056
+
+overflow_ptr: 0x8000aa80
+payload: 7
+
+Executing attack...

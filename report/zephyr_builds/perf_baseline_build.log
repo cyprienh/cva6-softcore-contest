@@ -1,0 +1,59 @@
+-- west build: making build dir /workdir/build pristine
+-- west build: generating a build system
+Loading Zephyr default modules (Zephyr base).
+-- Application: /workdir/perf_baseline
+-- Found Python3: /usr/bin/python3.8 (found suitable exact version "3.8.10") found components: Interpreter 
+-- Cache files will be written to: /workdir/zephyr/.cache
+-- Zephyr version: 3.2.99 (/workdir/zephyr)
+-- Found west (found suitable version "0.14.0", minimum required is "0.7.1")
+-- Board: cv32a6_zybo
+-- Found host-tools: zephyr 0.15.1 (/opt/toolchains/zephyr-sdk-0.15.1)
+-- Found toolchain: zephyr 0.15.1 (/opt/toolchains/zephyr-sdk-0.15.1)
+-- Found Dtc: /opt/toolchains/zephyr-sdk-0.15.1/sysroots/x86_64-pokysdk-linux/usr/bin/dtc (found suitable version "1.6.0", minimum required is "1.4.6") 
+-- Found BOARD.dts: /workdir/zephyr/boards/riscv/cv32a6_zybo/cv32a6_zybo.dts
+node '/cpus/cpu@0' compatible 'ohwg,cva6' has unknown vendor prefix 'ohwg'
+node '/soc' compatible 'eth,cva6-bare-soc' has unknown vendor prefix 'eth'
+-- Generated zephyr.dts: /workdir/build/zephyr/zephyr.dts
+-- Generated devicetree_generated.h: /workdir/build/zephyr/include/generated/devicetree_generated.h
+-- Including generated dts.cmake file: /workdir/build/zephyr/dts.cmake
+Parsing /workdir/zephyr/Kconfig
+Loaded configuration '/workdir/zephyr/boards/riscv/cv32a6_zybo/cv32a6_zybo_defconfig'
+Merged configuration '/workdir/perf_baseline/prj.conf'
+Configuration saved to '/workdir/build/zephyr/.config'
+Kconfig header saved to '/workdir/build/zephyr/include/generated/autoconf.h'
+
+warning: The choice symbol BOARD_CV32A6_ZYBO (defined at boards/riscv/cv32a6_zybo/Kconfig.board:3)
+was selected (set =y), but no symbol ended up as the choice selection. See
+http://docs.zephyrproject.org/latest/kconfig.html#CONFIG_BOARD_CV32A6_ZYBO and/or look up
+BOARD_CV32A6_ZYBO in the menuconfig/guiconfig interface. The Application Development Primer, Setting
+Configuration Values, and Kconfig - Tips and Best Practices sections of the manual might be helpful
+too.
+
+-- The C compiler identification is GNU 12.1.0
+-- The CXX compiler identification is GNU 12.1.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /opt/toolchains/zephyr-sdk-0.15.1/riscv64-zephyr-elf/bin/riscv64-zephyr-elf-gcc
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /workdir/build
+-- west build: building application
+[1/106] Preparing syscall dependency handling
+
+[2/106] Generating include/generated/version.h
+-- Zephyr version: 3.2.99 (/workdir/zephyr), build: zephyr-v3.2.0-327-g869365ab012b
+[17/106] Building C object CMakeFiles/app.dir/src/testapp.c.obj
+/workdir/perf_baseline/src/testapp.c: In function 'main':
+/workdir/perf_baseline/src/testapp.c:56:67: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'uint64_t' {aka 'long long unsigned int'} [-Wformat=]
+   56 |    fprintf(stdout,"SUCCESS: computed value %f - duration: %f sec %u cycles\n", sum, total_cycles/FREQ, total_cycles);
+      |                                                                  ~^                                    ~~~~~~~~~~~~
+      |                                                                   |                                    |
+      |                                                                   unsigned int                         uint64_t {aka long long unsigned int}
+      |                                                                  %llu
+[96/106] Linking C executable zephyr/zephyr_pre0.elf
+
+[100/106] Linking C executable zephyr/zephyr_pre1.elf
+
+[106/106] Linking C executable zephyr/zephyr.elf
+Memory region         Used Size  Region Size  %age Used
+             RAM:       61952 B         1 GB      0.01%
+        IDT_LIST:          0 GB         2 KB      0.00%
