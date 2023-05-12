@@ -1,20 +1,29 @@
-/* 
-  Authors: 
-  - Emily Holmes <holmes@insa-toulouse.fr>
-  - Cyprien Heusse <heusse@insa-toulouse.fr>
-  - Maïlis Dy <mdy@insa-toulouse.fr>
-  - Arthur Gautheron <gauthero@insa-toulouse.fr>
-  INSA Toulouse
-  Date: 17.04.2023
-  Description: Circular buffer to store overflow intervals
-  Intervals are stored in 64-bit vectors, with indexes [64:32] for the first address
-                                                       [31:0]  for the last address 
-  When buffer is full, write over oldest entry (LIFO)
-*/
+// Copyright 2023 INSA Toulouse.
+// Copyright and related rights are licensed under the Solderpad Hardware
+// License, Version 2.0 (the "License"); you may not use this file except in
+// compliance with the License.  You may obtain a copy of the License at
+// http://solderpad.org/licenses/SHL-2.0. Unless required by applicable law
+// or agreed to in writing, software, hardware and materials distributed under
+// this License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the
+// specific language governing permissions and limitations under the License.
+//
+// Authors: 
+//    - Emily Holmes <holmes@insa-toulouse.fr>
+//    - Cyprien Heusse <heusse@insa-toulouse.fr>
+//    - Maïlis Dy <mdy@insa-toulouse.fr>
+//    - Arthur Gautheron <gauthero@insa-toulouse.fr>
+//    INSA Toulouse
+// Date: 17.04.2023
+// Description: Circular buffer to store overflow intervals
+//    Intervals are stored in 64-bit vectors, with indexes [64:32] for the first address
+//                                                         [31:0]  for the last address 
+//    When buffer is full, write over oldest entry (LIFO)
+
 
 module circular_buffer
 #(
-  parameter SIZE = 4)                  // buffer holds SIZE intervals
+  parameter SIZE = 4)                   // buffer holds SIZE intervals
 (
   input  logic       clk_i,
   input  logic       rst_ni,
