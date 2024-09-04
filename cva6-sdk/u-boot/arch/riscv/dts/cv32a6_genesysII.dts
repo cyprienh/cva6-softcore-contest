@@ -5,6 +5,9 @@
   #size-cells = <2>;
   compatible = "eth,ariane-bare-dev";
   model = "eth,ariane-bare";
+  chosen {
+    stdout-path = "/soc/uart@10000000:115200";
+  };
   cpus {
     #address-cells = <1>;
     #size-cells = <0>;
@@ -29,30 +32,6 @@
   memory@80000000 {
     device_type = "memory";
     reg = <0x0 0x80000000 0x0 0x40000000>;
-  };
-  reserved-memory {
-    #address-cells = <2>;
-    #size-cells = <2>;
-    ranges;
- 
-    reserved: buffer@0 {
-      no-map;
-      reg = <0x0 0xa0000000 0x0 0x10000000>;
-    };
-  };
-  chosen {
-    stdout-path = "/soc/uart@10000000:115200";
-    #address-cells = <0x1>;
-    #size-cells = <0x1>;
-    ranges;
-    vga0: vga@a0000000 {
-      compatible = "cvga-framebuffer";
-    
-      reg = <0xa0000000 (640*480*2)>, <0x50000000 0x1000>;  width = <640>; height = <480>; stride = <(640*2)>; vga_mode = <0>;
-      format = "r5g6b5";
-      clock-frequency = <50000000>;
-      memory-region = <&reserved>;
-    };
   };
   L26: soc {
     #address-cells = <2>;
